@@ -7,6 +7,7 @@ import importlib
 import math
 import threading
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar, Protocol
 
@@ -21,6 +22,16 @@ class SpoofDetectionError(ModelInferenceError):
 class AasistRuntimeProtocol(Protocol):
     def logits(self, samples: Sequence[float]) -> tuple[float, float]:
         """Return upstream logits ordered as spoof, bonafide."""
+
+    def logits_batch(self, samples: Sequence[Sequence[float]]) -> tuple[tuple[float, float], ...]:
+        """Return one upstream logit pair for every waveform."""
+
+
+@dataclass(frozen=True, slots=True)
+class AasistModelScore:
+    spoof_logit: float
+    bonafide_logit: float
+    spoof_probability: float
 
 
 class AasistRuntime:
@@ -52,17 +63,25 @@ class AasistRuntime:
         self._load_lock = threading.Lock()
 
     def logits(self, samples: Sequence[float]) -> tuple[float, float]:
+        return self.logits_batch((samples,))[0]
+
+    def logits_batch(self, samples: Sequence[Sequence[float]]) -> tuple[tuple[float, float], ...]:
+        if not samples:
+            raise SpoofDetectionError("AASIST batch cannot be empty")
         self._ensure_loaded()
         assert self._torch is not None
         assert self._model is not None
-        waveform = self._torch.tensor(samples, dtype=self._torch.float32).unsqueeze(0)
-        waveform = waveform.to(self._device)
+        waveforms = self._torch.tensor(samples, dtype=self._torch.float32).to(self._device)
         with self._torch.inference_mode():
-            _, output = self._model(waveform)
-        values = output.squeeze(0).detach().cpu().tolist()
-        if not isinstance(values, list) or len(values) != 2:
+            _, output = self._model(waveforms)
+        values = output.detach().cpu().tolist()
+        if (
+            not isinstance(values, list)
+            or len(values) != len(samples)
+            or any(not isinstance(item, list) or len(item) != 2 for item in values)
+        ):
             raise SpoofDetectionError("AASIST returned an invalid output shape")
-        return float(values[0]), float(values[1])
+        return tuple((float(item[0]), float(item[1])) for item in values)
 
     def _ensure_loaded(self) -> None:
         if self._model is not None:
@@ -120,22 +139,49 @@ class AasistSpoofDetector:
         return self.MODEL_ID
 
     def spoof_probability(self, audio: AudioBuffer) -> float:
-        if audio.sample_rate != self.EXPECTED_SAMPLE_RATE:
-            raise SpoofDetectionError("AASIST input must be sampled at 16 kHz")
-        samples = _repeat_or_truncate(audio.samples, self.INPUT_SAMPLES)
+        return self.score(audio).spoof_probability
+
+    def score(self, audio: AudioBuffer) -> AasistModelScore:
+        samples = self._prepare(audio)
         try:
-            spoof_logit, bonafide_logit = self._runtime.logits(samples)
+            logits = self._runtime.logits(samples)
         except SpoofDetectionError:
             raise
         except Exception as error:
             raise SpoofDetectionError("AASIST inference failed") from error
-        if not math.isfinite(spoof_logit) or not math.isfinite(bonafide_logit):
-            raise SpoofDetectionError("AASIST returned non-finite logits")
+        return _model_score(*logits)
 
-        maximum = max(spoof_logit, bonafide_logit)
-        spoof_weight = math.exp(spoof_logit - maximum)
-        bonafide_weight = math.exp(bonafide_logit - maximum)
-        return spoof_weight / (spoof_weight + bonafide_weight)
+    def score_batch(self, audio: Sequence[AudioBuffer]) -> tuple[AasistModelScore, ...]:
+        if not audio:
+            raise SpoofDetectionError("AASIST batch cannot be empty")
+        samples = tuple(self._prepare(item) for item in audio)
+        try:
+            logits = self._runtime.logits_batch(samples)
+        except SpoofDetectionError:
+            raise
+        except Exception as error:
+            raise SpoofDetectionError("AASIST batch inference failed") from error
+        if len(logits) != len(samples):
+            raise SpoofDetectionError("AASIST returned an invalid batch size")
+        return tuple(_model_score(*item) for item in logits)
+
+    def _prepare(self, audio: AudioBuffer) -> tuple[float, ...]:
+        if audio.sample_rate != self.EXPECTED_SAMPLE_RATE:
+            raise SpoofDetectionError("AASIST input must be sampled at 16 kHz")
+        return _repeat_or_truncate(audio.samples, self.INPUT_SAMPLES)
+
+
+def _model_score(spoof_logit: float, bonafide_logit: float) -> AasistModelScore:
+    if not math.isfinite(spoof_logit) or not math.isfinite(bonafide_logit):
+        raise SpoofDetectionError("AASIST returned non-finite logits")
+    maximum = max(spoof_logit, bonafide_logit)
+    spoof_weight = math.exp(spoof_logit - maximum)
+    bonafide_weight = math.exp(bonafide_logit - maximum)
+    return AasistModelScore(
+        spoof_logit=spoof_logit,
+        bonafide_logit=bonafide_logit,
+        spoof_probability=spoof_weight / (spoof_weight + bonafide_weight),
+    )
 
 
 def _repeat_or_truncate(samples: Sequence[float], target: int) -> tuple[float, ...]:

@@ -25,6 +25,12 @@ class RecordingRuntime:
         self.received = tuple(samples)
         return self.output
 
+    def logits_batch(
+        self, samples: tuple[tuple[float, ...], ...]
+    ) -> tuple[tuple[float, float], ...]:
+        self.received_batch = tuple(tuple(item) for item in samples)
+        return tuple(self.output for _ in samples)
+
 
 def audio(sample_count: int = 16_000, sample_rate: int = 16_000) -> AudioBuffer:
     samples = tuple(
@@ -51,6 +57,17 @@ class AasistSpoofDetectorTests(unittest.TestCase):
         probability = AasistSpoofDetector(runtime).spoof_probability(source)
         self.assertLess(probability, 0.02)
         self.assertEqual(runtime.received, source.samples[:64_600])
+
+    def test_scores_batches_with_a_single_runtime_call(self) -> None:
+        runtime = RecordingRuntime((-2.0, 2.0))
+        detector = AasistSpoofDetector(runtime)
+
+        scores = detector.score_batch((audio(16_000), audio(80_000)))
+
+        self.assertEqual(len(scores), 2)
+        self.assertTrue(all(score.spoof_probability < 0.02 for score in scores))
+        self.assertEqual(len(runtime.received_batch), 2)
+        self.assertTrue(all(len(item) == 64_600 for item in runtime.received_batch))
 
     def test_rejects_wrong_sample_rate_and_non_finite_logits(self) -> None:
         detector = AasistSpoofDetector(RecordingRuntime())

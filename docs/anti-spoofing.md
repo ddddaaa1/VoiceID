@@ -7,7 +7,8 @@ VoiceID treats speaker verification and presentation-attack detection as indepen
 - **Step 8A — Countermeasure score contract and metrics:** implemented.
 - **Step 8B — Concrete pretrained detector adapter:** implemented.
 - **Step 8C1 — Official metric and reference-score reproduction:** implemented.
-- **Step 8C2 — End-to-end AASIST corpus evaluation:** pending licensed audio acquisition.
+- **Step 8C2 — End-to-end AASIST corpus evaluation:** the reproducible runner is implemented;
+  measured artifacts remain pending completion of the local corpus run.
 
 The application supports an optional `SpoofDetector` port, safe decision fusion, and an
 integrity-checked adapter for the official pretrained AASIST Logical Access checkpoint. The
@@ -25,6 +26,18 @@ upstream spoof class. Every attempt records the concrete countermeasure model ID
 See the [AASIST model card](models/aasist.md) for provenance, hashes, validation, intended use, and
 limitations. Upstream benchmark figures are not copied into VoiceID results because they do not
 measure this repository's end-to-end pipeline.
+
+For corpus evaluation, the runtime scores batches while preserving the same 64,600-sample input
+recipe. A transactional SQLite ledger commits only complete protocol-order batches, verifies that
+resume state is an exact prefix, and prevents a model, protocol, or pipeline change from reusing
+incompatible scores. The final publisher binds every trial to the SHA-256 of its compressed FLAC
+source and writes artifacts atomically.
+
+VoiceID publishes two score views from the same inference. `spoof_probability` is the stable
+two-class softmax value used by the application contract, where higher means more likely spoof.
+`official_cm_score` is the upstream class-1 bona-fide logit used for ASVspoof comparison, where
+higher means more likely bona fide. The report never silently treats these different rankings as
+the same score.
 
 ## Threat categories
 
@@ -90,10 +103,27 @@ uv run python scripts/evaluate_spoof_scores.py \
 
 The example scores are synthetic contract fixtures, not measured VoiceID anti-spoofing performance.
 
-## Planned public evaluation
+## Official corpus evaluation
 
 Step 8 uses the official [ASVspoof challenge](https://www.asvspoof.org/) protocols. Logical Access
 covers synthetic and voice-converted speech, Physical Access covers replay, and the Deepfake track
 extends generated-speech evaluation under realistic coding conditions. Source protocols and keys
-remain authoritative. The reference-score reproduction freezes hashes and metric lineage; the next
-run must score licensed audio through the VoiceID AASIST pipeline before enabling fusion.
+remain authoritative. ASVspoof 2019 is distributed under ODC-By 1.0 at
+[DOI 10.7488/ds/2555](https://doi.org/10.7488/ds/2555); its 7,640,952,520-byte LA archive has the
+publisher MD5 `30c98f11d8b2bc21f2c257bfd78bb5c5`.
+
+```bash
+uv run python scripts/prepare_asvspoof2019_la.py \
+  data/raw/asvspoof2019/LA.zip \
+  data/raw/asvspoof2019/extracted
+
+uv run python scripts/score_asvspoof2019_la.py \
+  data/raw/asvspoof2019/extracted/LA \
+  --device mps \
+  --batch-size 32 \
+  --output experiments/asvspoof2019-la-aasist-v1
+```
+
+The archive, extracted FLAC files, and restart ledger stay under ignored `data/raw/`. Only
+non-audio evidence artifacts are eligible for Git. Fusion remains disabled until the completed
+report is reviewed against its held-out EER, t-DCF, attack breakdown, and limitations.

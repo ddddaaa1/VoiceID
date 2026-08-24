@@ -34,13 +34,18 @@ VoiceID pipeline on an official, held-out protocol before any operating threshol
 - The upstream output ordering is `(spoof, bonafide)`.
 - VoiceID applies a numerically stable two-class softmax and exposes the spoof-class value in
   `[0, 1]`.
+- Corpus scoring also preserves the raw class-1 bona-fide logit used by the pinned upstream
+  evaluator; it is never presented as a calibrated probability.
+- Batch inference changes throughput only. Each waveform receives the same deterministic padding
+  and an independently recorded score.
 - The model identifier is attached to every attempt on which this adapter runs.
 
 ## Validation in this repository
 
 Automated tests check sample-rate enforcement, exact input sizing, class direction, finite output,
-failure isolation, checkpoint integrity, and a real CPU inference using the packaged official
-weights. This verifies the adapter contract; it does not measure attack-detection accuracy.
+single and batch inference equivalence, failure isolation, checkpoint integrity, and a real CPU
+inference using the packaged official weights. The end-to-end ASVspoof runner additionally checks
+protocol counts, speaker disjointness, source hashes, resumability, and official t-DCF lineage.
 
 ## Known limitations
 

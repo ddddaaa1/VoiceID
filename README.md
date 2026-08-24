@@ -129,6 +129,12 @@ The [ASVspoof 2021 LA reference reproduction](experiments/asvspoof2021-la-refere
 validates VoiceID's EER and normalized t-DCF implementation against 148,176 official baseline-score
 trials. Those organizer-provided scores validate metric compatibility, not VoiceID AASIST accuracy.
 
+The ASVspoof 2019 LA end-to-end runner verifies the publisher archive checksum, safely extracts
+the corpus, validates all official development/evaluation protocol counts, scores FLAC audio in
+batches, resumes through a transactional ledger, and publishes only hash-bound non-audio evidence.
+See the [anti-spoofing protocol](docs/anti-spoofing.md) and the
+[AASIST experiment record](experiments/asvspoof2019-la-aasist-v1/README.md).
+
 ## Reproduce the experiment
 
 The importer, audio runner, metric layer, and strict contracts are available:
@@ -166,6 +172,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0010: Evaluate anti-spoofing independently before tandem fusion](docs/decisions/0010-independent-countermeasure-evaluation.md)
 - [ADR 0011: Preserve a separate waveform for the countermeasure](docs/decisions/0011-preserve-countermeasure-waveform.md)
 - [ADR 0012: Do not retain raw audio by default](docs/decisions/0012-minimize-raw-biometric-retention.md)
+- [ADR 0013: Checkpoint corpus inference without weakening evidence](docs/decisions/0013-checkpoint-corpus-inference.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the
 [ECAPA-TDNN](docs/models/ecapa-tdnn.md) and [AASIST](docs/models/aasist.md) model cards.

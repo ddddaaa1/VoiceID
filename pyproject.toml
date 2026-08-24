@@ -12,6 +12,7 @@ license-files = ["LICENSES/*"]
 [project.optional-dependencies]
 ml = [
     "numpy>=2.3,<3",
+    "soundfile>=0.13,<0.14",
     "speechbrain>=1.1,<1.2",
     "torch>=2.11,<2.12",
     "torchaudio>=2.11,<2.12",

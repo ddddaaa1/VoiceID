@@ -49,7 +49,7 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
   - [ ] **Step 8C — ASVspoof and tandem evaluation**
     Score official protocols, calculate countermeasure EER and t-DCF, publish limitations, and enable fusion only if evidence supports it.
     - [x] Reproduce official ASVspoof 2021 LA baseline scores and validate EER/t-DCF.
-    - [ ] Score the licensed corpus end to end with the VoiceID AASIST adapter.
+    - [ ] Score the open ODC-By corpus end to end with the VoiceID AASIST adapter.
 
 ## Product infrastructure
 
@@ -67,9 +67,9 @@ Step 7 is complete. The first measured LibriSpeech clean report freezes its non-
 
 Step 8B integrates an integrity-checked AASIST adapter while preserving a separate, non-normalized
 countermeasure waveform and the default API's explicit `spoof_check_not_run` state. The current
-increment is Step 8C: the official reference-score reproduction is complete, while the end-to-end
-AASIST run awaits explicit acquisition of the separately licensed 7.12 GB LA audio archive. Policy
-fusion remains disabled.
+increment is Step 8C: the official reference-score reproduction and the hash-locked, restart-safe
+corpus runner are complete, while the end-to-end AASIST measurement is being produced from the
+open ODC-By 7.12 GB LA archive. Policy fusion remains disabled.
 
 Step 9 adds an AES-256-GCM encrypted, consent-gated SQLite reference deployment, transactional
 revocation and retention, HMAC-linked audit records, and a single-node rate limiter. It also freezes
@@ -79,5 +79,5 @@ final delivered infrastructure increment.
 Step 10 adds a hardened Docker/Compose deployment, GitHub Actions and dependency updates, a strict
 hash-verified model release registry, pinned ECAPA lineage, Prometheus-compatible request metrics,
 aggregate score-drift monitoring, and an immutable-image rollback runbook. The ten-step engineering
-roadmap has reached its final implementation step; the separately licensed end-to-end AASIST
-dataset run remains an evidence gate and anti-spoofing stays disabled.
+roadmap has reached its final infrastructure step; the end-to-end AASIST dataset run remains an
+evidence gate and anti-spoofing stays disabled.

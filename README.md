@@ -40,6 +40,8 @@ See [the architecture document](docs/architecture.md) for component boundaries, 
 
 - Browser-based UX prototype with local audio processing.
 - Python core for robust enrollment, cosine scoring, and anti-spoofing decision fusion.
+- Defensive PCM WAVE decoding, 16 kHz resampling, signal normalization, and quality analysis.
+- Replaceable energy-based VAD baseline with explicit speech segments.
 - Unit tests covering the biometric decision engine.
 - Target architecture and incremental roadmap.
 
@@ -66,6 +68,12 @@ python3 -m unittest discover -s tests -v
 ## Next milestone
 
 Build an inference adapter around a pretrained ECAPA-TDNN model, extract real speaker embeddings, and produce a reproducible VoxCeleb benchmark before connecting model inference to the web interface.
+
+## Engineering decisions
+
+Important tradeoffs are recorded as Architecture Decision Records:
+
+- [ADR 0001: Use a replaceable audio preprocessing pipeline](docs/decisions/0001-replaceable-audio-pipeline.md)
 
 ## Technical references
 

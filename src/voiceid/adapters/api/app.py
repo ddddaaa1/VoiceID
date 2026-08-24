@@ -5,14 +5,23 @@ from __future__ import annotations
 from pathlib import Path as FileSystemPath
 from typing import Annotated
 
-from fastapi import FastAPI, File, Path, Request, UploadFile
+from fastapi import FastAPI, File, Path, Query, Request, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 
 from .container import ServiceContainer, build_default_container
-from .errors import error_response, register_error_handlers
-from .schemas import EnrollmentResponse, ErrorResponse, HealthResponse, VerificationResponse
+from .errors import ApiError, error_response, register_error_handlers
+from .rate_limit import FixedWindowRateLimiter
+from .schemas import (
+    ConsentRequest,
+    ConsentResponse,
+    EnrollmentResponse,
+    ErrorResponse,
+    HealthResponse,
+    RevocationResponse,
+    VerificationResponse,
+)
 from .uploads import read_upload, read_uploads
 
 API_VERSION = "v1"
@@ -33,6 +42,7 @@ ERROR_RESPONSES = {
     413: {"model": ErrorResponse},
     415: {"model": ErrorResponse},
     422: {"model": ErrorResponse},
+    429: {"model": ErrorResponse},
 }
 
 
@@ -53,6 +63,10 @@ def create_app(
         openapi_url="/openapi.json",
     )
     app.state.container = container or build_default_container()
+    app.state.rate_limiter = FixedWindowRateLimiter(
+        app.state.container.settings.rate_limit_requests,
+        app.state.container.settings.rate_limit_window_seconds,
+    )
     register_error_handlers(app)
 
     if not (web_directory / "index.html").is_file():
@@ -65,6 +79,17 @@ def create_app(
 
     @app.middleware("http")
     async def enforce_content_length(request: Request, call_next):
+        if request.url.path.startswith("/api/v1/") and request.method != "GET":
+            client_host = request.client.host if request.client is not None else "unknown"
+            allowed, retry_after = app.state.rate_limiter.consume(client_host)
+            if not allowed:
+                response = error_response(
+                    429,
+                    "rate_limit_exceeded",
+                    "Too many requests; retry later.",
+                )
+                response.headers["Retry-After"] = str(retry_after)
+                return response
         content_length = request.headers.get("content-length")
         if content_length is not None:
             try:
@@ -103,6 +128,63 @@ def create_app(
             verification_policy_id=services.verification_policy_id,
             anti_spoofing_enabled=services.anti_spoofing_enabled,
         )
+
+    @app.post(
+        "/api/v1/identities/{identity_id}/consent",
+        response_model=ConsentResponse,
+        status_code=201,
+        responses=ERROR_RESPONSES,
+        tags=["identity governance"],
+    )
+    async def grant_consent(
+        identity_id: IdentityPath,
+        request: ConsentRequest,
+    ) -> ConsentResponse:
+        services: ServiceContainer = app.state.container
+        if services.governance is None:
+            raise ApiError(
+                409,
+                "governance_not_configured",
+                "Durable identity governance is not configured for this process.",
+            )
+        try:
+            grant = await run_in_threadpool(
+                services.governance.grant_consent,
+                identity_id,
+                purpose=request.purpose,
+                notice_version=request.notice_version,
+                expires_at=request.expires_at,
+            )
+        except ValueError as error:
+            raise ApiError(422, "invalid_consent", str(error)) from error
+        return ConsentResponse.from_grant(grant)
+
+    @app.delete(
+        "/api/v1/identities/{identity_id}",
+        response_model=RevocationResponse,
+        responses=ERROR_RESPONSES,
+        tags=["identity governance"],
+    )
+    async def revoke_identity(
+        identity_id: IdentityPath,
+        reason: str = Query(min_length=1, max_length=200),
+    ) -> RevocationResponse:
+        services: ServiceContainer = app.state.container
+        if services.governance is None:
+            raise ApiError(
+                409,
+                "governance_not_configured",
+                "Durable identity governance is not configured for this process.",
+            )
+        try:
+            result = await run_in_threadpool(
+                services.governance.revoke_identity,
+                identity_id,
+                reason=reason,
+            )
+        except ValueError as error:
+            raise ApiError(422, "invalid_revocation", str(error)) from error
+        return RevocationResponse.from_result(result)
 
     @app.post(
         "/api/v1/identities/{identity_id}/enroll",

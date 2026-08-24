@@ -9,7 +9,9 @@ uv sync --extra ml --extra api --extra dev
 uv run uvicorn voiceid.adapters.api.app:app --host 127.0.0.1 --port 8000
 ```
 
-The default process uses in-memory template persistence. Restarting the process removes every enrolled identity.
+The default process uses in-memory template persistence. Restarting the process removes every
+enrolled identity. The [durable deployment guide](persistence.md) describes the consent-gated,
+AES-256-GCM encrypted SQLite mode and its key-management requirements.
 
 ## Web client
 
@@ -37,6 +39,10 @@ curl -X POST http://127.0.0.1:8000/api/v1/identities/demo-user/enroll \
 ```
 
 Successful enrollment returns `201 Created` with template metadata and any discarded sample indices. The response never contains the voice embedding.
+
+Durable mode first requires `POST /api/v1/identities/{identity_id}/consent` with a purpose, privacy
+notice version, and expiration. `DELETE /api/v1/identities/{identity_id}?reason=user_request`
+atomically revokes active consent and templates.
 
 ## Verify an identity
 
@@ -99,7 +105,8 @@ The application enforces limits while reading spooled uploads and checks `Conten
 ## Current constraints
 
 - Accepted inputs are bounded 16-bit PCM WAVE files.
-- There is no authentication or rate limiting yet.
+- There is no authentication yet. A single-node per-client rate limit is enforced, but a trusted
+  ingress and shared limiter are required for multi-node deployment.
 - Templates are stored only in process memory.
 - Raw audio is not intentionally persisted, although the multipart implementation may spool request data to temporary storage while handling a request.
 - `provisional-cosine-v1` has not been calibrated against VoiceID evaluation data.

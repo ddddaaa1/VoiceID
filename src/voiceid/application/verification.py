@@ -13,7 +13,7 @@ from voiceid.domain.enrollment import VoiceTemplate
 from voiceid.domain.models import Decision, VerificationPolicy, VerificationResult
 from voiceid.domain.scoring import cosine_similarity
 from voiceid.ports.models import ModelInferenceError, SpeakerEmbedder, SpoofDetector
-from voiceid.ports.repositories import VoiceTemplateRepository
+from voiceid.ports.repositories import ConsentRepository, VoiceTemplateRepository
 
 from .enrollment import PreprocessingService
 
@@ -45,6 +45,7 @@ class VerificationService:
         embedder: SpeakerEmbedder,
         repository: VoiceTemplateRepository,
         *,
+        consent_repository: ConsentRepository | None = None,
         spoof_detector: SpoofDetector | None = None,
         policy: VerificationPolicy | None = None,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
@@ -53,6 +54,7 @@ class VerificationService:
         self._preprocessor = preprocessor
         self._embedder = embedder
         self._repository = repository
+        self._consent_repository = consent_repository
         self._spoof_detector = spoof_detector
         self._policy = policy or VerificationPolicy()
         self._clock = clock
@@ -62,6 +64,10 @@ class VerificationService:
         identity_id = identity_id.strip()
         if not identity_id:
             raise VerificationUnavailable("identity_id_required")
+        if self._consent_repository is not None and not self._consent_repository.has_active(
+            identity_id, self._clock()
+        ):
+            raise VerificationUnavailable("active_consent_required")
 
         template = self._repository.get_active(identity_id)
         if template is None:

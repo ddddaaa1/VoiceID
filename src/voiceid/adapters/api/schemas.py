@@ -4,14 +4,19 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from voiceid.application.enrollment import EnrollmentResult
 from voiceid.application.verification import VerificationAttempt
+from voiceid.domain.governance import ConsentGrant, RevocationResult
 from voiceid.domain.models import Decision
 
 
 class StrictResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class StrictRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
@@ -93,6 +98,36 @@ class VerificationResponse(StrictResponse):
             spoof_probability=attempt.result.spoof_probability,
             reasons=list(attempt.result.reasons),
         )
+
+
+class ConsentRequest(StrictRequest):
+    purpose: str = Field(min_length=1, max_length=200)
+    notice_version: str = Field(min_length=1, max_length=100)
+    expires_at: datetime
+
+
+class ConsentResponse(StrictResponse):
+    consent_id: str
+    identity_id: str
+    purpose: str
+    notice_version: str
+    granted_at: datetime
+    expires_at: datetime
+
+    @classmethod
+    def from_grant(cls, grant: ConsentGrant) -> ConsentResponse:
+        return cls(**{field: getattr(grant, field) for field in cls.model_fields})
+
+
+class RevocationResponse(StrictResponse):
+    identity_id: str
+    revoked_templates: int
+    revoked_consents: int
+    revoked_at: datetime
+
+    @classmethod
+    def from_result(cls, result: RevocationResult) -> RevocationResponse:
+        return cls(**{field: getattr(result, field) for field in cls.model_fields})
 
 
 class ErrorDetail(StrictResponse):

@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from voiceid.adapters.audio.energy_vad import EnergyVoiceActivityDetector
 from voiceid.adapters.audio.wave_decoder import PcmWaveDecoder
 from voiceid.adapters.models.speechbrain_ecapa import SpeechBrainEcapaEmbedder
 from voiceid.adapters.repositories.memory import InMemoryVoiceTemplateRepository
+from voiceid.adapters.repositories.sqlite import AesGcmCipher, SqliteBiometricRepository
 from voiceid.application.enrollment import EnrollmentService
+from voiceid.application.governance import IdentityGovernanceService
 from voiceid.application.preprocessing import AudioPreprocessor
 from voiceid.application.verification import VerificationService
 from voiceid.domain.models import VerificationPolicy
@@ -20,6 +23,8 @@ class ApiSettings:
     max_total_upload_bytes: int = 40_000_000
     max_request_bytes: int = 42_000_000
     max_enrollment_files: int = 8
+    rate_limit_requests: int = 60
+    rate_limit_window_seconds: float = 60.0
     allowed_content_types: frozenset[str] = field(
         default_factory=lambda: frozenset(
             {"audio/wav", "audio/x-wav", "audio/wave", "application/octet-stream"}
@@ -39,6 +44,8 @@ class ApiSettings:
             raise ValueError("request limit cannot be lower than the total upload limit")
         if self.max_enrollment_files <= 0:
             raise ValueError("max_enrollment_files must be positive")
+        if self.rate_limit_requests <= 0 or self.rate_limit_window_seconds <= 0:
+            raise ValueError("rate-limit settings must be positive")
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,6 +58,7 @@ class ServiceContainer:
     spoof_model_id: str | None = None
     verification_policy_id: str = "provisional-cosine-v1"
     anti_spoofing_enabled: bool = False
+    governance: IdentityGovernanceService | None = None
 
 
 def build_default_container() -> ServiceContainer:
@@ -68,4 +76,45 @@ def build_default_container() -> ServiceContainer:
         ),
         speaker_model_id=embedder.model_id,
         verification_policy_id=policy.policy_id,
+    )
+
+
+def build_durable_container(
+    database_path: Path,
+    *,
+    template_encryption_key: bytes,
+    audit_hmac_key: bytes,
+    settings: ApiSettings | None = None,
+) -> ServiceContainer:
+    """Build a consent-gated, encrypted single-node deployment container."""
+
+    preprocessor = AudioPreprocessor(PcmWaveDecoder(), EnergyVoiceActivityDetector())
+    embedder = SpeechBrainEcapaEmbedder()
+    repository = SqliteBiometricRepository(
+        database_path,
+        AesGcmCipher(template_encryption_key),
+        audit_hmac_key=audit_hmac_key,
+    )
+    repository.initialize()
+    policy = VerificationPolicy()
+    governance = IdentityGovernanceService(repository, repository)
+    return ServiceContainer(
+        enrollment=EnrollmentService(
+            preprocessor,
+            embedder,
+            repository,
+            consent_repository=repository,
+        ),
+        verification=VerificationService(
+            preprocessor,
+            embedder,
+            repository,
+            consent_repository=repository,
+            policy=policy,
+        ),
+        settings=settings or ApiSettings(),
+        persistence="encrypted-sqlite-v1",
+        speaker_model_id=embedder.model_id,
+        verification_policy_id=policy.policy_id,
+        governance=governance,
     )

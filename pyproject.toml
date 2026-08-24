@@ -21,6 +21,9 @@ api = [
     "python-multipart>=0.0.32,<0.1",
     "uvicorn>=0.52,<0.53",
 ]
+persistence = [
+    "cryptography>=50,<51",
+]
 dev = [
     "httpx2>=2.10,<3",
     "ruff>=0.12,<1",

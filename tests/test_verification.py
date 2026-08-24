@@ -64,6 +64,11 @@ class FakeSpoofDetector:
         return self.probability
 
 
+class DeniedConsentRepository:
+    def has_active(self, identity_id: str, at: datetime) -> bool:
+        return False
+
+
 def template(*, model_id: str = "fake-ecapa-v1") -> VoiceTemplate:
     return VoiceTemplate(
         template_id="template-1",
@@ -150,6 +155,13 @@ class VerificationServiceTests(unittest.TestCase):
     def test_rejects_an_unknown_identity_before_inference(self) -> None:
         with self.assertRaisesRegex(VerificationUnavailable, "active_template_not_found"):
             self.service().verify("missing", b"\x01")
+
+    def test_requires_active_consent_when_governance_is_configured(self) -> None:
+        with self.assertRaises(VerificationUnavailable) as raised:
+            self.service(consent_repository=DeniedConsentRepository()).verify(
+                "identity-1", b"\x01"
+            )
+        self.assertEqual(raised.exception.code, "active_consent_required")
 
     def test_rejects_invalid_audio_and_model_incompatibility(self) -> None:
         with self.assertRaisesRegex(VerificationUnavailable, "invalid_audio"):

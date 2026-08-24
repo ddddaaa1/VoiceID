@@ -12,7 +12,7 @@ from voiceid.domain.decision import evaluate_quality
 from voiceid.domain.enrollment import EnrollmentPolicy, VoiceTemplate
 from voiceid.domain.scoring import build_robust_voice_template
 from voiceid.ports.models import ModelInferenceError, SpeakerEmbedder
-from voiceid.ports.repositories import VoiceTemplateRepository
+from voiceid.ports.repositories import ConsentRepository, VoiceTemplateRepository
 
 from .preprocessing import PreprocessingResult
 
@@ -55,6 +55,7 @@ class EnrollmentService:
         embedder: SpeakerEmbedder,
         repository: VoiceTemplateRepository,
         *,
+        consent_repository: ConsentRepository | None = None,
         policy: EnrollmentPolicy | None = None,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
         id_factory: Callable[[], str] = lambda: str(uuid.uuid4()),
@@ -62,6 +63,7 @@ class EnrollmentService:
         self._preprocessor = preprocessor
         self._embedder = embedder
         self._repository = repository
+        self._consent_repository = consent_repository
         self._policy = policy or EnrollmentPolicy()
         self._clock = clock
         self._id_factory = id_factory
@@ -70,6 +72,11 @@ class EnrollmentService:
         identity_id = identity_id.strip()
         if not identity_id:
             raise EnrollmentRejected("identity_id_required")
+        now = self._clock()
+        if self._consent_repository is not None and not self._consent_repository.has_active(
+            identity_id, now
+        ):
+            raise EnrollmentRejected("active_consent_required")
         if len(samples) < self._policy.min_samples:
             raise EnrollmentRejected("insufficient_submitted_samples")
         if len(samples) > self._policy.max_samples:
@@ -130,7 +137,7 @@ class EnrollmentService:
             pipeline_id=self._preprocessor.pipeline_id,
             version=1 if current is None else current.version + 1,
             sample_count=len(build.retained_indices),
-            created_at=self._clock(),
+            created_at=now,
         )
         self._repository.save(template)
         return EnrollmentResult(template, tuple(sorted(issues, key=lambda item: item.sample_index)))

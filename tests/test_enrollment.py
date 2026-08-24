@@ -50,6 +50,11 @@ class FakeEmbedder:
         return EMBEDDINGS[key]
 
 
+class DeniedConsentRepository:
+    def has_active(self, identity_id: str, at: datetime) -> bool:
+        return False
+
+
 class EnrollmentServiceTests(unittest.TestCase):
     def setUp(self) -> None:
         self.repository = InMemoryVoiceTemplateRepository()
@@ -114,6 +119,17 @@ class EnrollmentServiceTests(unittest.TestCase):
     def test_requires_an_identity_id(self) -> None:
         with self.assertRaisesRegex(EnrollmentRejected, "identity_id_required"):
             self.service.enroll("  ", [b"\x01", b"\x02", b"\x03"])
+
+    def test_requires_active_consent_when_governance_is_configured(self) -> None:
+        service = EnrollmentService(
+            FakePreprocessor(),
+            FakeEmbedder(),
+            self.repository,
+            consent_repository=DeniedConsentRepository(),
+        )
+        with self.assertRaises(EnrollmentRejected) as raised:
+            service.enroll("identity-1", [b"\x01", b"\x02", b"\x03"])
+        self.assertEqual(raised.exception.code, "active_consent_required")
 
 
 if __name__ == "__main__":

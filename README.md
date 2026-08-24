@@ -56,6 +56,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Versioned anti-spoofing score protocol with leakage checks, calibration, uncertainty, and attack-level reporting.
 - Integrity-checked AASIST adapter with isolated waveform preprocessing and explicit model lineage.
 - Official ASVspoof 2021 LA reference-score reproduction with independently validated EER and t-DCF.
+- Consent-gated encrypted persistence with revocation, retention, tamper-evident audit, and rate limits.
 - Target architecture and incremental roadmap.
 
 The system remains experimental. Its first small clean-speech calibration report is published, but the evidence is insufficient to replace the provisional application policy and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
@@ -102,6 +103,8 @@ uv run uvicorn voiceid.adapters.api.app:app --host 127.0.0.1 --port 8000
 Open `http://127.0.0.1:8000` for the microphone workflow. Localhost is a secure browser context, so microphone capture is available after permission is granted. The interactive API contract remains at `http://127.0.0.1:8000/docs`.
 
 Read the [web workflow guide](docs/web.md) and [HTTP API guide](docs/api.md) for implementation details and limitations.
+For restart-safe local operation, key management, consent, and revocation, read the
+[durable persistence guide](docs/persistence.md).
 
 ## Run the tests
 
@@ -155,6 +158,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0009: Report Wilson intervals for locked-threshold error rates](docs/decisions/0009-wilson-error-rate-intervals.md)
 - [ADR 0010: Evaluate anti-spoofing independently before tandem fusion](docs/decisions/0010-independent-countermeasure-evaluation.md)
 - [ADR 0011: Preserve a separate waveform for the countermeasure](docs/decisions/0011-preserve-countermeasure-waveform.md)
+- [ADR 0012: Do not retain raw audio by default](docs/decisions/0012-minimize-raw-biometric-retention.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the
 [ECAPA-TDNN](docs/models/ecapa-tdnn.md) and [AASIST](docs/models/aasist.md) model cards.

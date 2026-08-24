@@ -18,6 +18,7 @@ from voiceid.application.enrollment import (
 )
 from voiceid.application.verification import VerificationAttempt, VerificationUnavailable
 from voiceid.domain.enrollment import VoiceTemplate
+from voiceid.domain.governance import ConsentGrant, RevocationResult
 from voiceid.domain.models import Decision, VerificationResult
 
 CREATED_AT = datetime(2026, 8, 24, 15, 0, tzinfo=UTC)
@@ -77,6 +78,29 @@ class StubVerificationService:
         )
 
 
+class StubGovernanceService:
+    def grant_consent(
+        self,
+        identity_id: str,
+        *,
+        purpose: str,
+        notice_version: str,
+        expires_at: datetime,
+    ) -> ConsentGrant:
+        return ConsentGrant(
+            consent_id="consent-1",
+            identity_id=identity_id,
+            purpose=purpose,
+            notice_version=notice_version,
+            granted_at=CREATED_AT,
+            expires_at=expires_at,
+        )
+
+    def revoke_identity(self, identity_id: str, *, reason: str) -> RevocationResult:
+        self.reason = reason
+        return RevocationResult(identity_id, 1, 1, CREATED_AT)
+
+
 def wave_files(field: str, *payloads: bytes) -> list[tuple[str, tuple[str, bytes, str]]]:
     return [
         (field, (f"sample-{index}.wav", payload, "audio/wav"))
@@ -88,6 +112,7 @@ class ApiContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.enrollment = StubEnrollmentService()
         self.verification = StubVerificationService()
+        self.governance = StubGovernanceService()
         container = ServiceContainer(
             enrollment=self.enrollment,
             verification=self.verification,
@@ -99,6 +124,7 @@ class ApiContractTests(unittest.TestCase):
             ),
             persistence="test-memory",
             speaker_model_id="fake-ecapa-v1",
+            governance=self.governance,
         )
         self.client = TestClient(create_app(container))
 
@@ -162,6 +188,25 @@ class ApiContractTests(unittest.TestCase):
         self.assertIsNone(body["spoof_model_id"])
         self.assertIn("spoof_check_not_run", body["reasons"])
         self.assertEqual(self.verification.received, ("client-1", b"one"))
+
+    def test_consent_and_revocation_contracts(self) -> None:
+        consent_response = self.client.post(
+            "/api/v1/identities/client-1/consent",
+            json={
+                "purpose": "speaker verification",
+                "notice_version": "privacy-v1",
+                "expires_at": "2026-09-24T15:00:00Z",
+            },
+        )
+        revocation_response = self.client.delete(
+            "/api/v1/identities/client-1?reason=user_request"
+        )
+
+        self.assertEqual(consent_response.status_code, 201)
+        self.assertEqual(consent_response.json()["consent_id"], "consent-1")
+        self.assertEqual(revocation_response.status_code, 200)
+        self.assertEqual(revocation_response.json()["revoked_templates"], 1)
+        self.assertEqual(self.governance.reason, "user_request")
 
     def test_domain_errors_use_the_stable_error_envelope(self) -> None:
         enrollment_response = self.client.post(

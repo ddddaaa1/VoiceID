@@ -53,8 +53,10 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 
 ## Product infrastructure
 
-- [ ] **Step 9 — Durable and secure persistence**
-  Add PostgreSQL, encrypted object storage, consent, retention, revocation, audit trails, and rate limits.
+- [x] **Step 9 — Durable and secure persistence**
+  Add encrypted durable templates, consent, retention, revocation, audit trails, and rate limits.
+  Raw audio is deliberately not retained; PostgreSQL has a constraint-equivalent migration contract
+  while the runnable reference deployment uses a persistent SQLite volume.
 
 - [ ] **Step 10 — MLOps and deployment**
   Add containers, CI, experiment tracking, a model registry, observability, drift monitoring, and rollback.
@@ -68,3 +70,8 @@ countermeasure waveform and the default API's explicit `spoof_check_not_run` sta
 increment is Step 8C: the official reference-score reproduction is complete, while the end-to-end
 AASIST run awaits explicit acquisition of the separately licensed 7.12 GB LA audio archive. Policy
 fusion remains disabled.
+
+Step 9 adds an AES-256-GCM encrypted, consent-gated SQLite reference deployment, transactional
+revocation and retention, HMAC-linked audit records, and a single-node rate limiter. It also freezes
+the PostgreSQL schema for scale-out and explicitly avoids raw-audio retention. Step 10 is now the
+active implementation focus.

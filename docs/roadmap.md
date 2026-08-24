@@ -21,7 +21,7 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 - [x] **Step 4 — Speaker verification**
   Compare a new sample with an active template and return an auditable `accept`, `reject`, or `review` result.
 
-- [ ] **Step 5 — HTTP API**
+- [x] **Step 5 — HTTP API**
   Expose identity enrollment and verification with explicit contracts, error responses, and request limits.
 
 - [ ] **Step 6 — Web integration**
@@ -45,4 +45,4 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 
 ## Current focus
 
-Step 4 is complete. The next increment is Step 5: an HTTP API with explicit enrollment and verification contracts.
+Step 5 is complete. The next increment is Step 6: connect the web experience to the real versioned API.

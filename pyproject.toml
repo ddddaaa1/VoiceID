@@ -14,7 +14,13 @@ ml = [
     "torch>=2.11,<2.12",
     "torchaudio>=2.11,<2.12",
 ]
+api = [
+    "fastapi>=0.141,<0.142",
+    "python-multipart>=0.0.32,<0.1",
+    "uvicorn>=0.52,<0.53",
+]
 dev = [
+    "httpx2>=2.10,<3",
     "ruff>=0.12,<1",
 ]
 

@@ -47,6 +47,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Real 192-dimensional ECAPA-TDNN speaker embeddings through a lazy SpeechBrain adapter.
 - Multi-sample enrollment with quality gates, outlier rejection, and versioned templates.
 - One-to-one speaker verification with auditable decisions and provisional policy versioning.
+- Versioned FastAPI endpoints with bounded multipart uploads and stable error contracts.
 - Unit tests covering the biometric decision engine.
 - Target architecture and incremental roadmap.
 
@@ -75,7 +76,7 @@ python3 -m unittest discover -s tests -v
 The lockfile makes the local ML environment reproducible:
 
 ```bash
-uv sync --extra ml --extra dev
+uv sync --extra ml --extra api --extra dev
 ```
 
 Extract and validate an embedding from a 16-bit PCM WAVE file:
@@ -103,9 +104,17 @@ uv run python scripts/verify_identity.py demo-user sample-1.wav sample-2.wav sam
 
 The initial `provisional-cosine-v1` policy is useful for integration testing only. It has not been calibrated to a measured FAR, FRR, or EER.
 
+Start the HTTP API:
+
+```bash
+uv run uvicorn voiceid.adapters.api.app:app --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000/docs` for the interactive API contract or read the [HTTP API guide](docs/api.md).
+
 ## Next milestone
 
-Expose enrollment and verification through a versioned HTTP API with bounded multipart uploads, explicit error contracts, and dependency injection.
+Connect the web experience to the real `/api/v1` enrollment and verification workflow, replacing the browser-only acoustic heuristic.
 
 ## Engineering decisions
 
@@ -114,6 +123,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0001: Use a replaceable audio preprocessing pipeline](docs/decisions/0001-replaceable-audio-pipeline.md)
 - [ADR 0002: Start with a pretrained ECAPA-TDNN speaker encoder](docs/decisions/0002-pretrained-ecapa-speaker-encoder.md)
 - [ADR 0003: Keep the initial verification policy explicitly provisional](docs/decisions/0003-provisional-verification-policy.md)
+- [ADR 0004: Expose a versioned HTTP boundary without coupling it to ML frameworks](docs/decisions/0004-versioned-http-api.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the [ECAPA-TDNN model card](docs/models/ecapa-tdnn.md).
 

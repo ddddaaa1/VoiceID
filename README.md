@@ -55,6 +55,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Published LibriSpeech clean evaluation with frozen scores and Wilson uncertainty intervals.
 - Versioned anti-spoofing score protocol with leakage checks, calibration, uncertainty, and attack-level reporting.
 - Integrity-checked AASIST adapter with isolated waveform preprocessing and explicit model lineage.
+- Official ASVspoof 2021 LA reference-score reproduction with independently validated EER and t-DCF.
 - Target architecture and incremental roadmap.
 
 The system remains experimental. Its first small clean-speech calibration report is published, but the evidence is insufficient to replace the provisional application policy and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
@@ -113,6 +114,10 @@ uv run ruff check .
 ## First measured experiment
 
 The [LibriSpeech clean v2 experiment](experiments/librispeech-clean-v2/README.md) publishes its protocol, provenance, raw scores, held-out metrics, and confidence intervals without committing voice recordings. At the development-selected threshold, the held-out cohort observed 0/30 false accepts and 1/30 false rejects. The corresponding 95% Wilson intervals are 0.00%–11.35% FAR and 0.59%–16.67% FRR, which makes the small-cohort uncertainty explicit.
+
+The [ASVspoof 2021 LA reference reproduction](experiments/asvspoof2021-la-reference-v1/README.md)
+validates VoiceID's EER and normalized t-DCF implementation against 148,176 official baseline-score
+trials. Those organizer-provided scores validate metric compatibility, not VoiceID AASIST accuracy.
 
 ## Reproduce the experiment
 

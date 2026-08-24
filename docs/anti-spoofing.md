@@ -6,7 +6,8 @@ VoiceID treats speaker verification and presentation-attack detection as indepen
 
 - **Step 8A — Countermeasure score contract and metrics:** implemented.
 - **Step 8B — Concrete pretrained detector adapter:** implemented.
-- **Step 8C — ASVspoof evaluation and tandem decision report:** pending.
+- **Step 8C1 — Official metric and reference-score reproduction:** implemented.
+- **Step 8C2 — End-to-end AASIST corpus evaluation:** pending licensed audio acquisition.
 
 The application supports an optional `SpoofDetector` port, safe decision fusion, and an
 integrity-checked adapter for the official pretrained AASIST Logical Access checkpoint. The
@@ -62,7 +63,11 @@ Higher scores always mean “more likely spoof.” Scores greater than or equal 
 
 The operating threshold minimizes normalized countermeasure cost on development only. Held-out evaluation uses that threshold without modification. Reports include Wilson intervals and an attack-category breakdown.
 
-This countermeasure cost is deliberately not called tandem DCF. Tandem DCF requires speaker-verification and countermeasure scores under one ASVspoof protocol and belongs to Step 8C.
+This countermeasure cost is deliberately not called tandem DCF. VoiceID now also implements the
+official fixed-ASV normalized t-DCF formulation with arbitrary bona-fide-support scores. Its result
+was validated on all pooled ASVspoof 2021 LA evaluation trials against the organizer's reference
+implementation. See the
+[frozen reference reproduction](../experiments/asvspoof2021-la-reference-v1/README.md).
 
 ## Run the synthetic contract fixture
 
@@ -87,4 +92,8 @@ The example scores are synthetic contract fixtures, not measured VoiceID anti-sp
 
 ## Planned public evaluation
 
-Step 8 will use the official [ASVspoof challenge](https://www.asvspoof.org/) protocols. Logical Access covers synthetic and voice-converted speech, Physical Access covers replay, and the Deepfake track extends generated-speech evaluation under realistic coding conditions. Source protocols and keys will remain authoritative; VoiceID will add reproducible manifests, hashes, model lineage, confidence intervals, and combined-system reporting.
+Step 8 uses the official [ASVspoof challenge](https://www.asvspoof.org/) protocols. Logical Access
+covers synthetic and voice-converted speech, Physical Access covers replay, and the Deepfake track
+extends generated-speech evaluation under realistic coding conditions. Source protocols and keys
+remain authoritative. The reference-score reproduction freezes hashes and metric lineage; the next
+run must score licensed audio through the VoiceID AASIST pipeline before enabling fusion.

@@ -48,6 +48,8 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
     Integrate a versioned model behind `SpoofDetector`, document its preprocessing and provenance, and expose its model ID in every attempt.
   - [ ] **Step 8C — ASVspoof and tandem evaluation**
     Score official protocols, calculate countermeasure EER and t-DCF, publish limitations, and enable fusion only if evidence supports it.
+    - [x] Reproduce official ASVspoof 2021 LA baseline scores and validate EER/t-DCF.
+    - [ ] Score the licensed corpus end to end with the VoiceID AASIST adapter.
 
 ## Product infrastructure
 
@@ -63,5 +65,6 @@ Step 7 is complete. The first measured LibriSpeech clean report freezes its non-
 
 Step 8B integrates an integrity-checked AASIST adapter while preserving a separate, non-normalized
 countermeasure waveform and the default API's explicit `spoof_check_not_run` state. The current
-increment is Step 8C: reproduce an official ASVspoof protocol and evaluate countermeasure and
-tandem behavior before considering policy fusion.
+increment is Step 8C: the official reference-score reproduction is complete, while the end-to-end
+AASIST run awaits explicit acquisition of the separately licensed 7.12 GB LA audio archive. Policy
+fusion remains disabled.

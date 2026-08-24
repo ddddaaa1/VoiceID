@@ -1,0 +1,42 @@
+{
+  "attacks": [
+    "A07",
+    "A08",
+    "A09",
+    "A10",
+    "A11",
+    "A12",
+    "A13",
+    "A14",
+    "A15",
+    "A16",
+    "A17",
+    "A18",
+    "A19"
+  ],
+  "interpretation": "Reference-protocol reproduction; not VoiceID AASIST end-to-end performance.",
+  "metadata_sha256": "6cc64a94d74c3c749a4ad8f5e377d0f46ed221477cfe3585996d8b550548bba8",
+  "result": {
+    "bonafide_trials": 14816,
+    "coefficients": {
+      "c0": 0.07889105248001665,
+      "c1": 0.8616089475199833,
+      "c2": 0.3482101348210135
+    },
+    "eer_threshold": 1.154042,
+    "minimum": {
+      "bonafide_reject_rate": 0.044816414686825054,
+      "normalized_cost": 0.5757874729436709,
+      "spoof_accept_rate": 0.3687837432513497,
+      "threshold": 0.866668
+    },
+    "observed_eer": 0.19296673467682274,
+    "spoof_trials": 133360
+  },
+  "schema_version": "voiceid-asvspoof2021-reference-report/v1",
+  "score_direction": "higher_is_bonafide",
+  "scores_sha256": "8e1f200d75727b464a9799f9357692fabc858ea763eddce3ee59d6bb2a55a720",
+  "subset": "eval",
+  "system_id": "asvspoof2021-official-LFCC-GMM-baseline",
+  "track": "LA"
+}

@@ -10,9 +10,10 @@ from typing import Protocol
 
 from voiceid.domain.audio import PreprocessedAudio
 from voiceid.domain.scoring import Vector, normalize
+from voiceid.ports.models import ModelInferenceError
 
 
-class SpeakerEmbeddingError(RuntimeError):
+class SpeakerEmbeddingError(ModelInferenceError):
     """Raised when a speaker embedding cannot be produced safely."""
 
 

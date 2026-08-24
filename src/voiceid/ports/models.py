@@ -8,6 +8,10 @@ from voiceid.domain.audio import PreprocessedAudio
 from voiceid.domain.scoring import Vector
 
 
+class ModelInferenceError(RuntimeError):
+    """Framework-independent model inference failure."""
+
+
 class SpeakerEmbedder(Protocol):
     @property
     def model_id(self) -> str: ...

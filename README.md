@@ -36,6 +36,8 @@ flowchart LR
 
 See [the architecture document](docs/architecture.md) for component boundaries, evaluation criteria, the threat model, and the delivery roadmap.
 
+Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
+
 ## Current status
 
 - Browser-based UX prototype with local audio processing.
@@ -43,6 +45,7 @@ See [the architecture document](docs/architecture.md) for component boundaries, 
 - Defensive PCM WAVE decoding, 16 kHz resampling, signal normalization, and quality analysis.
 - Replaceable energy-based VAD baseline with explicit speech segments.
 - Real 192-dimensional ECAPA-TDNN speaker embeddings through a lazy SpeechBrain adapter.
+- Multi-sample enrollment with quality gates, outlier rejection, and versioned templates.
 - Unit tests covering the biometric decision engine.
 - Target architecture and incremental roadmap.
 
@@ -82,9 +85,17 @@ uv run python scripts/extract_embedding.py path/to/sample.wav
 
 The command reports the model identifier, dimension, norm, and usable speech duration. It intentionally does not print the embedding values.
 
+Run an ephemeral multi-sample enrollment:
+
+```bash
+uv run python scripts/enroll_identity.py demo-user sample-1.wav sample-2.wav sample-3.wav
+```
+
+This command exercises the real preprocessing and ECAPA pipeline but deliberately uses in-memory persistence. Durable biometric storage is scheduled for Step 9.
+
 ## Next milestone
 
-Implement the enrollment and verification application services using real ECAPA-TDNN embeddings, then create a reproducible evaluation manifest and benchmark before connecting inference to the web interface.
+Implement speaker verification against the active template, including quality failures, model compatibility checks, and auditable decisions.
 
 ## Engineering decisions
 

@@ -2,10 +2,19 @@
 
 from __future__ import annotations
 
+from typing import Protocol
+
 from .models import Decision, QualityReport, VerificationPolicy, VerificationResult
 
 
-def evaluate_quality(quality: QualityReport, policy: VerificationPolicy) -> tuple[str, ...]:
+class QualityPolicy(Protocol):
+    min_speech_seconds: float
+    min_speech_ratio: float
+    max_clipping_ratio: float
+    min_snr_db: float
+
+
+def evaluate_quality(quality: QualityReport, policy: QualityPolicy) -> tuple[str, ...]:
     reasons: list[str] = []
     if quality.speech_seconds < policy.min_speech_seconds:
         reasons.append("insufficient_speech")

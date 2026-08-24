@@ -26,15 +26,23 @@ class AudioPreprocessor:
         *,
         target_sample_rate: int = 16_000,
         target_peak: float = 0.95,
+        pipeline_id: str = "pcm-wave-linear-energy-vad-v1",
     ) -> None:
         if target_sample_rate <= 0:
             raise ValueError("target_sample_rate must be positive")
         if not 0.0 < target_peak <= 1.0:
             raise ValueError("target_peak must be between 0 and 1")
+        if not pipeline_id:
+            raise ValueError("pipeline_id is required")
         self._decoder = decoder
         self._vad = vad
         self._target_sample_rate = target_sample_rate
         self._target_peak = target_peak
+        self._pipeline_id = pipeline_id
+
+    @property
+    def pipeline_id(self) -> str:
+        return self._pipeline_id
 
     def process(self, payload: bytes) -> PreprocessingResult:
         decoded = self._decoder.decode(payload)

@@ -1,0 +1,71 @@
+:root {
+  --ink: #172019;
+  --paper: #f2f0e8;
+  --acid: #d9ff43;
+  --orange: #ff6b35;
+  --line: rgba(23, 32, 25, 0.18);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 80% 5%, rgba(217,255,67,.28), transparent 26rem),
+    var(--paper);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+main { width: min(1160px, calc(100% - 40px)); margin: auto; padding-bottom: 48px; }
+nav { display: flex; justify-content: space-between; align-items: center; padding: 28px 0; border-bottom: 1px solid var(--line); }
+.brand { color: inherit; text-decoration: none; font-size: 22px; font-weight: 850; letter-spacing: -1px; }
+.brand span { color: var(--orange); }
+.local-pill { font-size: 12px; font-weight: 750; letter-spacing: .04em; }
+.local-pill::first-letter { color: #4d9a30; }
+
+.hero { padding: 72px 0 60px; max-width: 920px; }
+.eyebrow, .card-label { margin: 0 0 12px; font-size: 11px; font-weight: 850; letter-spacing: .15em; }
+h1 { margin: 0; font-size: clamp(60px, 10vw, 132px); line-height: .78; letter-spacing: -.075em; font-weight: 900; }
+h1 em { color: var(--orange); font-family: Georgia, serif; font-weight: 400; }
+.lede { max-width: 600px; margin: 38px 0 0 auto; font-size: clamp(17px, 2vw, 22px); line-height: 1.5; }
+
+.workspace { display: grid; grid-template-columns: 1fr 56px 1fr; align-items: stretch; }
+.voice-card { background: #fff; border: 1px solid var(--ink); padding: clamp(22px, 4vw, 42px); box-shadow: 7px 7px 0 var(--ink); transition: opacity .3s, transform .3s; }
+.voice-card.muted { opacity: .48; box-shadow: none; }
+.voice-card header { display: flex; gap: 18px; align-items: center; }
+.step { display: grid; place-items: center; width: 48px; aspect-ratio: 1; border-radius: 50%; background: var(--acid); font-size: 12px; font-weight: 900; }
+h2 { margin: 0; font-size: clamp(22px, 3vw, 34px); letter-spacing: -.04em; }
+.visualizer { display: flex; gap: 5px; align-items: center; height: 112px; margin: 34px 0 18px; padding: 0 4px; border-block: 1px solid var(--line); overflow: hidden; }
+.bar { flex: 1; min-width: 2px; height: 4px; background: var(--ink); transition: height .08s linear; }
+.prompt { min-height: 48px; line-height: 1.5; color: rgba(23,32,25,.7); }
+.record-button { width: 100%; border: 0; padding: 17px 20px; color: white; background: var(--ink); font: inherit; font-weight: 800; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
+.record-button:hover:not(:disabled) { background: var(--orange); }
+.record-button:disabled { cursor: not-allowed; opacity: .4; }
+.record-dot { width: 10px; aspect-ratio: 1; border-radius: 50%; background: var(--orange); }
+.recording .record-dot { background: white; animation: pulse 1s infinite; }
+.status { margin: 14px 0 0; text-align: center; font-size: 12px; font-weight: 700; }
+.connector { display: grid; place-items: center; }
+.connector span { display: grid; place-items: center; width: 36px; aspect-ratio: 1; border-radius: 50%; background: var(--ink); color: white; font-size: 22px; z-index: 2; }
+
+.result { margin-top: 28px; padding: 32px 38px; background: var(--acid); border: 1px solid var(--ink); display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.result[hidden] { display: none; }
+.result p { margin-bottom: 0; }
+.score { min-width: 125px; text-align: center; }
+.score strong { display: block; font-size: 46px; letter-spacing: -.05em; }
+.score span { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.notice { margin-top: 28px; padding: 18px 22px; border-left: 4px solid var(--orange); background: rgba(255,255,255,.45); font-size: 13px; line-height: 1.5; }
+
+@keyframes pulse { 50% { transform: scale(.6); opacity: .5; } }
+
+@media (max-width: 720px) {
+  main { width: min(100% - 24px, 560px); }
+  nav { padding: 20px 0; }
+  .hero { padding: 54px 0 46px; }
+  .lede { margin-left: 0; }
+  .workspace { grid-template-columns: 1fr; }
+  .connector { height: 50px; }
+  .voice-card { box-shadow: 4px 4px 0 var(--ink); }
+  .result { align-items: flex-start; padding: 26px; }
+}

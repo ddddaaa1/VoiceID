@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="VoiceID: experimento local de comparación de voz." />
+    <title>VoiceID — Tu voz, reconocida</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <nav>
+        <a class="brand" href="#">Voice<span>ID</span></a>
+        <span class="local-pill">● Procesamiento local</span>
+      </nav>
+
+      <section class="hero">
+        <p class="eyebrow">EXPERIMENTO DE IDENTIDAD POR VOZ</p>
+        <h1>Tu voz ya es<br /><em>tu firma.</em></h1>
+        <p class="lede">
+          Crea un perfil acústico y comprueba qué tan parecida es una nueva muestra.
+          Tus grabaciones no salen de este dispositivo.
+        </p>
+      </section>
+
+      <section class="workspace" aria-label="Comparador de voz">
+        <article class="voice-card" id="enroll-card">
+          <header>
+            <span class="step">01</span>
+            <div>
+              <p class="card-label">PERFIL BASE</p>
+              <h2>Registra tu voz</h2>
+            </div>
+          </header>
+          <div class="visualizer" id="enroll-bars" aria-hidden="true"></div>
+          <p class="prompt">Di: “Mi voz confirma quién soy” durante 3–5 segundos.</p>
+          <button class="record-button" id="enroll-button">
+            <span class="record-dot"></span><span>Comenzar grabación</span>
+          </button>
+          <p class="status" id="enroll-status" aria-live="polite">Esperando una muestra</p>
+        </article>
+
+        <div class="connector"><span>+</span></div>
+
+        <article class="voice-card muted" id="verify-card">
+          <header>
+            <span class="step">02</span>
+            <div>
+              <p class="card-label">COMPROBACIÓN</p>
+              <h2>Compara otra muestra</h2>
+            </div>
+          </header>
+          <div class="visualizer" id="verify-bars" aria-hidden="true"></div>
+          <p class="prompt">Repite la frase con naturalidad para comparar ambas voces.</p>
+          <button class="record-button" id="verify-button" disabled>
+            <span class="record-dot"></span><span>Grabar comparación</span>
+          </button>
+          <p class="status" id="verify-status" aria-live="polite">Primero crea el perfil base</p>
+        </article>
+      </section>
+
+      <section class="result" id="result" hidden>
+        <div>
+          <p class="card-label">RESULTADO DEL EXPERIMENTO</p>
+          <h2 id="result-title">Coincidencia calculada</h2>
+          <p id="result-copy"></p>
+        </div>
+        <div class="score"><strong id="score-value">0%</strong><span>similitud</span></div>
+      </section>
+
+      <aside class="notice">
+        <strong>Antes de probar:</strong> esta demo compara características acústicas simples.
+        No sirve para autenticar personas ni reemplaza un sistema biométrico certificado.
+      </aside>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

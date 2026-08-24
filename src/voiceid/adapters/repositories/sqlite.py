@@ -200,9 +200,7 @@ class SqliteBiometricRepository:
             ).fetchone()
         return row is not None
 
-    def revoke_identity(
-        self, identity_id: str, at: datetime, reason: str
-    ) -> RevocationResult:
+    def revoke_identity(self, identity_id: str, at: datetime, reason: str) -> RevocationResult:
         _require_aware(at)
         if not identity_id or not reason or reason != reason.strip():
             raise ValueError("identity and revocation reason are required")
@@ -262,9 +260,7 @@ class SqliteBiometricRepository:
                 f"{previous_hash}|{event.event_id}|{event.identity_id}|{event.action}|"
                 f"{event.outcome}|{event.created_at.isoformat()}|{details}"
             ).encode()
-            event_hash = hmac.new(
-                self._audit_hmac_key, canonical, hashlib.sha256
-            ).hexdigest()
+            event_hash = hmac.new(self._audit_hmac_key, canonical, hashlib.sha256).hexdigest()
             connection.execute(
                 """INSERT INTO audit_events (
                        event_id, identity_id, action, outcome, created_at, details_json,
@@ -295,9 +291,7 @@ class SqliteBiometricRepository:
             if row[6] != expected_previous:
                 return False
             canonical = "|".join((expected_previous, *row[:6])).encode("utf-8")
-            expected = hmac.new(
-                self._audit_hmac_key, canonical, hashlib.sha256
-            ).hexdigest()
+            expected = hmac.new(self._audit_hmac_key, canonical, hashlib.sha256).hexdigest()
             if not hmac.compare_digest(expected, row[7]):
                 return False
             expected_previous = row[7]

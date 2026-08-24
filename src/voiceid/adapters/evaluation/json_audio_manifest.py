@@ -47,8 +47,7 @@ def load_audio_trial_manifest(path: Path) -> AudioTrialManifest:
                 dataset["consent_attestation"], "dataset.consent_attestation"
             ),
             enrollments=tuple(
-                _parse_enrollment(value, index)
-                for index, value in enumerate(enrollments)
+                _parse_enrollment(value, index) for index, value in enumerate(enrollments)
             ),
             trials=tuple(_parse_trial(value, index) for index, value in enumerate(trials)),
         )
@@ -70,8 +69,7 @@ def audio_trial_manifest_payload(manifest: AudioTrialManifest) -> dict[str, Any]
                 "speaker_id": enrollment.speaker_id,
                 "partition": enrollment.partition.value,
                 "samples": [
-                    {"path": sample.path, "sha256": sample.sha256}
-                    for sample in enrollment.samples
+                    {"path": sample.path, "sha256": sample.sha256} for sample in enrollment.samples
                 ],
             }
             for enrollment in manifest.enrollments
@@ -143,9 +141,7 @@ def _parse_trial(value: object, index: int) -> AudioTrial:
         claimed_identity_id=_string(
             trial["claimed_identity_id"], f"{location}.claimed_identity_id"
         ),
-        probe_speaker_id=_string(
-            trial["probe_speaker_id"], f"{location}.probe_speaker_id"
-        ),
+        probe_speaker_id=_string(trial["probe_speaker_id"], f"{location}.probe_speaker_id"),
         sample=_parse_reference(trial["sample"], f"{location}.sample"),
         condition=_string(trial["condition"], f"{location}.condition"),
     )

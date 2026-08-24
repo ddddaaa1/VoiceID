@@ -95,9 +95,7 @@ class SqliteBiometricRepositoryTests(unittest.TestCase):
         self.assertEqual(result.revoked_templates, 1)
         self.assertEqual(result.revoked_consents, 1)
         self.assertIsNone(self.repository.get_active("identity-1"))
-        self.assertFalse(
-            self.repository.has_active("identity-1", NOW + timedelta(hours=1))
-        )
+        self.assertFalse(self.repository.has_active("identity-1", NOW + timedelta(hours=1)))
 
     def test_retention_revokes_expired_consent_then_purges_after_window(self) -> None:
         self.repository.grant(consent(expires_at=NOW + timedelta(days=1)))
@@ -141,9 +139,7 @@ class SqliteBiometricRepositoryTests(unittest.TestCase):
         cipher = AesGcmCipher(b"k" * 32)
         nonce, ciphertext = cipher.encrypt(b"sensitive-template", b"identity-1")
 
-        self.assertEqual(
-            cipher.decrypt(nonce, ciphertext, b"identity-1"), b"sensitive-template"
-        )
+        self.assertEqual(cipher.decrypt(nonce, ciphertext, b"identity-1"), b"sensitive-template")
         with self.assertRaises(InvalidTag):
             cipher.decrypt(nonce, ciphertext, b"different-identity")
 

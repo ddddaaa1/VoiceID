@@ -29,9 +29,7 @@ class ScoringTests(unittest.TestCase):
             cosine_similarity((1.0, float("nan")), (1.0, 0.0))
 
     def test_robust_template_rejects_one_outlier(self) -> None:
-        template = robust_voice_template(
-            [(1.0, 0.05), (0.98, 0.02), (1.0, -0.03), (-1.0, 0.0)]
-        )
+        template = robust_voice_template([(1.0, 0.05), (0.98, 0.02), (1.0, -0.03), (-1.0, 0.0)])
         self.assertGreater(template[0], 0.99)
 
     def test_inconsistent_enrollment_fails(self) -> None:

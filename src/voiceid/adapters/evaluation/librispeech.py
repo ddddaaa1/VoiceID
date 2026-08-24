@@ -51,9 +51,7 @@ class SoundFilePcmWaveTranscoder:
         except (OSError, RuntimeError) as error:
             raise CorpusPreparationError(f"could not inspect FLAC file: {path}") from error
         if information.channels != 1 or information.samplerate != 16_000:
-            raise CorpusPreparationError(
-                f"expected mono 16 kHz LibriSpeech audio: {path}"
-            )
+            raise CorpusPreparationError(f"expected mono 16 kHz LibriSpeech audio: {path}")
         return information.frames / information.samplerate
 
     def convert(self, source: Path, destination: Path) -> None:
@@ -68,9 +66,7 @@ class SoundFilePcmWaveTranscoder:
         except (OSError, RuntimeError) as error:
             raise CorpusPreparationError(f"could not decode FLAC file: {source}") from error
         if sample_rate != 16_000 or audio.shape[1] != 1:
-            raise CorpusPreparationError(
-                f"expected mono 16 kHz LibriSpeech audio: {source}"
-            )
+            raise CorpusPreparationError(f"expected mono 16 kHz LibriSpeech audio: {source}")
         buffer = io.BytesIO()
         try:
             soundfile.write(
@@ -88,9 +84,7 @@ class SoundFilePcmWaveTranscoder:
 class LibriSpeechCorpusPreparer:
     def __init__(self, transcoder: Any | None = None) -> None:
         self._transcoder = transcoder or SoundFilePcmWaveTranscoder()
-        self._preprocessor = AudioPreprocessor(
-            PcmWaveDecoder(), EnergyVoiceActivityDetector()
-        )
+        self._preprocessor = AudioPreprocessor(PcmWaveDecoder(), EnergyVoiceActivityDetector())
 
     def prepare(
         self,
@@ -139,13 +133,9 @@ class LibriSpeechCorpusPreparer:
 
         output_parent = output_directory.parent.resolve()
         output_parent.mkdir(parents=True, exist_ok=True)
-        staging = Path(
-            tempfile.mkdtemp(prefix=f".{output_directory.name}.", dir=output_parent)
-        )
+        staging = Path(tempfile.mkdtemp(prefix=f".{output_directory.name}.", dir=output_parent))
         try:
-            manifest = self._materialize(
-                selections, validated_payloads, staging, dataset_version
-            )
+            manifest = self._materialize(selections, validated_payloads, staging, dataset_version)
             manifest_path = staging / "audio-trials.json"
             write_audio_trial_manifest(manifest, manifest_path)
             self._write_provenance(
@@ -216,8 +206,7 @@ class LibriSpeechCorpusPreparer:
                     speaker_id=_speaker_id(selection),
                     partition=selection.partition,
                     samples=tuple(
-                        references[clip.utterance_id]
-                        for clip in selection.enrollment_clips
+                        references[clip.utterance_id] for clip in selection.enrollment_clips
                     ),
                 )
             )
@@ -300,8 +289,7 @@ class LibriSpeechCorpusPreparer:
                     "enrollment_policy": asdict(EnrollmentPolicy()),
                     "verification_policy": asdict(VerificationPolicy()),
                     "rejected_candidates": {
-                        key: list(value)
-                        for key, value in sorted(rejected_candidates.items())
+                        key: list(value) for key, value in sorted(rejected_candidates.items())
                     },
                 },
             },

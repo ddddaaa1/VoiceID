@@ -36,6 +36,15 @@ where = ["src"]
 "voiceid.adapters.api" = ["web/*.html", "web/*.json", "web/assets/*"]
 "voiceid.adapters.models" = ["assets/*.pth"]
 
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchaudio = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
 [tool.ruff]
 line-length = 100
 extend-exclude = ["src/voiceid/adapters/models/vendor/aasist.py"]

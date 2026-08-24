@@ -29,9 +29,7 @@ class FakePreprocessor:
         key = payload[0]
         audio = AudioBuffer((key / 10, key / 10), 16_000)
         processed = PreprocessedAudio(audio, (SpeechSegment(0, 2),))
-        return PreprocessingResult(
-            processed, BAD_QUALITY if key == 9 else GOOD_QUALITY, audio
-        )
+        return PreprocessingResult(processed, BAD_QUALITY if key == 9 else GOOD_QUALITY, audio)
 
 
 class FakeEmbedder:
@@ -158,9 +156,7 @@ class VerificationServiceTests(unittest.TestCase):
 
     def test_requires_active_consent_when_governance_is_configured(self) -> None:
         with self.assertRaises(VerificationUnavailable) as raised:
-            self.service(consent_repository=DeniedConsentRepository()).verify(
-                "identity-1", b"\x01"
-            )
+            self.service(consent_repository=DeniedConsentRepository()).verify("identity-1", b"\x01")
         self.assertEqual(raised.exception.code, "active_consent_required")
 
     def test_rejects_invalid_audio_and_model_incompatibility(self) -> None:
@@ -169,9 +165,7 @@ class VerificationServiceTests(unittest.TestCase):
 
         incompatible_repository = InMemoryVoiceTemplateRepository()
         incompatible_repository.save(template(model_id="another-model"))
-        service = VerificationService(
-            FakePreprocessor(), FakeEmbedder(), incompatible_repository
-        )
+        service = VerificationService(FakePreprocessor(), FakeEmbedder(), incompatible_repository)
         with self.assertRaisesRegex(VerificationUnavailable, "speaker_model_mismatch"):
             service.verify("identity-1", b"\x01")
 

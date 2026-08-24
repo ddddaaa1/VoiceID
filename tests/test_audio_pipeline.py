@@ -16,9 +16,7 @@ from voiceid.application.preprocessing import AudioPreprocessor
 from voiceid.domain.audio import AudioBuffer, PreprocessedAudio, SpeechSegment
 
 
-def wave_payload(
-    samples: list[float], *, sample_rate: int = 8_000, channels: int = 1
-) -> bytes:
+def wave_payload(samples: list[float], *, sample_rate: int = 8_000, channels: int = 1) -> bytes:
     buffer = io.BytesIO()
     integers = [max(-32768, min(32767, round(sample * 32767))) for sample in samples]
     if channels == 2:

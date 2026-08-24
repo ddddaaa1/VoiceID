@@ -66,9 +66,7 @@ def evaluate_tandem_cost(
             bonafide_reject_rate=miss,
             spoof_accept_rate=false_accept,
             normalized_cost=(
-                coefficients.c0
-                + coefficients.c1 * miss
-                + coefficients.c2 * false_accept
+                coefficients.c0 + coefficients.c1 * miss + coefficients.c2 * false_accept
             )
             / coefficients.normalizer,
         )
@@ -124,9 +122,7 @@ def _validate_scores(values: Sequence[float], label: str) -> tuple[float, ...]:
     if not scores:
         raise ValueError(f"{label} scores are required")
     if any(
-        not isinstance(value, (int, float))
-        or isinstance(value, bool)
-        or not math.isfinite(value)
+        not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value)
         for value in scores
     ):
         raise ValueError(f"{label} scores must be finite numbers")

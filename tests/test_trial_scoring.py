@@ -48,9 +48,7 @@ def reference(index: int, name: str | None = None) -> AudioFileReference:
     )
 
 
-def enrollment(
-    identity: str, partition: TrialPartition, start_index: int
-) -> AudioEnrollment:
+def enrollment(identity: str, partition: TrialPartition, start_index: int) -> AudioEnrollment:
     return AudioEnrollment(
         identity_id=identity,
         speaker_id=identity,
@@ -86,9 +84,7 @@ def audio_manifest() -> AudioTrialManifest:
         AudioTrial(
             trial_id=trial_id,
             partition=partition,
-            label=(
-                TrialLabel.GENUINE if claimed == probe else TrialLabel.IMPOSTOR
-            ),
+            label=(TrialLabel.GENUINE if claimed == probe else TrialLabel.IMPOSTOR),
             claimed_identity_id=claimed,
             probe_speaker_id=probe,
             sample=probe_references[probe],
@@ -146,12 +142,7 @@ def payloads_for(manifest: AudioTrialManifest) -> dict[str, bytes]:
 
 class AudioTrialManifestTests(unittest.TestCase):
     def test_example_manifest_is_valid_and_documents_consent(self) -> None:
-        path = (
-            Path(__file__).parents[1]
-            / "examples"
-            / "evaluation"
-            / "audio-trials.example.json"
-        )
+        path = Path(__file__).parents[1] / "examples" / "evaluation" / "audio-trials.example.json"
         manifest = load_audio_trial_manifest(path)
         self.assertEqual(len(manifest.enrollments), 4)
         self.assertEqual(len(manifest.trials), 8)
@@ -191,9 +182,7 @@ class HashedAudioFileReaderTests(unittest.TestCase):
             base = Path(directory)
             payload = b"PCM WAVE fixture"
             (base / "sample.wav").write_bytes(payload)
-            reference_value = AudioFileReference(
-                "sample.wav", hashlib.sha256(payload).hexdigest()
-            )
+            reference_value = AudioFileReference("sample.wav", hashlib.sha256(payload).hexdigest())
             reader = HashedAudioFileReader(base, max_file_bytes=100)
             self.assertEqual(reader.read(reference_value), payload)
 
@@ -215,9 +204,7 @@ class HashedAudioFileReaderTests(unittest.TestCase):
             outside = root / "outside.wav"
             outside.write_bytes(b"outside")
             (base / "linked.wav").symlink_to(outside)
-            linked = AudioFileReference(
-                "linked.wav", hashlib.sha256(b"outside").hexdigest()
-            )
+            linked = AudioFileReference("linked.wav", hashlib.sha256(b"outside").hexdigest())
             with self.assertRaisesRegex(ValueError, "path_outside_dataset"):
                 HashedAudioFileReader(base).read(linked)
 

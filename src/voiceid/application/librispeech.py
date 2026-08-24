@@ -84,9 +84,7 @@ def select_librispeech_clips(
 
     selected = _select_partition(
         development_clips, TrialPartition.DEVELOPMENT, config, clip_validator
-    ) + _select_partition(
-        evaluation_clips, TrialPartition.EVALUATION, config, clip_validator
-    )
+    ) + _select_partition(evaluation_clips, TrialPartition.EVALUATION, config, clip_validator)
     return tuple(selected)
 
 

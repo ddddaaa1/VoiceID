@@ -30,12 +30,7 @@ from voiceid.domain.spoofing import (
     SpoofScoreTrial,
 )
 
-EXAMPLE = (
-    Path(__file__).parents[1]
-    / "examples"
-    / "evaluation"
-    / "spoof-scores.example.json"
-)
+EXAMPLE = Path(__file__).parents[1] / "examples" / "evaluation" / "spoof-scores.example.json"
 
 
 def trial(
@@ -47,9 +42,7 @@ def trial(
     category: AttackCategory | None = None,
 ) -> SpoofScoreTrial:
     attack_category = category or (
-        AttackCategory.BONAFIDE
-        if label is SpoofLabel.BONAFIDE
-        else AttackCategory.SYNTHETIC
+        AttackCategory.BONAFIDE if label is SpoofLabel.BONAFIDE else AttackCategory.SYNTHETIC
     )
     return SpoofScoreTrial(
         trial_id=trial_id,
@@ -122,9 +115,7 @@ class SpoofEvaluationTests(unittest.TestCase):
 
         self.assertEqual(report.selected_threshold, 0.65)
         self.assertEqual(report.evaluation.rates_at_selected_threshold.spoof_accepts, 1)
-        self.assertEqual(
-            report.evaluation.rates_at_selected_threshold.spoof_accept_rate, 0.25
-        )
+        self.assertEqual(report.evaluation.rates_at_selected_threshold.spoof_accept_rate, 0.25)
         replay = next(
             attack
             for attack in report.evaluation_attacks

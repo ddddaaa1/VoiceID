@@ -2,7 +2,9 @@
 
 VoiceID is a **speaker verification and voice attack detection platform**. Its purpose is not to recognize what was said, but to determine whether a voice sample belongs to an enrolled identity and whether the audio appears authentic.
 
-The repository combines a same-origin web experience, a versioned HTTP API, and a tested, framework-independent domain core. The roadmap adds biometric evaluation, anti-spoofing, secure storage, and MLOps.
+The repository combines a same-origin web experience, a versioned HTTP API, and a tested,
+framework-independent domain core. Its delivered roadmap covers biometric evaluation,
+anti-spoofing research, secure storage, and MLOps.
 
 ## What this project demonstrates
 
@@ -57,6 +59,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Integrity-checked AASIST adapter with isolated waveform preprocessing and explicit model lineage.
 - Official ASVspoof 2021 LA reference-score reproduction with independently validated EER and t-DCF.
 - Consent-gated encrypted persistence with revocation, retention, tamper-evident audit, and rate limits.
+- Docker/Compose, CI, model release integrity, Prometheus metrics, drift detection, and rollback controls.
 - Target architecture and incremental roadmap.
 
 The system remains experimental. Its first small clean-speech calibration report is published, but the evidence is insufficient to replace the provisional application policy and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
@@ -66,7 +69,7 @@ The system remains experimental. Its first small clean-speech calibration report
 The lockfile makes the local ML environment reproducible:
 
 ```bash
-uv sync --extra ml --extra api --extra dev
+uv sync --extra ml --extra api --extra persistence --extra dev
 ```
 
 Extract and validate an embedding from a 16-bit PCM WAVE file:
@@ -83,7 +86,8 @@ Run an ephemeral multi-sample enrollment:
 uv run python scripts/enroll_identity.py demo-user sample-1.wav sample-2.wav sample-3.wav
 ```
 
-This command exercises the real preprocessing and ECAPA pipeline but deliberately uses in-memory persistence. Durable biometric storage is scheduled for Step 9.
+This command exercises the real preprocessing and ECAPA pipeline but deliberately uses in-memory
+persistence. The API's encrypted durable mode is documented separately.
 
 Run the complete ephemeral enrollment and verification workflow:
 
@@ -105,13 +109,16 @@ Open `http://127.0.0.1:8000` for the microphone workflow. Localhost is a secure 
 Read the [web workflow guide](docs/web.md) and [HTTP API guide](docs/api.md) for implementation details and limitations.
 For restart-safe local operation, key management, consent, and revocation, read the
 [durable persistence guide](docs/persistence.md).
+For containers, CI, release lineage, monitoring, and rollback, read the
+[MLOps and deployment guide](docs/mlops.md).
 
 ## Run the tests
 
 ```bash
-uv run python -W error -m unittest discover -s tests -v
+uv run python -W error -m unittest discover -s tests -p 'test_*.py'
 node --test tests/web/audio.test.mjs
 uv run ruff check .
+uv run ruff format --check .
 ```
 
 ## First measured experiment

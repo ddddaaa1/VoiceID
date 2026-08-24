@@ -44,6 +44,10 @@ class SpeechBrainEcapaEmbedderTests(unittest.TestCase):
         norm = math.sqrt(sum(value * value for value in embedding))
         self.assertEqual(len(embedding), 192)
         self.assertAlmostEqual(norm, 1.0)
+        self.assertEqual(
+            embedder.model_id,
+            "speechbrain/spkrec-ecapa-voxceleb@0f99f2d0ebe89ac095bcc5903c4dd8f72b367286",
+        )
 
     def test_sends_only_detected_speech_to_the_runtime(self) -> None:
         runtime = RecordingRuntime()

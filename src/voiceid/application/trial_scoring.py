@@ -37,8 +37,7 @@ class AudioTrialScorer:
 
         for enrollment in manifest.enrollments:
             payloads = [
-                self._read(reference, enrollment.identity_id)
-                for reference in enrollment.samples
+                self._read(reference, enrollment.identity_id) for reference in enrollment.samples
             ]
             try:
                 result = self._enrollment_service.enroll(enrollment.identity_id, payloads)
@@ -57,13 +56,9 @@ class AudioTrialScorer:
         for trial in manifest.trials:
             payload = self._read(trial.sample, trial.trial_id)
             try:
-                attempt = self._verification_service.verify(
-                    trial.claimed_identity_id, payload
-                )
+                attempt = self._verification_service.verify(trial.claimed_identity_id, payload)
             except VerificationUnavailable as error:
-                raise TrialScoringError(
-                    f"verification_{error.code}", trial.trial_id
-                ) from error
+                raise TrialScoringError(f"verification_{error.code}", trial.trial_id) from error
             if attempt.result.speaker_score is None:
                 reasons = "_and_".join(attempt.result.reasons) or "unknown"
                 raise TrialScoringError(f"score_unavailable_{reasons}", trial.trial_id)

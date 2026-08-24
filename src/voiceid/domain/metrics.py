@@ -82,8 +82,7 @@ def wilson_score_interval(
     margin = (
         z_score
         * math.sqrt(
-            probability * (1.0 - probability) / trials
-            + z_squared / (4.0 * trials * trials)
+            probability * (1.0 - probability) / trials + z_squared / (4.0 * trials * trials)
         )
         / denominator
     )
@@ -140,9 +139,7 @@ def detection_cost(
     model: DetectionCostModel | None = None,
 ) -> DetectionCostMetrics:
     model = model or DetectionCostModel()
-    miss_component = (
-        model.false_reject_cost * model.target_probability * rates.false_reject_rate
-    )
+    miss_component = model.false_reject_cost * model.target_probability * rates.false_reject_rate
     false_alarm_component = (
         model.false_accept_cost * (1 - model.target_probability) * rates.false_accept_rate
     )

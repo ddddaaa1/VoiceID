@@ -44,9 +44,7 @@ class AudioFileReference:
             or parsed.as_posix() != self.path
         ):
             raise EvaluationProtocolError("audio path must be a safe relative PCM WAVE path")
-        if not isinstance(self.sha256, str) or not re.fullmatch(
-            r"[0-9a-f]{64}", self.sha256
-        ):
+        if not isinstance(self.sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", self.sha256):
             raise EvaluationProtocolError("audio sha256 must be 64 lowercase hex characters")
 
 
@@ -94,8 +92,7 @@ class AudioTrial:
             self.condition,
         )
         if any(
-            not isinstance(value, str) or not value or value != value.strip()
-            for value in required
+            not isinstance(value, str) or not value or value != value.strip() for value in required
         ):
             raise EvaluationProtocolError("audio trial identifiers must be non-empty")
 
@@ -111,13 +108,10 @@ class AudioTrialManifest:
 
     def __post_init__(self) -> None:
         if self.schema_version != AUDIO_TRIAL_SCHEMA_VERSION:
-            raise EvaluationProtocolError(
-                f"unsupported schema version: {self.schema_version!r}"
-            )
+            raise EvaluationProtocolError(f"unsupported schema version: {self.schema_version!r}")
         metadata = (self.dataset_id, self.dataset_version, self.consent_attestation)
         if any(
-            not isinstance(value, str) or not value or value != value.strip()
-            for value in metadata
+            not isinstance(value, str) or not value or value != value.strip() for value in metadata
         ):
             raise EvaluationProtocolError("audio manifest metadata must be non-empty")
         if not self.enrollments or not self.trials:
@@ -194,9 +188,7 @@ class AudioTrialManifest:
                 "audio content leakage between development and evaluation"
             )
         enrollment_hashes = {
-            sample.sha256
-            for enrollment in self.enrollments
-            for sample in enrollment.samples
+            sample.sha256 for enrollment in self.enrollments for sample in enrollment.samples
         }
         probe_hashes = {trial.sample.sha256 for trial in self.trials}
         if enrollment_hashes & probe_hashes:
@@ -237,8 +229,7 @@ class ScoredTrial:
             self.condition,
         )
         if any(
-            not isinstance(value, str) or not value or value != value.strip()
-            for value in required
+            not isinstance(value, str) or not value or value != value.strip() for value in required
         ):
             raise EvaluationProtocolError("trial identifiers and condition must be non-empty")
         if (
@@ -270,13 +261,10 @@ class ScoredTrialManifest:
 
     def __post_init__(self) -> None:
         if self.schema_version != SCORED_TRIAL_SCHEMA_VERSION:
-            raise EvaluationProtocolError(
-                f"unsupported schema version: {self.schema_version!r}"
-            )
+            raise EvaluationProtocolError(f"unsupported schema version: {self.schema_version!r}")
         metadata = (self.dataset_id, self.dataset_version, self.model_id, self.pipeline_id)
         if any(
-            not isinstance(value, str) or not value or value != value.strip()
-            for value in metadata
+            not isinstance(value, str) or not value or value != value.strip() for value in metadata
         ):
             raise EvaluationProtocolError("manifest metadata must be non-empty")
         if not self.trials:
@@ -317,6 +305,4 @@ def _reject_conflicting_audio_owners(
     for digest, speaker_id in digest_owners:
         previous = owners.setdefault(digest, speaker_id)
         if previous != speaker_id:
-            raise EvaluationProtocolError(
-                f"{asset_type} audio cannot represent multiple speakers"
-            )
+            raise EvaluationProtocolError(f"{asset_type} audio cannot represent multiple speakers")

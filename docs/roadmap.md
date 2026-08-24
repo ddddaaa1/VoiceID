@@ -58,7 +58,7 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
   Raw audio is deliberately not retained; PostgreSQL has a constraint-equivalent migration contract
   while the runnable reference deployment uses a persistent SQLite volume.
 
-- [ ] **Step 10 — MLOps and deployment**
+- [x] **Step 10 — MLOps and deployment**
   Add containers, CI, experiment tracking, a model registry, observability, drift monitoring, and rollback.
 
 ## Current focus
@@ -74,4 +74,10 @@ fusion remains disabled.
 Step 9 adds an AES-256-GCM encrypted, consent-gated SQLite reference deployment, transactional
 revocation and retention, HMAC-linked audit records, and a single-node rate limiter. It also freezes
 the PostgreSQL schema for scale-out and explicitly avoids raw-audio retention. Step 10 is now the
-active implementation focus.
+final delivered infrastructure increment.
+
+Step 10 adds a hardened Docker/Compose deployment, GitHub Actions and dependency updates, a strict
+hash-verified model release registry, pinned ECAPA lineage, Prometheus-compatible request metrics,
+aggregate score-drift monitoring, and an immutable-image rollback runbook. The ten-step engineering
+roadmap has reached its final implementation step; the separately licensed end-to-end AASIST
+dataset run remains an evidence gate and anti-spoofing stays disabled.

@@ -1,0 +1,28 @@
+services:
+  api:
+    image: ${VOICEID_IMAGE:-voiceid:local}
+    build:
+      context: .
+    environment:
+      VOICEID_AUDIT_KEY: ${VOICEID_AUDIT_KEY:?set a base64-encoded 32-byte audit key}
+      VOICEID_DATABASE_PATH: /app/data/voiceid.sqlite3
+      VOICEID_TEMPLATE_KEY: ${VOICEID_TEMPLATE_KEY:?set a base64-encoded 32-byte template key}
+    ports:
+      - "127.0.0.1:${VOICEID_PORT:-8000}:8000"
+    volumes:
+      - voiceid-data:/app/data
+      - voiceid-models:/app/artifacts
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+volumes:
+  voiceid-data:
+  voiceid-models:

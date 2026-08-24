@@ -131,6 +131,7 @@ class ApiContractTests(unittest.TestCase):
     def test_health_exposes_runtime_capabilities_without_loading_models(self) -> None:
         response = self.client.get("/api/v1/health")
         self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.headers["x-request-id"])
         self.assertEqual(
             response.json(),
             {
@@ -188,6 +189,9 @@ class ApiContractTests(unittest.TestCase):
         self.assertIsNone(body["spoof_model_id"])
         self.assertIn("spoof_check_not_run", body["reasons"])
         self.assertEqual(self.verification.received, ("client-1", b"one"))
+        metrics = self.client.get("/metrics").text
+        self.assertIn('route="/api/v1/identities/{identity_id}/verify"', metrics)
+        self.assertNotIn("client-1", metrics)
 
     def test_consent_and_revocation_contracts(self) -> None:
         consent_response = self.client.post(
@@ -198,9 +202,7 @@ class ApiContractTests(unittest.TestCase):
                 "expires_at": "2026-09-24T15:00:00Z",
             },
         )
-        revocation_response = self.client.delete(
-            "/api/v1/identities/client-1?reason=user_request"
-        )
+        revocation_response = self.client.delete("/api/v1/identities/client-1?reason=user_request")
 
         self.assertEqual(consent_response.status_code, 201)
         self.assertEqual(consent_response.json()["consent_id"], "consent-1")
@@ -219,17 +221,13 @@ class ApiContractTests(unittest.TestCase):
         )
 
         self.assertEqual(enrollment_response.status_code, 422)
-        self.assertEqual(
-            enrollment_response.json()["error"]["code"], "insufficient_valid_samples"
-        )
+        self.assertEqual(enrollment_response.json()["error"]["code"], "insufficient_valid_samples")
         self.assertEqual(
             enrollment_response.json()["error"]["details"][0],
             {"sample_index": 1, "reasons": ["low_snr"]},
         )
         self.assertEqual(verification_response.status_code, 404)
-        self.assertEqual(
-            verification_response.json()["error"]["code"], "active_template_not_found"
-        )
+        self.assertEqual(verification_response.json()["error"]["code"], "active_template_not_found")
 
     def test_rejects_unsupported_empty_and_oversized_uploads(self) -> None:
         unsupported = self.client.post(
@@ -270,9 +268,7 @@ class ApiContractTests(unittest.TestCase):
             files=wave_files("sample", b"one"),
         )
         self.assertEqual(invalid_identity.status_code, 422)
-        self.assertEqual(
-            invalid_identity.json()["error"]["code"], "request_validation_failed"
-        )
+        self.assertEqual(invalid_identity.json()["error"]["code"], "request_validation_failed")
         self.assertEqual(oversized_request.status_code, 413)
         self.assertEqual(oversized_request.json()["error"]["code"], "request_too_large")
 

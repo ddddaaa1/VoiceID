@@ -24,9 +24,7 @@ class ConsentRepository(Protocol):
     def has_active(self, identity_id: str, at: datetime) -> bool:
         """Return whether valid, non-revoked consent exists at a given time."""
 
-    def revoke_identity(
-        self, identity_id: str, at: datetime, reason: str
-    ) -> RevocationResult:
+    def revoke_identity(self, identity_id: str, at: datetime, reason: str) -> RevocationResult:
         """Atomically revoke consents and active templates for an identity."""
 
     def purge_expired(self, at: datetime) -> int:

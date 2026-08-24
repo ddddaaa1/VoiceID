@@ -142,9 +142,7 @@ class VerificationService:
         )
         return self._attempt(template, result)
 
-    def _attempt(
-        self, template: VoiceTemplate, result: VerificationResult
-    ) -> VerificationAttempt:
+    def _attempt(self, template: VoiceTemplate, result: VerificationResult) -> VerificationAttempt:
         return VerificationAttempt(
             attempt_id=self._id_factory(),
             created_at=self._clock(),

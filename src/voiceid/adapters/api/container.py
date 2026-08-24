@@ -32,11 +32,14 @@ class ApiSettings:
     )
 
     def __post_init__(self) -> None:
-        if min(
-            self.max_file_bytes,
-            self.max_total_upload_bytes,
-            self.max_request_bytes,
-        ) <= 0:
+        if (
+            min(
+                self.max_file_bytes,
+                self.max_total_upload_bytes,
+                self.max_request_bytes,
+            )
+            <= 0
+        ):
             raise ValueError("API upload limits must be positive")
         if self.max_file_bytes > self.max_total_upload_bytes:
             raise ValueError("per-file limit cannot exceed the total upload limit")
@@ -54,7 +57,7 @@ class ServiceContainer:
     verification: VerificationService
     settings: ApiSettings = field(default_factory=ApiSettings)
     persistence: str = "memory"
-    speaker_model_id: str = "speechbrain/spkrec-ecapa-voxceleb"
+    speaker_model_id: str = SpeechBrainEcapaEmbedder.MODEL_ID
     spoof_model_id: str | None = None
     verification_policy_id: str = "provisional-cosine-v1"
     anti_spoofing_enabled: bool = False

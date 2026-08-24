@@ -33,10 +33,12 @@ class SpeechBrainRuntime:
         self,
         *,
         source: str,
+        revision: str,
         cache_dir: Path,
         device: str,
     ) -> None:
         self._source = source
+        self._revision = revision
         self._cache_dir = cache_dir
         self._device = device
         self._torch: object | None = None
@@ -63,6 +65,7 @@ class SpeechBrainRuntime:
             try:
                 torch = importlib.import_module("torch")
                 speaker = importlib.import_module("speechbrain.inference.speaker")
+                fetching = importlib.import_module("speechbrain.utils.fetching")
             except ImportError as error:
                 raise SpeakerEmbeddingError(
                     "ML dependencies are missing; install the project with the 'ml' extra"
@@ -74,6 +77,10 @@ class SpeechBrainRuntime:
                 source=self._source,
                 savedir=str(self._cache_dir),
                 run_opts={"device": self._device},
+                fetch_config=fetching.FetchConfig(
+                    revision=self._revision,
+                    allow_updates=False,
+                ),
             )
             self._torch = torch
 
@@ -82,6 +89,8 @@ class SpeechBrainEcapaEmbedder:
     """Convert speech segments into an L2-normalized ECAPA speaker embedding."""
 
     MODEL_SOURCE = "speechbrain/spkrec-ecapa-voxceleb"
+    MODEL_REVISION = "0f99f2d0ebe89ac095bcc5903c4dd8f72b367286"
+    MODEL_ID = f"{MODEL_SOURCE}@{MODEL_REVISION}"
     EXPECTED_SAMPLE_RATE = 16_000
     EXPECTED_DIMENSION = 192
 
@@ -97,6 +106,7 @@ class SpeechBrainEcapaEmbedder:
             raise ValueError("min_speech_seconds must be positive")
         self._runtime = runtime or SpeechBrainRuntime(
             source=self.MODEL_SOURCE,
+            revision=self.MODEL_REVISION,
             cache_dir=Path(cache_dir),
             device=device,
         )
@@ -104,7 +114,7 @@ class SpeechBrainEcapaEmbedder:
 
     @property
     def model_id(self) -> str:
-        return self.MODEL_SOURCE
+        return self.MODEL_ID
 
     def embed(self, audio: PreprocessedAudio) -> Vector:
         if audio.audio.sample_rate != self.EXPECTED_SAMPLE_RATE:

@@ -82,15 +82,9 @@ def evaluate_scored_trials(
         threshold_source="development_min_dcf",
         selected_threshold=threshold,
         cost_model=model,
-        development=_evaluate_partition(
-            development_trials, threshold, model, confidence_level
-        ),
-        evaluation=_evaluate_partition(
-            evaluation_trials, threshold, model, confidence_level
-        ),
-        evaluation_conditions=_evaluate_conditions(
-            evaluation_trials, threshold, confidence_level
-        ),
+        development=_evaluate_partition(development_trials, threshold, model, confidence_level),
+        evaluation=_evaluate_partition(evaluation_trials, threshold, model, confidence_level),
+        evaluation_conditions=_evaluate_conditions(evaluation_trials, threshold, confidence_level),
     )
 
 
@@ -132,9 +126,7 @@ def _evaluate_conditions(
         condition_trials = tuple(trial for trial in trials if trial.condition == condition)
         genuine, impostor = _scores(condition_trials)
         locked_rates = (
-            rates_at_threshold(genuine, impostor, threshold)
-            if genuine and impostor
-            else None
+            rates_at_threshold(genuine, impostor, threshold) if genuine and impostor else None
         )
         reports.append(
             ConditionEvaluation(

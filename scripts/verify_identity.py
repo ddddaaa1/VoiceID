@@ -43,9 +43,7 @@ def main() -> None:
 
     result = attempt.result
     score = "unavailable" if result.speaker_score is None else f"{result.speaker_score:.6f}"
-    spoof = (
-        "not_run" if result.spoof_probability is None else f"{result.spoof_probability:.6f}"
-    )
+    spoof = "not_run" if result.spoof_probability is None else f"{result.spoof_probability:.6f}"
     print("workflow=succeeded")
     print(f"attempt_id={attempt.attempt_id}")
     print(f"created_at={attempt.created_at.isoformat()}")

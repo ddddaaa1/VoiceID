@@ -35,9 +35,7 @@ class AasistRuntime:
         "pool_ratios": [0.5, 0.7, 0.5, 0.5],
         "temperatures": [2.0, 2.0, 100.0, 100.0],
     }
-    EXPECTED_WEIGHTS_SHA256 = (
-        "51d2d9cf0738172f61e2a384ec50a54a55363240f67c971ed55a92435bc1a1c0"
-    )
+    EXPECTED_WEIGHTS_SHA256 = "51d2d9cf0738172f61e2a384ec50a54a55363240f67c971ed55a92435bc1a1c0"
 
     def __init__(
         self,
@@ -81,9 +79,7 @@ class AasistRuntime:
                 raise SpoofDetectionError("AASIST weights failed the integrity check")
             try:
                 torch = importlib.import_module("torch")
-                architecture = importlib.import_module(
-                    "voiceid.adapters.models.vendor.aasist"
-                )
+                architecture = importlib.import_module("voiceid.adapters.models.vendor.aasist")
             except ImportError as error:
                 raise SpoofDetectionError(
                     "ML dependencies are missing; install the project with the 'ml' extra"
@@ -106,7 +102,8 @@ class AasistRuntime:
 class AasistSpoofDetector:
     """Map official AASIST logits to a bounded, uncalibrated spoof estimate."""
 
-    MODEL_ID = "clovaai/aasist-asvspoof2019-la@a04c9863"
+    SOURCE_REVISION = "a04c9863f63d44471dde8a6abcb3b082b07cd1d1"
+    MODEL_ID = f"clovaai/aasist-asvspoof2019-la@{SOURCE_REVISION[:8]}"
     EXPECTED_SAMPLE_RATE = 16_000
     INPUT_SAMPLES = 64_600
 

@@ -85,14 +85,16 @@ class LibriSpeechSelectionTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(len(first), 4)
         self.assertTrue(
-            all(
-                len(item.enrollment_clips) == 3 and len(item.probe_clips) == 1
-                for item in first
-            )
+            all(len(item.enrollment_clips) == 3 and len(item.probe_clips) == 1 for item in first)
         )
-        self.assertNotIn("0001", " ".join(
-            selected.utterance_id for item in first[:2] for selected in (*item.enrollment_clips, *item.probe_clips)
-        ))
+        self.assertNotIn(
+            "0001",
+            " ".join(
+                selected.utterance_id
+                for item in first[:2]
+                for selected in (*item.enrollment_clips, *item.probe_clips)
+            ),
+        )
 
     def test_rejects_speaker_overlap_and_insufficient_cohort(self) -> None:
         config = LibriSpeechImportConfig(
@@ -115,12 +117,8 @@ class LibriSpeechSelectionTests(unittest.TestCase):
             probe_clips_per_speaker=1,
             selection_seed="quality-filter-test",
         )
-        development = tuple(
-            clip(speaker, index) for speaker in ("1", "2") for index in range(8)
-        )
-        evaluation = tuple(
-            clip(speaker, index) for speaker in ("3", "4") for index in range(8)
-        )
+        development = tuple(clip(speaker, index) for speaker in ("1", "2") for index in range(8))
+        evaluation = tuple(clip(speaker, index) for speaker in ("3", "4") for index in range(8))
         rejected = {
             select_librispeech_clips(development, evaluation, config)[0]
             .enrollment_clips[0]

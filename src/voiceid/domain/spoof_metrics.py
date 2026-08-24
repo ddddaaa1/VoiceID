@@ -114,9 +114,7 @@ def minimum_countermeasure_cost(
     spoof = _validate_probabilities(spoof_scores, "spoof")
     cost_model = model or CountermeasureCostModel()
     evaluated = [
-        countermeasure_cost(
-            countermeasure_rates(bonafide, spoof, threshold), cost_model
-        )
+        countermeasure_cost(countermeasure_rates(bonafide, spoof, threshold), cost_model)
         for threshold in _candidate_thresholds(bonafide, spoof)
     ]
     return min(
@@ -134,10 +132,7 @@ def _validate_probabilities(values: Sequence[float], label: str) -> tuple[float,
     scores = tuple(values)
     if not scores:
         raise ValueError(f"{label} countermeasure scores are required")
-    if any(
-        not isinstance(value, (int, float)) or isinstance(value, bool)
-        for value in scores
-    ):
+    if any(not isinstance(value, (int, float)) or isinstance(value, bool) for value in scores):
         raise ValueError(f"{label} countermeasure scores must be numeric")
     normalized = tuple(float(value) for value in scores)
     if any(not math.isfinite(value) for value in normalized):

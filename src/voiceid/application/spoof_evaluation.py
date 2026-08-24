@@ -69,9 +69,7 @@ def evaluate_spoof_scores(
     development = manifest.trials_for(TrialPartition.DEVELOPMENT)
     evaluation = manifest.trials_for(TrialPartition.EVALUATION)
     development_bonafide, development_spoof = _scores(development)
-    selected = minimum_countermeasure_cost(
-        development_bonafide, development_spoof, model
-    )
+    selected = minimum_countermeasure_cost(development_bonafide, development_spoof, model)
     threshold = selected.rates.threshold
     return SpoofEvaluationReport(
         schema_version="voiceid-spoof-evaluation-report/v1",
@@ -82,13 +80,9 @@ def evaluate_spoof_scores(
         threshold_source="development_minimum_countermeasure_cost",
         selected_threshold=threshold,
         cost_model=model,
-        development=_evaluate_partition(
-            development, threshold, model, confidence_level
-        ),
+        development=_evaluate_partition(development, threshold, model, confidence_level),
         evaluation=_evaluate_partition(evaluation, threshold, model, confidence_level),
-        evaluation_attacks=_evaluate_attacks(
-            evaluation, threshold, confidence_level
-        ),
+        evaluation_attacks=_evaluate_attacks(evaluation, threshold, confidence_level),
     )
 
 
@@ -96,15 +90,9 @@ def _scores(
     trials: tuple[SpoofScoreTrial, ...],
 ) -> tuple[tuple[float, ...], tuple[float, ...]]:
     bonafide = tuple(
-        trial.spoof_probability
-        for trial in trials
-        if trial.label is SpoofLabel.BONAFIDE
+        trial.spoof_probability for trial in trials if trial.label is SpoofLabel.BONAFIDE
     )
-    spoof = tuple(
-        trial.spoof_probability
-        for trial in trials
-        if trial.label is SpoofLabel.SPOOF
-    )
+    spoof = tuple(trial.spoof_probability for trial in trials if trial.label is SpoofLabel.SPOOF)
     return bonafide, spoof
 
 
@@ -139,19 +127,14 @@ def _evaluate_attacks(
 ) -> tuple[AttackEvaluation, ...]:
     reports = []
     categories = sorted(
-        {
-            trial.attack_category
-            for trial in trials
-            if trial.label is SpoofLabel.SPOOF
-        },
+        {trial.attack_category for trial in trials if trial.label is SpoofLabel.SPOOF},
         key=lambda category: category.value,
     )
     for category in categories:
         category_trials = tuple(
             trial
             for trial in trials
-            if trial.label is SpoofLabel.SPOOF
-            and trial.attack_category is category
+            if trial.label is SpoofLabel.SPOOF and trial.attack_category is category
         )
         accepts = sum(trial.spoof_probability < threshold for trial in category_trials)
         reports.append(

@@ -53,7 +53,6 @@ class PcmWaveDecoder:
             mono = values
         else:
             mono = tuple(
-                (values[index] + values[index + 1]) / 2
-                for index in range(0, len(values), 2)
+                (values[index] + values[index + 1]) / 2 for index in range(0, len(values), 2)
             )
         return AudioBuffer(tuple(float(value) / 32768.0 for value in mono), sample_rate)

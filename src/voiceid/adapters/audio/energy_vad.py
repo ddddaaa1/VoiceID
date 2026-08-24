@@ -52,6 +52,4 @@ class EnergyVoiceActivityDetector:
                 merged.append([start, end])
 
         minimum = round(audio.sample_rate * self._min_speech_ms / 1000)
-        return tuple(
-            SpeechSegment(start, end) for start, end in merged if end - start >= minimum
-        )
+        return tuple(SpeechSegment(start, end) for start, end in merged if end - start >= minimum)

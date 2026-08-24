@@ -38,9 +38,7 @@ def load_scored_trial_manifest(path: Path) -> ScoredTrialManifest:
     if not isinstance(root["trials"], list):
         raise ManifestFormatError("trials must be an array")
 
-    trials = tuple(
-        _parse_trial(value, index) for index, value in enumerate(root["trials"])
-    )
+    trials = tuple(_parse_trial(value, index) for index, value in enumerate(root["trials"]))
     try:
         return ScoredTrialManifest(
             schema_version=_string(root["schema_version"], "schema_version"),
@@ -78,15 +76,10 @@ def evaluation_report_payload(report: EvaluationReport) -> dict[str, Any]:
                 ),
                 "confidence_intervals_at_selected_threshold": (
                     {
-                        "false_accept_rate": _interval_payload(
-                            condition.false_accept_interval
-                        ),
-                        "false_reject_rate": _interval_payload(
-                            condition.false_reject_interval
-                        ),
+                        "false_accept_rate": _interval_payload(condition.false_accept_interval),
+                        "false_reject_rate": _interval_payload(condition.false_reject_interval),
                     }
-                    if condition.false_accept_interval
-                    and condition.false_reject_interval
+                    if condition.false_accept_interval and condition.false_reject_interval
                     else None
                 ),
             }
@@ -144,16 +137,12 @@ def _parse_trial(value: object, index: int) -> ScoredTrial:
     try:
         return ScoredTrial(
             trial_id=_string(trial["trial_id"], f"{location}.trial_id"),
-            partition=TrialPartition(
-                _string(trial["partition"], f"{location}.partition")
-            ),
+            partition=TrialPartition(_string(trial["partition"], f"{location}.partition")),
             label=TrialLabel(_string(trial["label"], f"{location}.label")),
             enrollment_speaker_id=_string(
                 trial["enrollment_speaker_id"], f"{location}.enrollment_speaker_id"
             ),
-            probe_speaker_id=_string(
-                trial["probe_speaker_id"], f"{location}.probe_speaker_id"
-            ),
+            probe_speaker_id=_string(trial["probe_speaker_id"], f"{location}.probe_speaker_id"),
             score=float(score),
             condition=_string(trial["condition"], f"{location}.condition"),
         )
@@ -165,17 +154,13 @@ def _partition_payload(partition: Any) -> dict[str, Any]:
     return {
         "genuine_trials": partition.genuine_trials,
         "impostor_trials": partition.impostor_trials,
-        "rates_at_selected_threshold": _rates_payload(
-            partition.rates_at_selected_threshold
-        ),
+        "rates_at_selected_threshold": _rates_payload(partition.rates_at_selected_threshold),
         "observed_eer": {
             **_rates_payload(partition.observed_eer),
             "estimated_eer": partition.observed_eer.balanced_error_rate,
         },
         "minimum_dcf": _cost_payload(partition.minimum_dcf),
-        "cost_at_selected_threshold": _cost_payload(
-            partition.cost_at_selected_threshold
-        ),
+        "cost_at_selected_threshold": _cost_payload(partition.cost_at_selected_threshold),
         "confidence_intervals_at_selected_threshold": {
             "false_accept_rate": _interval_payload(partition.false_accept_interval),
             "false_reject_rate": _interval_payload(partition.false_reject_interval),

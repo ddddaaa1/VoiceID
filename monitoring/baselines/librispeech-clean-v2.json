@@ -1,0 +1,21 @@
+{
+  "bin_edges": [
+    0.0,
+    0.2,
+    0.4,
+    0.6,
+    0.8
+  ],
+  "expected_proportions": [
+    0.11666666666666667,
+    0.3333333333333333,
+    0.03333333333333333,
+    0.05,
+    0.23333333333333334,
+    0.23333333333333334
+  ],
+  "model_id": "speechbrain/spkrec-ecapa-voxceleb",
+  "sample_count": 60,
+  "schema_version": "voiceid-score-drift-baseline/v1",
+  "source": "experiments/librispeech-clean-v2/scored-trials.json#evaluation"
+}

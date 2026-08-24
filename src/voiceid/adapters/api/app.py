@@ -2,16 +2,20 @@
 
 from __future__ import annotations
 
+import re
+import time
+import uuid
 from pathlib import Path as FileSystemPath
 from typing import Annotated
 
 from fastapi import FastAPI, File, Path, Query, Request, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 
 from .container import ServiceContainer, build_default_container
 from .errors import ApiError, error_response, register_error_handlers
+from .observability import OperationalMetrics
 from .rate_limit import FixedWindowRateLimiter
 from .schemas import (
     ConsentRequest,
@@ -25,6 +29,7 @@ from .schemas import (
 from .uploads import read_upload, read_uploads
 
 API_VERSION = "v1"
+REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9._:-]{1,64}$")
 DEFAULT_WEB_DIRECTORY = FileSystemPath(__file__).with_name("web")
 IdentityPath = Annotated[
     str,
@@ -67,6 +72,7 @@ def create_app(
         app.state.container.settings.rate_limit_requests,
         app.state.container.settings.rate_limit_window_seconds,
     )
+    app.state.metrics = OperationalMetrics()
     register_error_handlers(app)
 
     if not (web_directory / "index.html").is_file():
@@ -79,6 +85,13 @@ def create_app(
 
     @app.middleware("http")
     async def enforce_content_length(request: Request, call_next):
+        started_at = time.perf_counter()
+        incoming_request_id = request.headers.get("x-request-id", "")
+        request_id = (
+            incoming_request_id
+            if REQUEST_ID_PATTERN.fullmatch(incoming_request_id)
+            else str(uuid.uuid4())
+        )
         if request.url.path.startswith("/api/v1/") and request.method != "GET":
             client_host = request.client.host if request.client is not None else "unknown"
             allowed, retry_after = app.state.rate_limiter.consume(client_host)
@@ -89,18 +102,38 @@ def create_app(
                     "Too many requests; retry later.",
                 )
                 response.headers["Retry-After"] = str(retry_after)
+                response.headers["X-Request-ID"] = request_id
+                app.state.metrics.observe(
+                    request.method,
+                    request.url.path,
+                    response.status_code,
+                    time.perf_counter() - started_at,
+                )
                 return response
         content_length = request.headers.get("content-length")
         if content_length is not None:
             try:
                 size = int(content_length)
             except ValueError:
-                return error_response(400, "invalid_content_length", "Content-Length is invalid.")
+                response = error_response(
+                    400, "invalid_content_length", "Content-Length is invalid."
+                )
+                response.headers["X-Request-ID"] = request_id
+                return response
             if size < 0:
-                return error_response(400, "invalid_content_length", "Content-Length is invalid.")
+                response = error_response(
+                    400, "invalid_content_length", "Content-Length is invalid."
+                )
+                response.headers["X-Request-ID"] = request_id
+                return response
             if size > app.state.container.settings.max_request_bytes:
-                return error_response(413, "request_too_large", "The request body is too large.")
+                response = error_response(
+                    413, "request_too_large", "The request body is too large."
+                )
+                response.headers["X-Request-ID"] = request_id
+                return response
         response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
         if request.url.path == "/" or request.url.path.startswith("/assets/"):
@@ -110,6 +143,12 @@ def create_app(
                 "frame-ancestors 'none'"
             )
             response.headers["Permissions-Policy"] = "microphone=(self)"
+        app.state.metrics.observe(
+            request.method,
+            request.url.path,
+            response.status_code,
+            time.perf_counter() - started_at,
+        )
         return response
 
     @app.get("/", include_in_schema=False)
@@ -127,6 +166,13 @@ def create_app(
             spoof_model_id=services.spoof_model_id,
             verification_policy_id=services.verification_policy_id,
             anti_spoofing_enabled=services.anti_spoofing_enabled,
+        )
+
+    @app.get("/metrics", include_in_schema=False)
+    async def metrics() -> PlainTextResponse:
+        return PlainTextResponse(
+            app.state.metrics.render(),
+            media_type="text/plain; version=0.0.4; charset=utf-8",
         )
 
     @app.post(

@@ -5,7 +5,7 @@ The API exposes the research enrollment and verification workflow through versio
 ## Start the server
 
 ```bash
-uv sync --extra ml --extra api --extra dev
+uv sync --extra ml --extra api --extra persistence --extra dev
 uv run uvicorn voiceid.adapters.api.app:app --host 127.0.0.1 --port 8000
 ```
 
@@ -60,7 +60,7 @@ Example response:
   "identity_id": "demo-user",
   "template_id": "f9e5f1e0-6195-4021-bf73-e1ece0cb2b2a",
   "template_version": 1,
-  "model_id": "speechbrain/spkrec-ecapa-voxceleb",
+  "model_id": "speechbrain/spkrec-ecapa-voxceleb@0f99f2d0ebe89ac095bcc5903c4dd8f72b367286",
   "pipeline_id": "pcm-wave-linear-energy-vad-v1",
   "policy_id": "provisional-cosine-v1",
   "decision": "accept",

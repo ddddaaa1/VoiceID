@@ -63,26 +63,16 @@ def load_la_scores(
         try:
             score = float(raw_score)
         except ValueError as error:
-            raise AsvspoofProtocolError(
-                f"invalid numeric score at line {line_number}"
-            ) from error
+            raise AsvspoofProtocolError(f"invalid numeric score at line {line_number}") from error
         scores[trial_id] = score
 
     missing = selected.keys() - scores.keys()
     if missing:
-        raise AsvspoofProtocolError(
-            f"scores are missing {len(missing)} selected protocol trials"
-        )
+        raise AsvspoofProtocolError(f"scores are missing {len(missing)} selected protocol trials")
     bonafide = tuple(
-        scores[trial_id]
-        for trial_id, (label, _) in selected.items()
-        if label == "bonafide"
+        scores[trial_id] for trial_id, (label, _) in selected.items() if label == "bonafide"
     )
-    spoof = tuple(
-        scores[trial_id]
-        for trial_id, (label, _) in selected.items()
-        if label == "spoof"
-    )
+    spoof = tuple(scores[trial_id] for trial_id, (label, _) in selected.items() if label == "spoof")
     return AsvspoofScores(
         bonafide=bonafide,
         spoof=spoof,

@@ -32,11 +32,7 @@ def trial(
     *,
     condition: str = "clean",
 ) -> ScoredTrial:
-    label = (
-        TrialLabel.GENUINE
-        if enrollment_speaker == probe_speaker
-        else TrialLabel.IMPOSTOR
-    )
+    label = TrialLabel.GENUINE if enrollment_speaker == probe_speaker else TrialLabel.IMPOSTOR
     return ScoredTrial(
         trial_id=trial_id,
         partition=partition,
@@ -73,12 +69,8 @@ class EvaluationProtocolTests(unittest.TestCase):
 
         self.assertEqual(report.threshold_source, "development_min_dcf")
         self.assertEqual(report.selected_threshold, 0.80)
-        self.assertEqual(
-            report.development.rates_at_selected_threshold.false_reject_rate, 0.0
-        )
-        self.assertEqual(
-            report.evaluation.rates_at_selected_threshold.false_reject_rate, 0.5
-        )
+        self.assertEqual(report.development.rates_at_selected_threshold.false_reject_rate, 0.0)
+        self.assertEqual(report.evaluation.rates_at_selected_threshold.false_reject_rate, 0.5)
         self.assertEqual(report.evaluation.rates_at_selected_threshold.threshold, 0.80)
         self.assertEqual(report.evaluation.minimum_dcf.rates.threshold, 0.75)
         self.assertEqual(report.schema_version, "voiceid-evaluation-report/v2")
@@ -86,9 +78,7 @@ class EvaluationProtocolTests(unittest.TestCase):
 
     def test_rejects_speaker_leakage_between_partitions(self) -> None:
         trials = list(valid_manifest().trials)
-        trials[4] = trial(
-            "eval-g-1", TrialPartition.EVALUATION, "dev-a", "dev-a", 0.85
-        )
+        trials[4] = trial("eval-g-1", TrialPartition.EVALUATION, "dev-a", "dev-a", 0.85)
         with self.assertRaisesRegex(EvaluationProtocolError, "speaker leakage"):
             ScoredTrialManifest(
                 dataset_id="leaked",
@@ -141,10 +131,7 @@ class EvaluationProtocolTests(unittest.TestCase):
 class JsonManifestAdapterTests(unittest.TestCase):
     def test_loads_the_versioned_example_and_serializes_a_report(self) -> None:
         example = (
-            Path(__file__).parents[1]
-            / "examples"
-            / "evaluation"
-            / "scored-trials.example.json"
+            Path(__file__).parents[1] / "examples" / "evaluation" / "scored-trials.example.json"
         )
         manifest = load_scored_trial_manifest(example)
         payload = evaluation_report_payload(evaluate_scored_trials(manifest))

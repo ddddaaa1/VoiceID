@@ -6,6 +6,7 @@
 |---|---|
 | Adapter | `SpeechBrainEcapaEmbedder` |
 | Upstream model | `speechbrain/spkrec-ecapa-voxceleb` |
+| Upstream revision | `0f99f2d0ebe89ac095bcc5903c4dd8f72b367286` |
 | Architecture | ECAPA-TDNN |
 | Framework | SpeechBrain / PyTorch |
 | Input | Mono speech waveform at 16 kHz |
@@ -51,5 +52,11 @@ No VoiceID accuracy result has been established yet. The EER reported by the ups
 - Calibration and threshold selection on data separate from final evaluation.
 - Anti-spoofing evaluation before authentication claims.
 
-The Step 7A metric engine and Step 7B hashed audio runner now implement the evaluation workflow at the contract and inference levels, including speaker-disjoint partitions. No consented multi-speaker VoiceID corpus has been scored yet, so the model still has no project-specific accuracy result.
+The Step 7 metric engine and hashed audio runner implement the evaluation workflow with
+speaker-disjoint partitions. The LibriSpeech clean v2 experiment supplies a small project-specific
+research result, but its public speech license is not participant biometric consent and its
+correlated cohort is insufficient for a production threshold.
 - Template protection, deletion, and revocation tests.
+
+The runtime pins the Hugging Face revision and disables update checks. Templates created by older
+unversioned builds remain distinguishable from the pinned release and are not silently mixed.

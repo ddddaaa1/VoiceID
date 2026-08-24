@@ -26,9 +26,7 @@ def load_spoof_score_manifest(path: Path) -> SpoofScoreManifest:
     except OSError as error:
         raise ManifestFormatError(f"could not read spoof manifest: {path}") from error
     except json.JSONDecodeError as error:
-        raise ManifestFormatError(
-            f"spoof manifest is not valid JSON: {error.msg}"
-        ) from error
+        raise ManifestFormatError(f"spoof manifest is not valid JSON: {error.msg}") from error
 
     root = _object(payload, "manifest")
     _exact_keys(root, {"schema_version", "dataset", "system", "trials"}, "manifest")
@@ -75,9 +73,7 @@ def spoof_evaluation_report_payload(report: SpoofEvaluationReport) -> dict[str, 
                 "spoof_trials": attack.spoof_trials,
                 "spoof_accepts": attack.spoof_accepts,
                 "spoof_accept_rate": attack.spoof_accept_rate,
-                "spoof_accept_interval": _interval_payload(
-                    attack.spoof_accept_interval
-                ),
+                "spoof_accept_interval": _interval_payload(attack.spoof_accept_interval),
             }
             for attack in report.evaluation_attacks
         ],
@@ -85,9 +81,7 @@ def spoof_evaluation_report_payload(report: SpoofEvaluationReport) -> dict[str, 
 
 
 def write_spoof_evaluation_report(report: SpoofEvaluationReport, path: Path) -> None:
-    payload = json.dumps(
-        spoof_evaluation_report_payload(report), indent=2, sort_keys=True
-    )
+    payload = json.dumps(spoof_evaluation_report_payload(report), indent=2, sort_keys=True)
     path.write_text(f"{payload}\n", encoding="utf-8")
 
 
@@ -114,9 +108,7 @@ def _parse_trial(value: object, index: int) -> SpoofScoreTrial:
     try:
         return SpoofScoreTrial(
             trial_id=_string(trial["trial_id"], f"{location}.trial_id"),
-            partition=TrialPartition(
-                _string(trial["partition"], f"{location}.partition")
-            ),
+            partition=TrialPartition(_string(trial["partition"], f"{location}.partition")),
             speaker_id=_string(trial["speaker_id"], f"{location}.speaker_id"),
             label=SpoofLabel(_string(trial["label"], f"{location}.label")),
             attack_category=AttackCategory(
@@ -134,13 +126,9 @@ def _partition_payload(partition: Any) -> dict[str, Any]:
     return {
         "bonafide_trials": partition.bonafide_trials,
         "spoof_trials": partition.spoof_trials,
-        "rates_at_selected_threshold": _rates_payload(
-            partition.rates_at_selected_threshold
-        ),
+        "rates_at_selected_threshold": _rates_payload(partition.rates_at_selected_threshold),
         "confidence_intervals_at_selected_threshold": {
-            "bonafide_reject_rate": _interval_payload(
-                partition.bonafide_reject_interval
-            ),
+            "bonafide_reject_rate": _interval_payload(partition.bonafide_reject_interval),
             "spoof_accept_rate": _interval_payload(partition.spoof_accept_interval),
         },
         "observed_countermeasure_eer": {
@@ -148,9 +136,7 @@ def _partition_payload(partition: Any) -> dict[str, Any]:
             "estimated_eer": partition.observed_eer.balanced_error_rate,
         },
         "minimum_countermeasure_cost": _cost_payload(partition.minimum_cost),
-        "cost_at_selected_threshold": _cost_payload(
-            partition.cost_at_selected_threshold
-        ),
+        "cost_at_selected_threshold": _cost_payload(partition.cost_at_selected_threshold),
     }
 
 

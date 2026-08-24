@@ -48,8 +48,7 @@ class SpoofScoreTrial:
             raise SpoofProtocolError("attack category is invalid")
         required = (self.trial_id, self.speaker_id, self.attack_id, self.condition)
         if any(
-            not isinstance(value, str) or not value or value != value.strip()
-            for value in required
+            not isinstance(value, str) or not value or value != value.strip() for value in required
         ):
             raise SpoofProtocolError("spoof trial identifiers must be non-empty")
         if (
@@ -79,9 +78,7 @@ class SpoofScoreManifest:
 
     def __post_init__(self) -> None:
         if self.schema_version != SPOOF_SCORE_SCHEMA_VERSION:
-            raise SpoofProtocolError(
-                f"unsupported schema version: {self.schema_version!r}"
-            )
+            raise SpoofProtocolError(f"unsupported schema version: {self.schema_version!r}")
         metadata = (
             self.dataset_id,
             self.dataset_version,
@@ -89,8 +86,7 @@ class SpoofScoreManifest:
             self.pipeline_id,
         )
         if any(
-            not isinstance(value, str) or not value or value != value.strip()
-            for value in metadata
+            not isinstance(value, str) or not value or value != value.strip() for value in metadata
         ):
             raise SpoofProtocolError("spoof manifest metadata must be non-empty")
         if not self.trials:
@@ -104,18 +100,13 @@ class SpoofScoreManifest:
             partition_trials = self.trials_for(partition)
             labels = {trial.label for trial in partition_trials}
             if labels != set(SpoofLabel):
-                raise SpoofProtocolError(
-                    f"{partition.value} requires bonafide and spoof trials"
-                )
-            speakers_by_partition[partition] = {
-                trial.speaker_id for trial in partition_trials
-            }
+                raise SpoofProtocolError(f"{partition.value} requires bonafide and spoof trials")
+            speakers_by_partition[partition] = {trial.speaker_id for trial in partition_trials}
 
         overlap = set.intersection(*speakers_by_partition.values())
         if overlap:
             raise SpoofProtocolError(
-                "speaker leakage between development and evaluation: "
-                + ", ".join(sorted(overlap))
+                "speaker leakage between development and evaluation: " + ", ".join(sorted(overlap))
             )
 
     def trials_for(self, partition: TrialPartition) -> tuple[SpoofScoreTrial, ...]:

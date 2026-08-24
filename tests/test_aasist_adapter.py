@@ -27,7 +27,9 @@ class RecordingRuntime:
 
 
 def audio(sample_count: int = 16_000, sample_rate: int = 16_000) -> AudioBuffer:
-    samples = tuple(0.1 * math.sin(2 * math.pi * 220 * index / sample_rate) for index in range(sample_count))
+    samples = tuple(
+        0.1 * math.sin(2 * math.pi * 220 * index / sample_rate) for index in range(sample_count)
+    )
     return AudioBuffer(samples, sample_rate)
 
 
@@ -55,9 +57,7 @@ class AasistSpoofDetectorTests(unittest.TestCase):
         with self.assertRaisesRegex(SpoofDetectionError, "16 kHz"):
             detector.spoof_probability(audio(sample_rate=8_000))
         with self.assertRaisesRegex(SpoofDetectionError, "non-finite"):
-            AasistSpoofDetector(RecordingRuntime((float("nan"), 0.0))).spoof_probability(
-                audio()
-            )
+            AasistSpoofDetector(RecordingRuntime((float("nan"), 0.0))).spoof_probability(audio())
 
     def test_wraps_runtime_failures(self) -> None:
         class FailingRuntime:

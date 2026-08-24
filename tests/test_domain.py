@@ -18,6 +18,10 @@ class ScoringTests(unittest.TestCase):
     def test_cosine_similarity_is_scale_invariant(self) -> None:
         self.assertAlmostEqual(cosine_similarity((1, 2, 3), (2, 4, 6)), 1.0)
 
+    def test_rejects_non_finite_embeddings(self) -> None:
+        with self.assertRaisesRegex(ValueError, "finite"):
+            cosine_similarity((1.0, float("nan")), (1.0, 0.0))
+
     def test_robust_template_rejects_one_outlier(self) -> None:
         template = robust_voice_template(
             [(1.0, 0.05), (0.98, 0.02), (1.0, -0.03), (-1.0, 0.0)]
@@ -30,6 +34,10 @@ class ScoringTests(unittest.TestCase):
 
 
 class DecisionTests(unittest.TestCase):
+    def test_rejects_non_finite_quality_metrics(self) -> None:
+        with self.assertRaisesRegex(ValueError, "finite"):
+            QualityReport(2.0, 0.8, 0.0, float("nan"))
+
     def test_genuine_clean_voice_is_accepted(self) -> None:
         result = decide(speaker_score=0.86, spoof_probability=0.08, quality=GOOD_AUDIO)
         self.assertEqual(result.decision, Decision.ACCEPT)

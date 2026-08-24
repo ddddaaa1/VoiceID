@@ -29,15 +29,15 @@ def evaluate_quality(quality: QualityReport, policy: QualityPolicy) -> tuple[str
 
 def decide(
     *,
-    speaker_score: float,
-    spoof_probability: float,
+    speaker_score: float | None,
+    spoof_probability: float | None,
     quality: QualityReport,
     policy: VerificationPolicy | None = None,
 ) -> VerificationResult:
     policy = policy or VerificationPolicy()
-    if not -1.0 <= speaker_score <= 1.0:
+    if speaker_score is not None and not -1.0 <= speaker_score <= 1.0:
         raise ValueError("speaker_score must be between -1 and 1")
-    if not 0.0 <= spoof_probability <= 1.0:
+    if spoof_probability is not None and not 0.0 <= spoof_probability <= 1.0:
         raise ValueError("spoof_probability must be between 0 and 1")
 
     quality_reasons = evaluate_quality(quality, policy)
@@ -46,17 +46,48 @@ def decide(
             Decision.REVIEW, speaker_score, spoof_probability, quality_reasons
         )
 
-    if spoof_probability > policy.max_spoof_probability:
+    if speaker_score is None:
+        return VerificationResult(
+            Decision.REVIEW,
+            None,
+            spoof_probability,
+            ("speaker_score_unavailable",),
+        )
+
+    if spoof_probability is not None and spoof_probability > policy.max_spoof_probability:
         return VerificationResult(
             Decision.REJECT, speaker_score, spoof_probability, ("suspected_spoof",)
         )
 
+    if spoof_probability is None and policy.require_spoof_check:
+        return VerificationResult(
+            Decision.REVIEW,
+            speaker_score,
+            None,
+            ("spoof_check_required",),
+        )
+
     distance = speaker_score - policy.speaker_threshold
     if distance >= 0:
-        decision, reasons = Decision.ACCEPT, ("speaker_match", "bonafide_audio")
+        decision = Decision.ACCEPT
+        reasons = (
+            ("speaker_match", "bonafide_audio")
+            if spoof_probability is not None
+            else ("speaker_match", "spoof_check_not_run")
+        )
     elif distance >= -policy.review_margin:
-        decision, reasons = Decision.REVIEW, ("borderline_speaker_score",)
+        decision = Decision.REVIEW
+        reasons = (
+            ("borderline_speaker_score", "spoof_check_not_run")
+            if spoof_probability is None
+            else ("borderline_speaker_score",)
+        )
     else:
-        decision, reasons = Decision.REJECT, ("speaker_mismatch",)
+        decision = Decision.REJECT
+        reasons = (
+            ("speaker_mismatch", "spoof_check_not_run")
+            if spoof_probability is None
+            else ("speaker_mismatch",)
+        )
 
     return VerificationResult(decision, speaker_score, spoof_probability, reasons)

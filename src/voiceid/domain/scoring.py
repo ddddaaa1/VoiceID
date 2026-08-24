@@ -19,6 +19,8 @@ class TemplateBuildResult:
 def normalize(vector: Sequence[float]) -> Vector:
     if not vector:
         raise ValueError("an embedding cannot be empty")
+    if any(not math.isfinite(value) for value in vector):
+        raise ValueError("embedding values must be finite")
     magnitude = math.sqrt(sum(value * value for value in vector))
     if magnitude <= 1e-12:
         raise ValueError("an embedding cannot be the zero vector")

@@ -46,6 +46,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Replaceable energy-based VAD baseline with explicit speech segments.
 - Real 192-dimensional ECAPA-TDNN speaker embeddings through a lazy SpeechBrain adapter.
 - Multi-sample enrollment with quality gates, outlier rejection, and versioned templates.
+- One-to-one speaker verification with auditable decisions and provisional policy versioning.
 - Unit tests covering the biometric decision engine.
 - Target architecture and incremental roadmap.
 
@@ -93,9 +94,18 @@ uv run python scripts/enroll_identity.py demo-user sample-1.wav sample-2.wav sam
 
 This command exercises the real preprocessing and ECAPA pipeline but deliberately uses in-memory persistence. Durable biometric storage is scheduled for Step 9.
 
+Run the complete ephemeral enrollment and verification workflow:
+
+```bash
+uv run python scripts/verify_identity.py demo-user sample-1.wav sample-2.wav sample-3.wav \
+  --probe probe.wav
+```
+
+The initial `provisional-cosine-v1` policy is useful for integration testing only. It has not been calibrated to a measured FAR, FRR, or EER.
+
 ## Next milestone
 
-Implement speaker verification against the active template, including quality failures, model compatibility checks, and auditable decisions.
+Expose enrollment and verification through a versioned HTTP API with bounded multipart uploads, explicit error contracts, and dependency injection.
 
 ## Engineering decisions
 
@@ -103,6 +113,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 
 - [ADR 0001: Use a replaceable audio preprocessing pipeline](docs/decisions/0001-replaceable-audio-pipeline.md)
 - [ADR 0002: Start with a pretrained ECAPA-TDNN speaker encoder](docs/decisions/0002-pretrained-ecapa-speaker-encoder.md)
+- [ADR 0003: Keep the initial verification policy explicitly provisional](docs/decisions/0003-provisional-verification-policy.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the [ECAPA-TDNN model card](docs/models/ecapa-tdnn.md).
 

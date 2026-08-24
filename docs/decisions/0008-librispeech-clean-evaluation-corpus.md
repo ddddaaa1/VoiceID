@@ -15,12 +15,13 @@ Use LibriSpeech `dev-clean` for development threshold selection and `test-clean`
 
 - accepts only mono 16 kHz FLAC source recordings;
 - selects speakers and clips with a documented SHA-256 ordering seed;
+- requires candidates to pass the versioned preprocessing and quality gates before selection;
 - keeps development and evaluation speakers disjoint;
 - assigns every selected recording exclusively to enrollment or probe;
 - writes signed 16-bit PCM WAVE files accepted by the VoiceID pipeline;
 - creates one genuine and one deterministic impostor comparison per probe;
 - binds every output file to the manifest with SHA-256;
-- records source archives, official MD5 checksums, license, selection parameters, selected speakers, manifest digest, and limitations.
+- records source archives, official MD5 checksums, license, selection parameters, eligibility pipeline, quality policies, rejected candidates, selected speakers, manifest digest, and limitations.
 
 LibriSpeech's CC BY 4.0 distribution is recorded as dataset-level authorization for public research. It is not represented as individual consent for biometric deployment.
 

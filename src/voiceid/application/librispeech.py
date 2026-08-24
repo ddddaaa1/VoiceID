@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -69,6 +70,7 @@ def select_librispeech_clips(
     development_clips: tuple[LibriSpeechClip, ...],
     evaluation_clips: tuple[LibriSpeechClip, ...],
     config: LibriSpeechImportConfig,
+    clip_validator: Callable[[LibriSpeechClip], bool] = lambda _clip: True,
 ) -> tuple[SelectedSpeaker, ...]:
     """Select a stable, speaker-disjoint cohort without filesystem-order dependence."""
 
@@ -81,8 +83,10 @@ def select_librispeech_clips(
         )
 
     selected = _select_partition(
-        development_clips, TrialPartition.DEVELOPMENT, config
-    ) + _select_partition(evaluation_clips, TrialPartition.EVALUATION, config)
+        development_clips, TrialPartition.DEVELOPMENT, config, clip_validator
+    ) + _select_partition(
+        evaluation_clips, TrialPartition.EVALUATION, config, clip_validator
+    )
     return tuple(selected)
 
 
@@ -90,6 +94,7 @@ def _select_partition(
     clips: tuple[LibriSpeechClip, ...],
     partition: TrialPartition,
     config: LibriSpeechImportConfig,
+    clip_validator: Callable[[LibriSpeechClip], bool],
 ) -> list[SelectedSpeaker]:
     eligible: dict[str, list[LibriSpeechClip]] = defaultdict(list)
     for clip in clips:
@@ -100,35 +105,43 @@ def _select_partition(
         ):
             eligible[clip.speaker_id].append(clip)
 
-    eligible = {
+    duration_eligible = {
         speaker_id: speaker_clips
         for speaker_id, speaker_clips in eligible.items()
         if len(speaker_clips) >= config.clips_per_speaker
     }
-    if len(eligible) < config.speakers_per_partition:
+    if len(duration_eligible) < config.speakers_per_partition:
         raise CorpusPreparationError(
-            f"{partition.value} has {len(eligible)} eligible speakers; "
+            f"{partition.value} has {len(duration_eligible)} duration-eligible speakers; "
             f"{config.speakers_per_partition} required"
         )
 
     ordered_speakers = sorted(
-        eligible,
+        duration_eligible,
         key=lambda speaker_id: _stable_key(
             config.selection_seed, partition.value, "speaker", speaker_id
         ),
-    )[: config.speakers_per_partition]
+    )
 
     selections = []
     for speaker_id in ordered_speakers:
-        ordered_clips = sorted(
-            eligible[speaker_id],
+        candidates = sorted(
+            duration_eligible[speaker_id],
             key=lambda clip: _stable_key(
                 config.selection_seed,
                 partition.value,
                 speaker_id,
                 clip.utterance_id,
             ),
-        )[: config.clips_per_speaker]
+        )
+        ordered_clips = []
+        for clip in candidates:
+            if clip_validator(clip):
+                ordered_clips.append(clip)
+            if len(ordered_clips) == config.clips_per_speaker:
+                break
+        if len(ordered_clips) < config.clips_per_speaker:
+            continue
         split = config.enrollment_clips_per_speaker
         selections.append(
             SelectedSpeaker(
@@ -137,6 +150,13 @@ def _select_partition(
                 enrollment_clips=tuple(ordered_clips[:split]),
                 probe_clips=tuple(ordered_clips[split:]),
             )
+        )
+        if len(selections) == config.speakers_per_partition:
+            break
+    if len(selections) < config.speakers_per_partition:
+        raise CorpusPreparationError(
+            f"{partition.value} has {len(selections)} pipeline-eligible speakers; "
+            f"{config.speakers_per_partition} required"
         )
     return selections
 

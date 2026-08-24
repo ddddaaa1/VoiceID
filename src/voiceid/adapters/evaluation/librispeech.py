@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import re
 import shutil
@@ -11,6 +12,8 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
+from voiceid.adapters.audio.energy_vad import EnergyVoiceActivityDetector
+from voiceid.adapters.audio.wave_decoder import PcmWaveDecoder
 from voiceid.adapters.evaluation.json_audio_manifest import write_audio_trial_manifest
 from voiceid.application.librispeech import (
     CorpusPreparationError,
@@ -19,6 +22,9 @@ from voiceid.application.librispeech import (
     SelectedSpeaker,
     select_librispeech_clips,
 )
+from voiceid.application.preprocessing import AudioPreprocessor
+from voiceid.domain.decision import evaluate_quality
+from voiceid.domain.enrollment import EnrollmentPolicy
 from voiceid.domain.evaluation import (
     AudioEnrollment,
     AudioFileReference,
@@ -27,6 +33,7 @@ from voiceid.domain.evaluation import (
     TrialLabel,
     TrialPartition,
 )
+from voiceid.domain.models import VerificationPolicy
 
 LIBRISPEECH_HOMEPAGE = "https://www.openslr.org/12/"
 LIBRISPEECH_LICENSE = "CC BY 4.0"
@@ -50,6 +57,11 @@ class SoundFilePcmWaveTranscoder:
         return information.frames / information.samplerate
 
     def convert(self, source: Path, destination: Path) -> None:
+        payload = self.to_pcm_wave_bytes(source)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(payload)
+
+    def to_pcm_wave_bytes(self, source: Path) -> bytes:
         soundfile = _soundfile()
         try:
             audio, sample_rate = soundfile.read(source, dtype="int16", always_2d=True)
@@ -59,22 +71,26 @@ class SoundFilePcmWaveTranscoder:
             raise CorpusPreparationError(
                 f"expected mono 16 kHz LibriSpeech audio: {source}"
             )
-        destination.parent.mkdir(parents=True, exist_ok=True)
+        buffer = io.BytesIO()
         try:
             soundfile.write(
-                destination,
+                buffer,
                 audio[:, 0],
                 sample_rate,
                 format="WAV",
                 subtype="PCM_16",
             )
         except (OSError, RuntimeError) as error:
-            raise CorpusPreparationError(f"could not write PCM WAVE: {destination}") from error
+            raise CorpusPreparationError(f"could not encode PCM WAVE: {source}") from error
+        return buffer.getvalue()
 
 
 class LibriSpeechCorpusPreparer:
     def __init__(self, transcoder: Any | None = None) -> None:
         self._transcoder = transcoder or SoundFilePcmWaveTranscoder()
+        self._preprocessor = AudioPreprocessor(
+            PcmWaveDecoder(), EnergyVoiceActivityDetector()
+        )
 
     def prepare(
         self,
@@ -92,8 +108,33 @@ class LibriSpeechCorpusPreparer:
 
         development_clips = self._scan(development_root)
         evaluation_clips = self._scan(evaluation_root)
+        validated_payloads: dict[Path, bytes] = {}
+        rejected_candidates: dict[str, tuple[str, ...]] = {}
+
+        def validate_clip(clip: LibriSpeechClip) -> bool:
+            payload = self._transcoder.to_pcm_wave_bytes(clip.source_path)
+            try:
+                preprocessing = self._preprocessor.process(payload)
+            except ValueError:
+                rejected_candidates[clip.utterance_id] = ("invalid_audio",)
+                return False
+            reasons = tuple(
+                sorted(
+                    set(evaluate_quality(preprocessing.quality, EnrollmentPolicy()))
+                    | set(evaluate_quality(preprocessing.quality, VerificationPolicy()))
+                )
+            )
+            if reasons:
+                rejected_candidates[clip.utterance_id] = reasons
+                return False
+            validated_payloads[clip.source_path] = payload
+            return True
+
         selections = select_librispeech_clips(
-            development_clips, evaluation_clips, config
+            development_clips,
+            evaluation_clips,
+            config,
+            validate_clip,
         )
 
         output_parent = output_directory.parent.resolve()
@@ -102,7 +143,9 @@ class LibriSpeechCorpusPreparer:
             tempfile.mkdtemp(prefix=f".{output_directory.name}.", dir=output_parent)
         )
         try:
-            manifest = self._materialize(selections, staging, dataset_version)
+            manifest = self._materialize(
+                selections, validated_payloads, staging, dataset_version
+            )
             manifest_path = staging / "audio-trials.json"
             write_audio_trial_manifest(manifest, manifest_path)
             self._write_provenance(
@@ -111,6 +154,7 @@ class LibriSpeechCorpusPreparer:
                 selections,
                 dataset_version,
                 config,
+                rejected_candidates,
             )
             staging.rename(output_directory)
         except Exception:
@@ -144,6 +188,7 @@ class LibriSpeechCorpusPreparer:
     def _materialize(
         self,
         selections: tuple[SelectedSpeaker, ...],
+        validated_payloads: dict[Path, bytes],
         staging: Path,
         dataset_version: str,
     ) -> AudioTrialManifest:
@@ -158,8 +203,9 @@ class LibriSpeechCorpusPreparer:
                     f"{clip.utterance_id}.wav",
                 )
                 destination = staging / relative
-                self._transcoder.convert(clip.source_path, destination)
-                payload = destination.read_bytes()
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                payload = validated_payloads[clip.source_path]
+                destination.write_bytes(payload)
                 references[clip.utterance_id] = AudioFileReference(
                     path=relative.as_posix(),
                     sha256=hashlib.sha256(payload).hexdigest(),
@@ -227,6 +273,7 @@ class LibriSpeechCorpusPreparer:
         selections: tuple[SelectedSpeaker, ...],
         dataset_version: str,
         config: LibriSpeechImportConfig,
+        rejected_candidates: dict[str, tuple[str, ...]],
     ) -> None:
         payload = {
             "schema_version": PROVENANCE_SCHEMA_VERSION,
@@ -248,6 +295,15 @@ class LibriSpeechCorpusPreparer:
                 "development_subset": "dev-clean",
                 "evaluation_subset": "test-clean",
                 "impostor_pairing": "next-selected-speaker",
+                "eligibility_pipeline_id": "pcm-wave-linear-energy-vad-v1",
+                "quality_filter": {
+                    "enrollment_policy": asdict(EnrollmentPolicy()),
+                    "verification_policy": asdict(VerificationPolicy()),
+                    "rejected_candidates": {
+                        key: list(value)
+                        for key, value in sorted(rejected_candidates.items())
+                    },
+                },
             },
             "selected_speakers": {
                 partition.value: [

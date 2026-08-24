@@ -60,9 +60,9 @@ uv run python scripts/prepare_librispeech.py \
   --output data/raw/librispeech/voiceid-clean-v1
 ```
 
-The default protocol selects 10 speakers from each subset, three enrollment clips and three probe clips per speaker, and recordings between 2.5 and 12 seconds. Selection is based on SHA-256 ordering with a fixed seed, not directory order. Every probe creates one genuine and one impostor trial, so the default output has 20 enrollments, 120 balanced trials, and 120 unique WAV recordings.
+The default protocol selects 10 speakers from each subset, three enrollment clips and three probe clips per speaker, and recordings between 2.5 and 12 seconds. Candidates must also pass the exact VoiceID preprocessing pipeline and both enrollment and verification quality policies; a rejected candidate is replaced using the same deterministic order. Selection is based on SHA-256 ordering with a fixed seed, not directory order. Every probe creates one genuine and one impostor trial, so the default output has 20 enrollments, 120 balanced trials, and 120 unique WAV recordings.
 
-The generated directory contains `audio-trials.json`, `provenance.json`, and `audio/`. `provenance.json` freezes archive checksums, license, parameters, selected speaker IDs, limitations, and the manifest digest. The importer refuses to overwrite an existing output directory. Both source and generated audio remain under `data/raw/`, which is ignored by Git.
+The generated directory contains `audio-trials.json`, `provenance.json`, and `audio/`. `provenance.json` freezes archive checksums, license, parameters, eligibility pipeline, quality policies, rejected candidates, selected speaker IDs, limitations, and the manifest digest. The importer refuses to overwrite an existing output directory. Both source and generated audio remain under `data/raw/`, which is ignored by Git.
 
 LibriSpeech is read English audiobook speech originally prepared for automatic speech recognition. Its clean condition is useful for a reproducible first measurement but does not represent conversational, multilingual, noisy, replayed, or synthetic-speech production traffic. Its CC BY 4.0 license is dataset-level authorization for this public experiment, not individual consent for biometric deployment.
 

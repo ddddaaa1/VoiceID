@@ -36,7 +36,18 @@ class FakeTranscoder:
 
     def convert(self, source: Path, destination: Path) -> None:
         destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes(f"PCM:{source.name}".encode())
+        destination.write_bytes(self.to_pcm_wave_bytes(source))
+
+    def to_pcm_wave_bytes(self, source: Path) -> bytes:
+        amplitude = 1000 + hashlib.sha256(source.name.encode()).digest()[0]
+        samples = array("h", [0, amplitude, -amplitude] * 16_000)
+        with tempfile.NamedTemporaryFile(suffix=".wav") as temporary:
+            with wave.open(temporary.name, "wb") as wav:
+                wav.setnchannels(1)
+                wav.setsampwidth(2)
+                wav.setframerate(16_000)
+                wav.writeframes(samples.tobytes())
+            return Path(temporary.name).read_bytes()
 
 
 def build_source_subset(root: Path, subset: str, speakers: tuple[str, ...]) -> Path:
@@ -91,6 +102,39 @@ class LibriSpeechSelectionTests(unittest.TestCase):
         too_small = tuple(clip("3", index) for index in range(4))
         with self.assertRaisesRegex(CorpusPreparationError, "eligible speakers"):
             select_librispeech_clips(enough, too_small, config)
+
+    def test_pipeline_filter_replaces_rejected_clips_deterministically(self) -> None:
+        config = LibriSpeechImportConfig(
+            speakers_per_partition=2,
+            probe_clips_per_speaker=1,
+            selection_seed="quality-filter-test",
+        )
+        development = tuple(
+            clip(speaker, index) for speaker in ("1", "2") for index in range(8)
+        )
+        evaluation = tuple(
+            clip(speaker, index) for speaker in ("3", "4") for index in range(8)
+        )
+        rejected = {
+            select_librispeech_clips(development, evaluation, config)[0]
+            .enrollment_clips[0]
+            .utterance_id
+        }
+
+        selected = select_librispeech_clips(
+            development,
+            evaluation,
+            config,
+            lambda candidate: candidate.utterance_id not in rejected,
+        )
+
+        used = {
+            candidate.utterance_id
+            for speaker in selected
+            for candidate in (*speaker.enrollment_clips, *speaker.probe_clips)
+        }
+        self.assertTrue(rejected.isdisjoint(used))
+        self.assertEqual(len(used), 16)
 
 
 class LibriSpeechCorpusPreparerTests(unittest.TestCase):

@@ -31,9 +31,15 @@ def main() -> None:
     parser.add_argument("--report", type=Path, help="Optional calibrated report path")
     parser.add_argument("--device", default="cpu", choices=("cpu", "mps", "cuda"))
     parser.add_argument("--max-file-bytes", type=int, default=10_000_000)
+    parser.add_argument(
+        "--audio-root",
+        type=Path,
+        help="Optional root for manifest audio paths (defaults to the manifest directory)",
+    )
     parser.add_argument("--target-probability", type=float, default=0.01)
     parser.add_argument("--false-accept-cost", type=float, default=1.0)
     parser.add_argument("--false-reject-cost", type=float, default=1.0)
+    parser.add_argument("--confidence-level", type=float, default=0.95)
     arguments = parser.parse_args()
 
     if arguments.manifest.resolve() == arguments.output.resolve():
@@ -46,7 +52,7 @@ def main() -> None:
         EnrollmentService(preprocessor, embedder, repository),
         VerificationService(preprocessor, embedder, repository),
         HashedAudioFileReader(
-            arguments.manifest.parent,
+            arguments.audio_root or arguments.manifest.parent,
             max_file_bytes=arguments.max_file_bytes,
         ),
     )
@@ -62,7 +68,12 @@ def main() -> None:
                 false_reject_cost=arguments.false_reject_cost,
             )
             write_evaluation_report(
-                evaluate_scored_trials(scored, cost_model), arguments.report
+                evaluate_scored_trials(
+                    scored,
+                    cost_model,
+                    confidence_level=arguments.confidence_level,
+                ),
+                arguments.report,
             )
     except (ManifestFormatError, TrialScoringError, ValueError, OSError) as error:
         parser.error(str(error))

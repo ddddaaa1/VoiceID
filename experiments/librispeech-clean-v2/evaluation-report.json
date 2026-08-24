@@ -1,0 +1,152 @@
+{
+  "calibration": {
+    "cost_model": {
+      "false_accept_cost": 1.0,
+      "false_reject_cost": 1.0,
+      "target_probability": 0.01
+    },
+    "selected_threshold": 0.5494392210719572,
+    "threshold_source": "development_min_dcf"
+  },
+  "dataset": {
+    "id": "openslr-librispeech-clean-voiceid",
+    "version": "voiceid-librispeech-clean-v2"
+  },
+  "development": {
+    "confidence_intervals_at_selected_threshold": {
+      "false_accept_rate": {
+        "confidence_level": 0.95,
+        "lower": 0.0,
+        "method": "wilson_score",
+        "upper": 0.11351339317396869
+      },
+      "false_reject_rate": {
+        "confidence_level": 0.95,
+        "lower": 0.0,
+        "method": "wilson_score",
+        "upper": 0.11351339317396869
+      }
+    },
+    "cost_at_selected_threshold": {
+      "cost": 0.0,
+      "false_accept_rate": 0.0,
+      "false_reject_rate": 0.0,
+      "normalized_cost": 0.0,
+      "threshold": 0.5494392210719572
+    },
+    "genuine_trials": 30,
+    "impostor_trials": 30,
+    "minimum_dcf": {
+      "cost": 0.0,
+      "false_accept_rate": 0.0,
+      "false_reject_rate": 0.0,
+      "normalized_cost": 0.0,
+      "threshold": 0.5494392210719572
+    },
+    "observed_eer": {
+      "estimated_eer": 0.0,
+      "false_accept_rate": 0.0,
+      "false_accepts": 0,
+      "false_reject_rate": 0.0,
+      "false_rejects": 0,
+      "genuine_trials": 30,
+      "impostor_trials": 30,
+      "threshold": 0.5494392210719572
+    },
+    "rates_at_selected_threshold": {
+      "false_accept_rate": 0.0,
+      "false_accepts": 0,
+      "false_reject_rate": 0.0,
+      "false_rejects": 0,
+      "genuine_trials": 30,
+      "impostor_trials": 30,
+      "threshold": 0.5494392210719572
+    }
+  },
+  "evaluation": {
+    "confidence_intervals_at_selected_threshold": {
+      "false_accept_rate": {
+        "confidence_level": 0.95,
+        "lower": 0.0,
+        "method": "wilson_score",
+        "upper": 0.11351339317396869
+      },
+      "false_reject_rate": {
+        "confidence_level": 0.95,
+        "lower": 0.005908590381612441,
+        "method": "wilson_score",
+        "upper": 0.16670390991409167
+      }
+    },
+    "cost_at_selected_threshold": {
+      "cost": 0.0003333333333333333,
+      "false_accept_rate": 0.0,
+      "false_reject_rate": 0.03333333333333333,
+      "normalized_cost": 0.03333333333333333,
+      "threshold": 0.5494392210719572
+    },
+    "genuine_trials": 30,
+    "impostor_trials": 30,
+    "minimum_dcf": {
+      "cost": 0.0,
+      "false_accept_rate": 0.0,
+      "false_reject_rate": 0.0,
+      "normalized_cost": 0.0,
+      "threshold": 0.48532783988661987
+    },
+    "observed_eer": {
+      "estimated_eer": 0.0,
+      "false_accept_rate": 0.0,
+      "false_accepts": 0,
+      "false_reject_rate": 0.0,
+      "false_rejects": 0,
+      "genuine_trials": 30,
+      "impostor_trials": 30,
+      "threshold": 0.48532783988661987
+    },
+    "rates_at_selected_threshold": {
+      "false_accept_rate": 0.0,
+      "false_accepts": 0,
+      "false_reject_rate": 0.03333333333333333,
+      "false_rejects": 1,
+      "genuine_trials": 30,
+      "impostor_trials": 30,
+      "threshold": 0.5494392210719572
+    }
+  },
+  "evaluation_conditions": [
+    {
+      "condition": "librispeech-test-clean",
+      "confidence_intervals_at_selected_threshold": {
+        "false_accept_rate": {
+          "confidence_level": 0.95,
+          "lower": 0.0,
+          "method": "wilson_score",
+          "upper": 0.11351339317396869
+        },
+        "false_reject_rate": {
+          "confidence_level": 0.95,
+          "lower": 0.005908590381612441,
+          "method": "wilson_score",
+          "upper": 0.16670390991409167
+        }
+      },
+      "genuine_trials": 30,
+      "impostor_trials": 30,
+      "rates_at_selected_threshold": {
+        "false_accept_rate": 0.0,
+        "false_accepts": 0,
+        "false_reject_rate": 0.03333333333333333,
+        "false_rejects": 1,
+        "genuine_trials": 30,
+        "impostor_trials": 30,
+        "threshold": 0.5494392210719572
+      }
+    }
+  ],
+  "schema_version": "voiceid-evaluation-report/v2",
+  "system": {
+    "model_id": "speechbrain/spkrec-ecapa-voxceleb",
+    "pipeline_id": "pcm-wave-linear-energy-vad-v1"
+  }
+}

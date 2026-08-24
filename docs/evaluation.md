@@ -4,9 +4,11 @@ VoiceID separates **scoring**, **calibration**, and **final evaluation**. This p
 
 ## Current delivery state
 
-Step 7A implements the strict scored-trial contract, validation rules, FAR, FRR, observed EER, normalized minDCF, development-only threshold selection, held-out reporting, and condition breakdowns. Step 7B adds a hashed audio-trial contract and generates scores through the versioned preprocessing, enrollment, verification, and ECAPA pipeline. Step 7C begins with a reproducible LibriSpeech clean-subset importer; measured results and confidence intervals are still pending.
+Step 7A implements the strict scored-trial contract, validation rules, FAR, FRR, observed EER, normalized minDCF, development-only threshold selection, held-out reporting, and condition breakdowns. Step 7B adds a hashed audio-trial contract and generates scores through the versioned preprocessing, enrollment, verification, and ECAPA pipeline. Step 7C publishes the reproducible LibriSpeech clean v2 protocol, raw scores, held-out report, uncertainty intervals, and limitations without committing audio.
 
 No bundled value is a VoiceID benchmark. `examples/evaluation/scored-trials.example.json` contains deliberately synthetic scores used to exercise the contract.
+
+The first measured exploratory result is published under `experiments/librispeech-clean-v2/`. It is intentionally described as a narrow clean-speech experiment rather than a production benchmark.
 
 ## Audio-trial manifest v1
 
@@ -14,7 +16,7 @@ No bundled value is a VoiceID benchmark. `examples/evaluation/scored-trials.exam
 
 The dataset metadata requires an ID, immutable version, and authorization or consent attestation. Public-corpus licensing must be described honestly and must never be presented as individual biometric consent. Each enrollment declares an identity, true speaker, partition, and three to eight unique recordings. Each trial declares its claimed identity, true probe speaker, expected label, condition, and probe recording.
 
-Every recording reference contains a safe relative `.wav` path and lowercase SHA-256 digest. The manifest is resolved relative to its own directory. Absolute paths, parent traversal, missing files, symlink escapes, empty files, files over the configured limit, and checksum mismatches fail before inference.
+Every recording reference contains a safe relative `.wav` path and lowercase SHA-256 digest. By default, the manifest is resolved relative to its own directory; the scoring CLI accepts an explicit `--audio-root` so a published manifest can reference locally regenerated, ignored audio. Absolute paths, parent traversal, missing files, symlink escapes, empty files, files over the configured limit, and checksum mismatches fail before inference.
 
 Protocol validation also rejects:
 
@@ -55,12 +57,12 @@ Download and verify the official `dev-clean.tar.gz` and `test-clean.tar.gz` arch
 
 ```bash
 uv run python scripts/prepare_librispeech.py \
-  --dev-clean data/raw/librispeech/LibriSpeech/dev-clean \
-  --test-clean data/raw/librispeech/LibriSpeech/test-clean \
-  --output data/raw/librispeech/voiceid-clean-v1
+  --dev-clean data/raw/librispeech/extracted/LibriSpeech/dev-clean \
+  --test-clean data/raw/librispeech/extracted/LibriSpeech/test-clean \
+  --output data/raw/librispeech/voiceid-clean-v2
 ```
 
-The default protocol selects 10 speakers from each subset, three enrollment clips and three probe clips per speaker, and recordings between 2.5 and 12 seconds. Candidates must also pass the exact VoiceID preprocessing pipeline and both enrollment and verification quality policies; a rejected candidate is replaced using the same deterministic order. Selection is based on SHA-256 ordering with a fixed seed, not directory order. Every probe creates one genuine and one impostor trial, so the default output has 20 enrollments, 120 balanced trials, and 120 unique WAV recordings.
+The default protocol selects 10 speakers from each subset, five enrollment clips and three probe clips per speaker, and recordings between 2.5 and 12 seconds. Five enrollment clips allow the robust template builder to discard outliers while retaining its required minimum of three. Candidates must also pass the exact VoiceID preprocessing pipeline and both enrollment and verification quality policies; a rejected candidate is replaced using the same deterministic order. Selection is based on SHA-256 ordering with a fixed seed, not directory order. Every probe creates one genuine and one impostor trial, so the default output has 20 enrollments, 120 balanced trials, and 160 unique WAV recordings.
 
 The generated directory contains `audio-trials.json`, `provenance.json`, and `audio/`. `provenance.json` freezes archive checksums, license, parameters, eligibility pipeline, quality policies, rejected candidates, selected speaker IDs, limitations, and the manifest digest. The importer refuses to overwrite an existing output directory. Both source and generated audio remain under `data/raw/`, which is ignored by Git.
 
@@ -102,6 +104,8 @@ The default cost model uses `P_target=0.01`, `C_miss=1`, and `C_fa=1`. These val
 
 The report includes evaluation minDCF only as a diagnostic lower bound. The deployable candidate remains the threshold selected from development trials and its held-out FAR/FRR/cost.
 
+The v2 report also includes two-sided Wilson score confidence intervals for FAR and FRR at the selected threshold. The default confidence level is 95% and can be changed with `--confidence-level`. These trial-level intervals prevent zero observed errors from being described as zero underlying risk, but they do not remove speaker/template correlation. Larger experiments should use speaker-cluster resampling.
+
 ## Run the contract example
 
 ```bash
@@ -127,4 +131,4 @@ uv run python scripts/evaluate_scores.py \
 - Do not omit quality failures or trials because their scores are inconvenient.
 - Do not report the synthetic example or upstream SpeechBrain metrics as VoiceID performance.
 - Publish trial counts and error counts with every rate; percentages alone hide small samples.
-- Add confidence intervals and subgroup coverage before making performance claims from a real corpus.
+- Treat confidence intervals from small or correlated cohorts as uncertainty indicators, not production guarantees.

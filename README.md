@@ -52,9 +52,10 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Leakage-resistant scored-trial manifests with development-only minDCF threshold selection.
 - Hash-locked PCM WAVE trial manifests and a real preprocessing + ECAPA scoring runner.
 - Deterministic LibriSpeech clean-subset import with provenance, license, and archive checksums.
+- Published LibriSpeech clean evaluation with frozen scores and Wilson uncertainty intervals.
 - Target architecture and incremental roadmap.
 
-The system remains experimental: its decision policy is not calibrated and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
+The system remains experimental. Its first small clean-speech calibration report is published, but the evidence is insufficient to replace the provisional application policy and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
 
 ## Install the ML environment
 
@@ -107,15 +108,19 @@ node --test tests/web/audio.test.mjs
 uv run ruff check .
 ```
 
-## Next milestone
+## First measured experiment
 
-Score the reproducible LibriSpeech clean cohort and publish a measured calibration report. The importer, audio runner, metric layer, and strict contracts are available:
+The [LibriSpeech clean v2 experiment](experiments/librispeech-clean-v2/README.md) publishes its protocol, provenance, raw scores, held-out metrics, and confidence intervals without committing voice recordings. At the development-selected threshold, the held-out cohort observed 0/30 false accepts and 1/30 false rejects. The corresponding 95% Wilson intervals are 0.00%–11.35% FAR and 0.59%–16.67% FRR, which makes the small-cohort uncertainty explicit.
+
+## Reproduce the experiment
+
+The importer, audio runner, metric layer, and strict contracts are available:
 
 ```bash
 uv run python scripts/prepare_librispeech.py \
-  --dev-clean data/raw/librispeech/LibriSpeech/dev-clean \
-  --test-clean data/raw/librispeech/LibriSpeech/test-clean \
-  --output data/raw/librispeech/voiceid-clean-v1
+  --dev-clean data/raw/librispeech/extracted/LibriSpeech/dev-clean \
+  --test-clean data/raw/librispeech/extracted/LibriSpeech/test-clean \
+  --output data/raw/librispeech/voiceid-clean-v2
 ```
 
 Then run the generated hash-locked manifest:
@@ -139,6 +144,8 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0005: Serve a same-origin web client with client-side PCM capture](docs/decisions/0005-same-origin-web-client.md)
 - [ADR 0006: Calibrate on speaker-disjoint development trials](docs/decisions/0006-speaker-disjoint-calibration.md)
 - [ADR 0007: Bind evaluation trials to hashed audio assets](docs/decisions/0007-hashed-audio-trials.md)
+- [ADR 0008: Use speaker-disjoint LibriSpeech clean subsets](docs/decisions/0008-librispeech-clean-evaluation-corpus.md)
+- [ADR 0009: Report Wilson intervals for locked-threshold error rates](docs/decisions/0009-wilson-error-rate-intervals.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the [ECAPA-TDNN model card](docs/models/ecapa-tdnn.md).
 

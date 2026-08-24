@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
+from statistics import NormalDist
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,6 +48,51 @@ class DetectionCostMetrics:
     rates: ThresholdMetrics
     cost: float
     normalized_cost: float
+
+
+@dataclass(frozen=True, slots=True)
+class BinomialConfidenceInterval:
+    method: str
+    confidence_level: float
+    lower: float
+    upper: float
+
+
+def wilson_score_interval(
+    errors: int, trials: int, confidence_level: float = 0.95
+) -> BinomialConfidenceInterval:
+    """Return a two-sided Wilson interval for one observed error rate."""
+    if (
+        not isinstance(errors, int)
+        or isinstance(errors, bool)
+        or not isinstance(trials, int)
+        or isinstance(trials, bool)
+        or trials <= 0
+        or not 0 <= errors <= trials
+    ):
+        raise ValueError("errors and trials must be valid integer counts")
+    if not math.isfinite(confidence_level) or not 0.0 < confidence_level < 1.0:
+        raise ValueError("confidence_level must be between 0 and 1")
+
+    probability = errors / trials
+    z_score = NormalDist().inv_cdf((1.0 + confidence_level) / 2.0)
+    z_squared = z_score * z_score
+    denominator = 1.0 + z_squared / trials
+    center = (probability + z_squared / (2.0 * trials)) / denominator
+    margin = (
+        z_score
+        * math.sqrt(
+            probability * (1.0 - probability) / trials
+            + z_squared / (4.0 * trials * trials)
+        )
+        / denominator
+    )
+    return BinomialConfidenceInterval(
+        method="wilson_score",
+        confidence_level=confidence_level,
+        lower=0.0 if errors == 0 else max(0.0, center - margin),
+        upper=1.0 if errors == trials else min(1.0, center + margin),
+    )
 
 
 def rates_at_threshold(

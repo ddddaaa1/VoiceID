@@ -81,6 +81,8 @@ class EvaluationProtocolTests(unittest.TestCase):
         )
         self.assertEqual(report.evaluation.rates_at_selected_threshold.threshold, 0.80)
         self.assertEqual(report.evaluation.minimum_dcf.rates.threshold, 0.75)
+        self.assertEqual(report.schema_version, "voiceid-evaluation-report/v2")
+        self.assertGreater(report.evaluation.false_accept_interval.upper, 0.0)
 
     def test_rejects_speaker_leakage_between_partitions(self) -> None:
         trials = list(valid_manifest().trials)
@@ -151,6 +153,12 @@ class JsonManifestAdapterTests(unittest.TestCase):
         self.assertEqual(len(manifest.trials), 16)
         self.assertEqual(payload["calibration"]["threshold_source"], "development_min_dcf")
         self.assertIn("false_accept_rate", payload["evaluation"]["rates_at_selected_threshold"])
+        self.assertEqual(
+            payload["evaluation"]["confidence_intervals_at_selected_threshold"][
+                "false_accept_rate"
+            ]["method"],
+            "wilson_score",
+        )
 
     def test_rejects_unknown_manifest_fields(self) -> None:
         payload = {

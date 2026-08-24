@@ -15,10 +15,10 @@ def main() -> None:
     parser.add_argument("--test-clean", required=True, type=Path, help="Extracted test-clean root")
     parser.add_argument("--output", required=True, type=Path, help="New output directory")
     parser.add_argument(
-        "--dataset-version", default="voiceid-librispeech-clean-v1", help="Immutable version"
+        "--dataset-version", default="voiceid-librispeech-clean-v2", help="Immutable version"
     )
     parser.add_argument("--speakers", type=int, default=10, help="Speakers per partition")
-    parser.add_argument("--enrollment-clips", type=int, default=3)
+    parser.add_argument("--enrollment-clips", type=int, default=5)
     parser.add_argument("--probe-clips", type=int, default=3)
     parser.add_argument("--minimum-duration", type=float, default=2.5)
     parser.add_argument("--maximum-duration", type=float, default=12.0)

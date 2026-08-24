@@ -29,14 +29,14 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 
 ## Scientific evaluation and security
 
-- [ ] **Step 7 — Evaluation and calibration**
+- [x] **Step 7 — Evaluation and calibration**
   Create versioned trial manifests, calculate FAR/FRR/EER/minDCF, and select thresholds without test-set leakage.
 
   - [x] **Step 7A — Scored-trial protocol and metric engine**
     Reject speaker leakage, select minDCF on development only, report held-out metrics, and break down evaluation results by condition.
   - [x] **Step 7B — Reproducible audio scoring runner**
     Generate scored trials from a consented PCM WAVE corpus with the versioned preprocessing and ECAPA adapters.
-  - [ ] **Step 7C — Measured calibration report**
+  - [x] **Step 7C — Measured calibration report**
     Freeze a real manifest, publish dataset limitations and confidence intervals, and replace the provisional threshold only if evidence supports it.
 
 - [ ] **Step 8 — Anti-spoofing**
@@ -52,4 +52,6 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 
 ## Current focus
 
-Step 7C is in progress. The reproducible LibriSpeech clean-subset importer is present; the next increment downloads and verifies the public archives, freezes the generated manifest, scores it, adds confidence intervals, and publishes the first measured VoiceID calibration report.
+Step 7 is complete. The first measured LibriSpeech clean report freezes its non-audio artifacts, real ECAPA scores, held-out metrics, Wilson intervals, and limitations. Its small correlated cohort does not justify replacing the provisional application threshold.
+
+The next increment is Step 8: introduce an anti-spoofing model and evaluate replay, synthetic speech, and voice conversion together with speaker verification.

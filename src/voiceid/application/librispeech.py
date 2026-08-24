@@ -32,7 +32,7 @@ class LibriSpeechClip:
 @dataclass(frozen=True, slots=True)
 class LibriSpeechImportConfig:
     speakers_per_partition: int = 10
-    enrollment_clips_per_speaker: int = 3
+    enrollment_clips_per_speaker: int = 5
     probe_clips_per_speaker: int = 3
     minimum_duration_seconds: float = 2.5
     maximum_duration_seconds: float = 12.0

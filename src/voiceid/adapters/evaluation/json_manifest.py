@@ -76,6 +76,19 @@ def evaluation_report_payload(report: EvaluationReport) -> dict[str, Any]:
                     if condition.rates_at_selected_threshold
                     else None
                 ),
+                "confidence_intervals_at_selected_threshold": (
+                    {
+                        "false_accept_rate": _interval_payload(
+                            condition.false_accept_interval
+                        ),
+                        "false_reject_rate": _interval_payload(
+                            condition.false_reject_interval
+                        ),
+                    }
+                    if condition.false_accept_interval
+                    and condition.false_reject_interval
+                    else None
+                ),
             }
             for condition in report.evaluation_conditions
         ],
@@ -163,6 +176,10 @@ def _partition_payload(partition: Any) -> dict[str, Any]:
         "cost_at_selected_threshold": _cost_payload(
             partition.cost_at_selected_threshold
         ),
+        "confidence_intervals_at_selected_threshold": {
+            "false_accept_rate": _interval_payload(partition.false_accept_interval),
+            "false_reject_rate": _interval_payload(partition.false_reject_interval),
+        },
     }
 
 
@@ -185,6 +202,15 @@ def _cost_payload(cost: Any) -> dict[str, Any]:
         "normalized_cost": cost.normalized_cost,
         "false_accept_rate": cost.rates.false_accept_rate,
         "false_reject_rate": cost.rates.false_reject_rate,
+    }
+
+
+def _interval_payload(interval: Any) -> dict[str, Any]:
+    return {
+        "method": interval.method,
+        "confidence_level": interval.confidence_level,
+        "lower": interval.lower,
+        "upper": interval.upper,
     }
 
 

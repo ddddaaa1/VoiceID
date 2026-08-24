@@ -23,6 +23,7 @@ def main() -> None:
     parser.add_argument("--target-probability", type=float, default=0.01)
     parser.add_argument("--false-accept-cost", type=float, default=1.0)
     parser.add_argument("--false-reject-cost", type=float, default=1.0)
+    parser.add_argument("--confidence-level", type=float, default=0.95)
     arguments = parser.parse_args()
 
     try:
@@ -32,7 +33,9 @@ def main() -> None:
             false_accept_cost=arguments.false_accept_cost,
             false_reject_cost=arguments.false_reject_cost,
         )
-        report = evaluate_scored_trials(manifest, cost_model)
+        report = evaluate_scored_trials(
+            manifest, cost_model, confidence_level=arguments.confidence_level
+        )
     except (ManifestFormatError, ValueError) as error:
         parser.error(str(error))
 

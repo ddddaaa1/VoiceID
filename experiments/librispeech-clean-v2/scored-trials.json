@@ -1,0 +1,1093 @@
+{
+  "dataset": {
+    "id": "openslr-librispeech-clean-voiceid",
+    "version": "voiceid-librispeech-clean-v2"
+  },
+  "schema_version": "voiceid-scored-trials/v1",
+  "system": {
+    "model_id": "speechbrain/spkrec-ecapa-voxceleb",
+    "pipeline_id": "pcm-wave-linear-energy-vad-v1"
+  },
+  "trials": [
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1919",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1919",
+      "score": 0.8542250255110228,
+      "trial_id": "development-genuine-1919-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5694",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1919",
+      "score": 0.09849260525277842,
+      "trial_id": "development-impostor-1919-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1919",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1919",
+      "score": 0.842155712963982,
+      "trial_id": "development-genuine-1919-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5694",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1919",
+      "score": 0.10906430142037735,
+      "trial_id": "development-impostor-1919-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1919",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1919",
+      "score": 0.7615386670698567,
+      "trial_id": "development-genuine-1919-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5694",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1919",
+      "score": 0.1716145853791985,
+      "trial_id": "development-impostor-1919-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5694",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5694",
+      "score": 0.6864203527288775,
+      "trial_id": "development-genuine-5694-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-251",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5694",
+      "score": 0.2256341709389049,
+      "trial_id": "development-impostor-5694-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5694",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5694",
+      "score": 0.703528095911944,
+      "trial_id": "development-genuine-5694-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-251",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5694",
+      "score": 0.2114142521778185,
+      "trial_id": "development-impostor-5694-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5694",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5694",
+      "score": 0.8799468696239341,
+      "trial_id": "development-genuine-5694-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-251",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5694",
+      "score": 0.19935177238440038,
+      "trial_id": "development-impostor-5694-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-251",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-251",
+      "score": 0.7254584942631997,
+      "trial_id": "development-genuine-251-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-7850",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-251",
+      "score": 0.07365221590815887,
+      "trial_id": "development-impostor-251-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-251",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-251",
+      "score": 0.7636657309243737,
+      "trial_id": "development-genuine-251-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-7850",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-251",
+      "score": 0.17420468012602555,
+      "trial_id": "development-impostor-251-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-251",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-251",
+      "score": 0.6953757635060169,
+      "trial_id": "development-genuine-251-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-7850",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-251",
+      "score": 0.1685824767724334,
+      "trial_id": "development-impostor-251-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-7850",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-7850",
+      "score": 0.8140573707763233,
+      "trial_id": "development-genuine-7850-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-84",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-7850",
+      "score": 0.10489014226975017,
+      "trial_id": "development-impostor-7850-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-7850",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-7850",
+      "score": 0.7185154076366195,
+      "trial_id": "development-genuine-7850-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-84",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-7850",
+      "score": 0.14602029623019216,
+      "trial_id": "development-impostor-7850-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-7850",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-7850",
+      "score": 0.6915999005026435,
+      "trial_id": "development-genuine-7850-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-84",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-7850",
+      "score": 0.09986793258456497,
+      "trial_id": "development-impostor-7850-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-84",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-84",
+      "score": 0.7680960957469157,
+      "trial_id": "development-genuine-84-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5338",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-84",
+      "score": 0.1572291936217991,
+      "trial_id": "development-impostor-84-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-84",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-84",
+      "score": 0.8823222029693045,
+      "trial_id": "development-genuine-84-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5338",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-84",
+      "score": 0.09445667643032994,
+      "trial_id": "development-impostor-84-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-84",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-84",
+      "score": 0.844286353083077,
+      "trial_id": "development-genuine-84-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5338",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-84",
+      "score": 0.2237600257767429,
+      "trial_id": "development-impostor-84-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5338",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5338",
+      "score": 0.8096084922806168,
+      "trial_id": "development-genuine-5338-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-2412",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5338",
+      "score": -0.013982153519431946,
+      "trial_id": "development-impostor-5338-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5338",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5338",
+      "score": 0.6970223564374305,
+      "trial_id": "development-genuine-5338-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-2412",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5338",
+      "score": -0.05149563153276156,
+      "trial_id": "development-impostor-5338-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-5338",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5338",
+      "score": 0.8005801508657389,
+      "trial_id": "development-genuine-5338-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-2412",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-5338",
+      "score": -0.009935972635167125,
+      "trial_id": "development-impostor-5338-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-2412",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-2412",
+      "score": 0.8364839811365987,
+      "trial_id": "development-genuine-2412-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1272",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-2412",
+      "score": 0.16798696450176526,
+      "trial_id": "development-impostor-2412-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-2412",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-2412",
+      "score": 0.7651540681263624,
+      "trial_id": "development-genuine-2412-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1272",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-2412",
+      "score": 0.03406559092684569,
+      "trial_id": "development-impostor-2412-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-2412",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-2412",
+      "score": 0.8925737706266451,
+      "trial_id": "development-genuine-2412-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1272",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-2412",
+      "score": 0.16953120716348147,
+      "trial_id": "development-impostor-2412-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1272",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1272",
+      "score": 0.8369666386376977,
+      "trial_id": "development-genuine-1272-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-6319",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1272",
+      "score": 0.04159185649607947,
+      "trial_id": "development-impostor-1272-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1272",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1272",
+      "score": 0.5494392210719572,
+      "trial_id": "development-genuine-1272-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-6319",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1272",
+      "score": 0.03534453743865785,
+      "trial_id": "development-impostor-1272-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1272",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1272",
+      "score": 0.7543494278691865,
+      "trial_id": "development-genuine-1272-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-6319",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1272",
+      "score": 0.018459504624913588,
+      "trial_id": "development-impostor-1272-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-6319",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-6319",
+      "score": 0.7584123691447655,
+      "trial_id": "development-genuine-6319-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1462",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-6319",
+      "score": 0.11122469755417821,
+      "trial_id": "development-impostor-6319-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-6319",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-6319",
+      "score": 0.7008120972701375,
+      "trial_id": "development-genuine-6319-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1462",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-6319",
+      "score": 0.08704269527412342,
+      "trial_id": "development-impostor-6319-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-6319",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-6319",
+      "score": 0.6064626678242504,
+      "trial_id": "development-genuine-6319-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1462",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-6319",
+      "score": 0.10879150853443303,
+      "trial_id": "development-impostor-6319-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1462",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1462",
+      "score": 0.777883672052294,
+      "trial_id": "development-genuine-1462-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1919",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1462",
+      "score": 0.22258626967404133,
+      "trial_id": "development-impostor-1462-01"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1462",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1462",
+      "score": 0.5584041661367427,
+      "trial_id": "development-genuine-1462-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1919",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1462",
+      "score": 0.09315123755594841,
+      "trial_id": "development-impostor-1462-02"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1462",
+      "label": "genuine",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1462",
+      "score": 0.7221546590629556,
+      "trial_id": "development-genuine-1462-03"
+    },
+    {
+      "condition": "librispeech-dev-clean",
+      "enrollment_speaker_id": "librispeech-development-1919",
+      "label": "impostor",
+      "partition": "development",
+      "probe_speaker_id": "librispeech-development-1462",
+      "score": 0.12294101950837294,
+      "trial_id": "development-impostor-1462-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-7021",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-7021",
+      "score": 0.8693207461438244,
+      "trial_id": "evaluation-genuine-7021-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2830",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-7021",
+      "score": 0.15472126813865295,
+      "trial_id": "evaluation-impostor-7021-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-7021",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-7021",
+      "score": 0.8091836282151388,
+      "trial_id": "evaluation-genuine-7021-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2830",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-7021",
+      "score": 0.17955027053760375,
+      "trial_id": "evaluation-impostor-7021-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-7021",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-7021",
+      "score": 0.8060061494789568,
+      "trial_id": "evaluation-genuine-7021-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2830",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-7021",
+      "score": 0.05252631813284298,
+      "trial_id": "evaluation-impostor-7021-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2830",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2830",
+      "score": 0.8645756637387737,
+      "trial_id": "evaluation-genuine-2830-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2094",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2830",
+      "score": 0.15579517004233337,
+      "trial_id": "evaluation-impostor-2830-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2830",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2830",
+      "score": 0.8542578272366591,
+      "trial_id": "evaluation-genuine-2830-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2094",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2830",
+      "score": 0.15323661852333553,
+      "trial_id": "evaluation-impostor-2830-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2830",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2830",
+      "score": 0.8245385616103956,
+      "trial_id": "evaluation-genuine-2830-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2094",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2830",
+      "score": 0.06893658044721894,
+      "trial_id": "evaluation-impostor-2830-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2094",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2094",
+      "score": 0.7843077940850676,
+      "trial_id": "evaluation-genuine-2094-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-672",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2094",
+      "score": 0.0325473745008719,
+      "trial_id": "evaluation-impostor-2094-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2094",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2094",
+      "score": 0.7853676497880222,
+      "trial_id": "evaluation-genuine-2094-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-672",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2094",
+      "score": 0.017382079363832313,
+      "trial_id": "evaluation-impostor-2094-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-2094",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2094",
+      "score": 0.8352405425100592,
+      "trial_id": "evaluation-genuine-2094-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-672",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-2094",
+      "score": 0.06289648277861419,
+      "trial_id": "evaluation-impostor-2094-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-672",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-672",
+      "score": 0.6321948535999474,
+      "trial_id": "evaluation-genuine-672-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8224",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-672",
+      "score": 0.08054654116458483,
+      "trial_id": "evaluation-impostor-672-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-672",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-672",
+      "score": 0.57140991166351,
+      "trial_id": "evaluation-genuine-672-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8224",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-672",
+      "score": 0.04572050589979474,
+      "trial_id": "evaluation-impostor-672-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-672",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-672",
+      "score": 0.48532783988661987,
+      "trial_id": "evaluation-genuine-672-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8224",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-672",
+      "score": 0.03779485979797957,
+      "trial_id": "evaluation-impostor-672-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8224",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8224",
+      "score": 0.7827176742539828,
+      "trial_id": "evaluation-genuine-8224-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4970",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8224",
+      "score": 0.05778116617600679,
+      "trial_id": "evaluation-impostor-8224-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8224",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8224",
+      "score": 0.8376610795085382,
+      "trial_id": "evaluation-genuine-8224-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4970",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8224",
+      "score": 0.02461034956784364,
+      "trial_id": "evaluation-impostor-8224-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8224",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8224",
+      "score": 0.8279708892711322,
+      "trial_id": "evaluation-genuine-8224-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4970",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8224",
+      "score": 0.007970267165459715,
+      "trial_id": "evaluation-impostor-8224-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4970",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4970",
+      "score": 0.6712723166572827,
+      "trial_id": "evaluation-genuine-4970-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-3729",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4970",
+      "score": -0.07336921250242996,
+      "trial_id": "evaluation-impostor-4970-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4970",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4970",
+      "score": 0.8598249301051274,
+      "trial_id": "evaluation-genuine-4970-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-3729",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4970",
+      "score": -0.1375180614195491,
+      "trial_id": "evaluation-impostor-4970-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4970",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4970",
+      "score": 0.8182670142889382,
+      "trial_id": "evaluation-genuine-4970-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-3729",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4970",
+      "score": -0.042122092372525254,
+      "trial_id": "evaluation-impostor-4970-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-3729",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-3729",
+      "score": 0.7466262102292951,
+      "trial_id": "evaluation-genuine-3729-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4507",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-3729",
+      "score": 0.28313311416132997,
+      "trial_id": "evaluation-impostor-3729-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-3729",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-3729",
+      "score": 0.6804244010563415,
+      "trial_id": "evaluation-genuine-3729-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4507",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-3729",
+      "score": 0.4195133635304348,
+      "trial_id": "evaluation-impostor-3729-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-3729",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-3729",
+      "score": 0.7104582714374255,
+      "trial_id": "evaluation-genuine-3729-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4507",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-3729",
+      "score": 0.3873789305437184,
+      "trial_id": "evaluation-impostor-3729-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4507",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4507",
+      "score": 0.765313271216452,
+      "trial_id": "evaluation-genuine-4507-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8455",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4507",
+      "score": -0.02294531152519626,
+      "trial_id": "evaluation-impostor-4507-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4507",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4507",
+      "score": 0.8521827079775149,
+      "trial_id": "evaluation-genuine-4507-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8455",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4507",
+      "score": 0.0027898345115565056,
+      "trial_id": "evaluation-impostor-4507-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-4507",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4507",
+      "score": 0.7908076369281662,
+      "trial_id": "evaluation-genuine-4507-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8455",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-4507",
+      "score": -0.01847292512738067,
+      "trial_id": "evaluation-impostor-4507-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8455",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8455",
+      "score": 0.8721073936290776,
+      "trial_id": "evaluation-genuine-8455-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-1580",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8455",
+      "score": 0.020157913960808398,
+      "trial_id": "evaluation-impostor-8455-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8455",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8455",
+      "score": 0.7987215555064209,
+      "trial_id": "evaluation-genuine-8455-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-1580",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8455",
+      "score": 0.09752169247374154,
+      "trial_id": "evaluation-impostor-8455-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-8455",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8455",
+      "score": 0.7530248881833737,
+      "trial_id": "evaluation-genuine-8455-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-1580",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-8455",
+      "score": 0.08894968318254864,
+      "trial_id": "evaluation-impostor-8455-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-1580",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-1580",
+      "score": 0.6274891949530844,
+      "trial_id": "evaluation-genuine-1580-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-7021",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-1580",
+      "score": -0.048714571439424925,
+      "trial_id": "evaluation-impostor-1580-01"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-1580",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-1580",
+      "score": 0.8385154778087277,
+      "trial_id": "evaluation-genuine-1580-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-7021",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-1580",
+      "score": -0.018790605103476646,
+      "trial_id": "evaluation-impostor-1580-02"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-1580",
+      "label": "genuine",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-1580",
+      "score": 0.7454391682080852,
+      "trial_id": "evaluation-genuine-1580-03"
+    },
+    {
+      "condition": "librispeech-test-clean",
+      "enrollment_speaker_id": "librispeech-evaluation-7021",
+      "label": "impostor",
+      "partition": "evaluation",
+      "probe_speaker_id": "librispeech-evaluation-1580",
+      "score": 0.03892661295489631,
+      "trial_id": "evaluation-impostor-1580-03"
+    }
+  ]
+}

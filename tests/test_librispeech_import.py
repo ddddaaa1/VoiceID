@@ -64,6 +64,7 @@ class LibriSpeechSelectionTests(unittest.TestCase):
     def test_selection_is_deterministic_and_filters_duration(self) -> None:
         config = LibriSpeechImportConfig(
             speakers_per_partition=2,
+            enrollment_clips_per_speaker=3,
             probe_clips_per_speaker=1,
             selection_seed="repeatable-test",
         )
@@ -94,7 +95,11 @@ class LibriSpeechSelectionTests(unittest.TestCase):
         ))
 
     def test_rejects_speaker_overlap_and_insufficient_cohort(self) -> None:
-        config = LibriSpeechImportConfig(speakers_per_partition=2, probe_clips_per_speaker=1)
+        config = LibriSpeechImportConfig(
+            speakers_per_partition=2,
+            enrollment_clips_per_speaker=3,
+            probe_clips_per_speaker=1,
+        )
         enough = tuple(clip(speaker, index) for speaker in ("1", "2") for index in range(4))
         with self.assertRaisesRegex(CorpusPreparationError, "share speakers"):
             select_librispeech_clips(enough, enough, config)
@@ -106,6 +111,7 @@ class LibriSpeechSelectionTests(unittest.TestCase):
     def test_pipeline_filter_replaces_rejected_clips_deterministically(self) -> None:
         config = LibriSpeechImportConfig(
             speakers_per_partition=2,
+            enrollment_clips_per_speaker=3,
             probe_clips_per_speaker=1,
             selection_seed="quality-filter-test",
         )

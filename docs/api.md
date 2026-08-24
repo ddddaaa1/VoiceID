@@ -1,6 +1,6 @@
 # VoiceID HTTP API v1
 
-The API exposes the research enrollment and verification workflow through versioned multipart endpoints. Interactive OpenAPI documentation is available at `/docs` while the server is running.
+The API exposes the research enrollment and verification workflow through versioned multipart endpoints. It also serves the same-origin web client at `/`; interactive OpenAPI documentation is available at `/docs`.
 
 ## Start the server
 
@@ -10,6 +10,14 @@ uv run uvicorn voiceid.adapters.api.app:app --host 127.0.0.1 --port 8000
 ```
 
 The default process uses in-memory template persistence. Restarting the process removes every enrolled identity.
+
+## Web client
+
+```http
+GET /
+```
+
+The HTML client and its `/assets/*` modules are served by the API process. Keeping the UI and API on the same origin avoids a broader CORS policy and makes the browser's security boundary explicit. Static responses include a restrictive Content Security Policy and permit microphone access only to the same origin.
 
 ## Health
 

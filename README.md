@@ -2,7 +2,7 @@
 
 VoiceID is a **speaker verification and voice attack detection platform**. Its purpose is not to recognize what was said, but to determine whether a voice sample belongs to an enrolled identity and whether the audio appears authentic.
 
-The repository currently combines a local web demo with a tested, framework-independent domain core. The roadmap adds PyTorch inference, biometric evaluation, secure storage, an asynchronous API, and MLOps.
+The repository combines a same-origin web experience, a versioned HTTP API, and a tested, framework-independent domain core. The roadmap adds biometric evaluation, anti-spoofing, secure storage, and MLOps.
 
 ## What this project demonstrates
 
@@ -40,7 +40,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 
 ## Current status
 
-- Browser-based UX prototype with local audio processing.
+- Browser-based enrollment and verification connected to the real API and ECAPA model.
 - Python core for robust enrollment, cosine scoring, and anti-spoofing decision fusion.
 - Defensive PCM WAVE decoding, 16 kHz resampling, signal normalization, and quality analysis.
 - Replaceable energy-based VAD baseline with explicit speech segments.
@@ -48,28 +48,10 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Multi-sample enrollment with quality gates, outlier rejection, and versioned templates.
 - One-to-one speaker verification with auditable decisions and provisional policy versioning.
 - Versioned FastAPI endpoints with bounded multipart uploads and stable error contracts.
-- Unit tests covering the biometric decision engine.
+- Unit and contract tests covering audio capture encoding, the API, and biometric logic.
 - Target architecture and incremental roadmap.
 
-The browser prototype still relies on basic acoustic features. It must not be treated as a biometric authentication system.
-
-## Run the web demo
-
-Microphone access requires a secure browser context. Start a local server:
-
-```bash
-python3 -m http.server 8080
-```
-
-Then open `http://localhost:8080`.
-
-## Run the domain tests
-
-The current test suite has no third-party dependencies:
-
-```bash
-python3 -m unittest discover -s tests -v
-```
+The system remains experimental: its decision policy is not calibrated and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
 
 ## Install the ML environment
 
@@ -104,17 +86,27 @@ uv run python scripts/verify_identity.py demo-user sample-1.wav sample-2.wav sam
 
 The initial `provisional-cosine-v1` policy is useful for integration testing only. It has not been calibrated to a measured FAR, FRR, or EER.
 
-Start the HTTP API:
+Start the application:
 
 ```bash
 uv run uvicorn voiceid.adapters.api.app:app --host 127.0.0.1 --port 8000
 ```
 
-Open `http://127.0.0.1:8000/docs` for the interactive API contract or read the [HTTP API guide](docs/api.md).
+Open `http://127.0.0.1:8000` for the microphone workflow. Localhost is a secure browser context, so microphone capture is available after permission is granted. The interactive API contract remains at `http://127.0.0.1:8000/docs`.
+
+Read the [web workflow guide](docs/web.md) and [HTTP API guide](docs/api.md) for implementation details and limitations.
+
+## Run the tests
+
+```bash
+uv run python -W error -m unittest discover -s tests -v
+node --test tests/web/audio.test.mjs
+uv run ruff check .
+```
 
 ## Next milestone
 
-Connect the web experience to the real `/api/v1` enrollment and verification workflow, replacing the browser-only acoustic heuristic.
+Build a versioned evaluation dataset and calibrate the provisional speaker-verification policy with measured FAR, FRR, EER, and minDCF.
 
 ## Engineering decisions
 
@@ -124,6 +116,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0002: Start with a pretrained ECAPA-TDNN speaker encoder](docs/decisions/0002-pretrained-ecapa-speaker-encoder.md)
 - [ADR 0003: Keep the initial verification policy explicitly provisional](docs/decisions/0003-provisional-verification-policy.md)
 - [ADR 0004: Expose a versioned HTTP boundary without coupling it to ML frameworks](docs/decisions/0004-versioned-http-api.md)
+- [ADR 0005: Serve a same-origin web client with client-side PCM capture](docs/decisions/0005-same-origin-web-client.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the [ECAPA-TDNN model card](docs/models/ecapa-tdnn.md).
 

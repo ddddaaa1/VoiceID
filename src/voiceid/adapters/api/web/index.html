@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="VoiceID: an experimental speaker enrollment and verification workflow."
+    />
+    <title>VoiceID — Experimental speaker verification</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <main>
+      <nav>
+        <a class="brand" href="/" aria-label="VoiceID home">Voice<span>ID</span></a>
+        <span class="api-pill checking" id="api-status">● Checking API</span>
+      </nav>
+
+      <section class="hero">
+        <p class="eyebrow">SPEAKER VERIFICATION LAB</p>
+        <h1>Your voice,<br /><em>measured.</em></h1>
+        <p class="lede">
+          Build a voice template from three recordings, then compare a new sample with
+          a real ECAPA-TDNN speaker model.
+        </p>
+      </section>
+
+      <section class="identity-panel" aria-labelledby="identity-heading">
+        <div>
+          <p class="card-label">CLAIMED IDENTITY</p>
+          <h2 id="identity-heading">Choose a local identifier</h2>
+        </div>
+        <label class="identity-field">
+          <span>Identity ID</span>
+          <input
+            id="identity-id"
+            value="demo-user"
+            maxlength="128"
+            pattern="[A-Za-z0-9][A-Za-z0-9._:-]*"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </label>
+      </section>
+
+      <section class="workspace" aria-label="Speaker verification workflow">
+        <article class="voice-card" id="enroll-card">
+          <header>
+            <span class="step">01</span>
+            <div>
+              <p class="card-label">VOICE TEMPLATE</p>
+              <h2>Enroll your voice</h2>
+            </div>
+          </header>
+          <div class="visualizer" id="enroll-bars" aria-hidden="true"></div>
+          <p class="prompt">
+            Record three natural 5-second samples. Vary your pace slightly and use a
+            quiet room.
+          </p>
+          <div class="sample-progress" id="sample-progress" aria-label="Enrollment samples">
+            <span>Sample 1</span><span>Sample 2</span><span>Sample 3</span>
+          </div>
+          <button class="record-button" id="enroll-record-button" type="button">
+            <span class="record-dot"></span><span>Record sample 1</span>
+          </button>
+          <div class="button-row">
+            <button class="action-button" id="enroll-submit-button" type="button" disabled>
+              Create voice profile
+            </button>
+            <button class="text-button" id="enroll-reset-button" type="button" disabled>
+              Reset samples
+            </button>
+          </div>
+          <p class="status" id="enroll-status" aria-live="polite">
+            Three samples are required
+          </p>
+        </article>
+
+        <div class="connector" aria-hidden="true"><span>→</span></div>
+
+        <article class="voice-card muted" id="verify-card">
+          <header>
+            <span class="step">02</span>
+            <div>
+              <p class="card-label">VERIFICATION</p>
+              <h2>Test a new sample</h2>
+            </div>
+          </header>
+          <div class="visualizer" id="verify-bars" aria-hidden="true"></div>
+          <p class="prompt">
+            After enrollment, record a fresh sample and inspect the model score,
+            decision, and reason codes.
+          </p>
+          <button class="record-button" id="verify-button" type="button" disabled>
+            <span class="record-dot"></span><span>Record verification sample</span>
+          </button>
+          <p class="status" id="verify-status" aria-live="polite">
+            Create the voice profile first
+          </p>
+        </article>
+      </section>
+
+      <section class="result" id="result" hidden aria-live="polite">
+        <div>
+          <div class="result-heading">
+            <p class="card-label">MODEL DECISION</p>
+            <span class="decision-badge" id="decision-badge">REVIEW</span>
+          </div>
+          <h2 id="result-title">Verification complete</h2>
+          <p id="result-copy"></p>
+          <dl class="result-details">
+            <div><dt>Policy</dt><dd id="policy-value">—</dd></div>
+            <div><dt>Template</dt><dd id="template-value">—</dd></div>
+            <div><dt>Reasons</dt><dd id="reasons-value">—</dd></div>
+          </dl>
+        </div>
+        <div class="score"><strong id="score-value">—</strong><span>cosine score</span></div>
+      </section>
+
+      <aside class="notice">
+        <strong>Research warning:</strong> the threshold is provisional, anti-spoofing
+        is not enabled, and profiles are kept only in server memory. Recordings are
+        sent to this local API for processing and are not intentionally persisted.
+      </aside>
+    </main>
+    <script type="module" src="/assets/app.js"></script>
+  </body>
+</html>

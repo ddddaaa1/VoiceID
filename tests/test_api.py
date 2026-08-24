@@ -116,6 +116,23 @@ class ApiContractTests(unittest.TestCase):
             },
         )
 
+    def test_web_experience_and_static_assets_are_served_with_security_headers(self) -> None:
+        page = self.client.get("/")
+        script = self.client.get("/assets/app.js")
+        recorder = self.client.get("/assets/audio-recorder-worklet.js")
+
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("Speaker verification workflow", page.text)
+        self.assertEqual(page.headers["x-content-type-options"], "nosniff")
+        self.assertIn("default-src 'self'", page.headers["content-security-policy"])
+        self.assertEqual(page.headers["permissions-policy"], "microphone=(self)")
+        self.assertEqual(script.status_code, 200)
+        self.assertIn("javascript", script.headers["content-type"])
+        self.assertIn("/api/v1/identities/", script.text)
+        self.assertEqual(recorder.status_code, 200)
+        self.assertIn("registerProcessor", recorder.text)
+        self.assertEqual(self.client.get("/assets/package.json").status_code, 404)
+
     def test_enrollment_contract(self) -> None:
         response = self.client.post(
             "/api/v1/identities/client-1/enroll",

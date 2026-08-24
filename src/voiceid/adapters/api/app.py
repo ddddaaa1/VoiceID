@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from pathlib import Path as FileSystemPath
 from typing import Annotated
 
 from fastapi import FastAPI, File, Path, Request, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 
 from .container import ServiceContainer, build_default_container
@@ -13,6 +16,7 @@ from .schemas import EnrollmentResponse, ErrorResponse, HealthResponse, Verifica
 from .uploads import read_upload, read_uploads
 
 API_VERSION = "v1"
+DEFAULT_WEB_DIRECTORY = FileSystemPath(__file__).with_name("web")
 IdentityPath = Annotated[
     str,
     Path(
@@ -32,7 +36,10 @@ ERROR_RESPONSES = {
 }
 
 
-def create_app(container: ServiceContainer | None = None) -> FastAPI:
+def create_app(
+    container: ServiceContainer | None = None,
+    web_directory: FileSystemPath = DEFAULT_WEB_DIRECTORY,
+) -> FastAPI:
     app = FastAPI(
         title="VoiceID API",
         summary="Speaker enrollment and verification research API",
@@ -48,6 +55,14 @@ def create_app(container: ServiceContainer | None = None) -> FastAPI:
     app.state.container = container or build_default_container()
     register_error_handlers(app)
 
+    if not (web_directory / "index.html").is_file():
+        raise RuntimeError(f"Web directory does not exist: {web_directory}")
+    app.mount(
+        "/assets",
+        StaticFiles(directory=web_directory / "assets"),
+        name="web-assets",
+    )
+
     @app.middleware("http")
     async def enforce_content_length(request: Request, call_next):
         content_length = request.headers.get("content-length")
@@ -60,7 +75,21 @@ def create_app(container: ServiceContainer | None = None) -> FastAPI:
                 return error_response(400, "invalid_content_length", "Content-Length is invalid.")
             if size > app.state.container.settings.max_request_bytes:
                 return error_response(413, "request_too_large", "The request body is too large.")
-        return await call_next(request)
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        if request.url.path == "/" or request.url.path.startswith("/assets/"):
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; connect-src 'self'; img-src 'self' data:; "
+                "media-src 'self' blob:; object-src 'none'; base-uri 'none'; "
+                "frame-ancestors 'none'"
+            )
+            response.headers["Permissions-Policy"] = "microphone=(self)"
+        return response
+
+    @app.get("/", include_in_schema=False)
+    async def web_experience() -> FileResponse:
+        return FileResponse(web_directory / "index.html")
 
     @app.get("/api/v1/health", response_model=HealthResponse, tags=["system"])
     async def health() -> HealthResponse:

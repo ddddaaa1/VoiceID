@@ -27,6 +27,9 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"voiceid.adapters.api" = ["web/*.html", "web/*.json", "web/assets/*"]
+
 [tool.ruff]
 line-length = 100
 

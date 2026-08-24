@@ -24,7 +24,7 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 - [x] **Step 5 — HTTP API**
   Expose identity enrollment and verification with explicit contracts, error responses, and request limits.
 
-- [ ] **Step 6 — Web integration**
+- [x] **Step 6 — Web integration**
   Replace the browser-only acoustic heuristic with the real backend workflow.
 
 ## Scientific evaluation and security
@@ -45,4 +45,4 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 
 ## Current focus
 
-Step 5 is complete. The next increment is Step 6: connect the web experience to the real versioned API.
+Step 6 is complete. The next increment is Step 7: create a versioned evaluation protocol and calibrate the decision thresholds from measured trials.

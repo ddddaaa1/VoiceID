@@ -60,7 +60,7 @@ The policy combines the speaker score, spoof probability, audio quality, speech 
 
 | Component | Responsibility | Planned technology |
 |---|---|---|
-| Web | Enrollment, verification, and result presentation | TypeScript / React |
+| Web | Enrollment, verification, and result presentation | ES modules now; TypeScript / React when product complexity requires it |
 | API | Contracts, authentication, and rate limiting | FastAPI / Pydantic |
 | Orchestrator | Pipeline execution and policy enforcement | Python |
 | Inference worker | VAD, speaker embeddings, and anti-spoofing | PyTorch / ONNX Runtime |
@@ -80,6 +80,9 @@ src/voiceid/
 ├── application/     # Enroll, verify, and evaluate use cases
 ├── ports/           # Protocols for models, storage, and events
 └── adapters/        # SpeechBrain, anti-spoof model, PostgreSQL, S3, and HTTP
+    └── api/web/      # Packaged same-origin browser client and static assets
+
+tests/web/            # Framework-free WAVE encoder tests
 ```
 
 The domain layer does not import FastAPI, PyTorch, or a database client. This allows decision rules to be tested with deterministic vectors and lets model implementations change without modifying business rules.

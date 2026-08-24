@@ -1,0 +1,29 @@
+{
+  "schema_version": "voiceid-scored-trials/v1",
+  "dataset": {
+    "id": "synthetic-contract-example",
+    "version": "1"
+  },
+  "system": {
+    "model_id": "example-encoder-not-a-benchmark",
+    "pipeline_id": "example-pipeline-v1"
+  },
+  "trials": [
+    {"trial_id": "dev-g-01", "partition": "development", "label": "genuine", "enrollment_speaker_id": "dev-alice", "probe_speaker_id": "dev-alice", "score": 0.91, "condition": "clean"},
+    {"trial_id": "dev-g-02", "partition": "development", "label": "genuine", "enrollment_speaker_id": "dev-alice", "probe_speaker_id": "dev-alice", "score": 0.82, "condition": "noise"},
+    {"trial_id": "dev-g-03", "partition": "development", "label": "genuine", "enrollment_speaker_id": "dev-bob", "probe_speaker_id": "dev-bob", "score": 0.86, "condition": "clean"},
+    {"trial_id": "dev-g-04", "partition": "development", "label": "genuine", "enrollment_speaker_id": "dev-bob", "probe_speaker_id": "dev-bob", "score": 0.76, "condition": "noise"},
+    {"trial_id": "dev-i-01", "partition": "development", "label": "impostor", "enrollment_speaker_id": "dev-alice", "probe_speaker_id": "dev-bob", "score": 0.62, "condition": "clean"},
+    {"trial_id": "dev-i-02", "partition": "development", "label": "impostor", "enrollment_speaker_id": "dev-alice", "probe_speaker_id": "dev-bob", "score": 0.70, "condition": "noise"},
+    {"trial_id": "dev-i-03", "partition": "development", "label": "impostor", "enrollment_speaker_id": "dev-bob", "probe_speaker_id": "dev-alice", "score": 0.55, "condition": "clean"},
+    {"trial_id": "dev-i-04", "partition": "development", "label": "impostor", "enrollment_speaker_id": "dev-bob", "probe_speaker_id": "dev-alice", "score": 0.66, "condition": "noise"},
+    {"trial_id": "eval-g-01", "partition": "evaluation", "label": "genuine", "enrollment_speaker_id": "eval-charlie", "probe_speaker_id": "eval-charlie", "score": 0.88, "condition": "clean"},
+    {"trial_id": "eval-g-02", "partition": "evaluation", "label": "genuine", "enrollment_speaker_id": "eval-charlie", "probe_speaker_id": "eval-charlie", "score": 0.74, "condition": "noise"},
+    {"trial_id": "eval-g-03", "partition": "evaluation", "label": "genuine", "enrollment_speaker_id": "eval-dana", "probe_speaker_id": "eval-dana", "score": 0.84, "condition": "clean"},
+    {"trial_id": "eval-g-04", "partition": "evaluation", "label": "genuine", "enrollment_speaker_id": "eval-dana", "probe_speaker_id": "eval-dana", "score": 0.69, "condition": "noise"},
+    {"trial_id": "eval-i-01", "partition": "evaluation", "label": "impostor", "enrollment_speaker_id": "eval-charlie", "probe_speaker_id": "eval-dana", "score": 0.67, "condition": "clean"},
+    {"trial_id": "eval-i-02", "partition": "evaluation", "label": "impostor", "enrollment_speaker_id": "eval-charlie", "probe_speaker_id": "eval-dana", "score": 0.73, "condition": "noise"},
+    {"trial_id": "eval-i-03", "partition": "evaluation", "label": "impostor", "enrollment_speaker_id": "eval-dana", "probe_speaker_id": "eval-charlie", "score": 0.58, "condition": "clean"},
+    {"trial_id": "eval-i-04", "partition": "evaluation", "label": "impostor", "enrollment_speaker_id": "eval-dana", "probe_speaker_id": "eval-charlie", "score": 0.71, "condition": "noise"}
+  ]
+}

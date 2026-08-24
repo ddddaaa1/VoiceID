@@ -49,6 +49,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - One-to-one speaker verification with auditable decisions and provisional policy versioning.
 - Versioned FastAPI endpoints with bounded multipart uploads and stable error contracts.
 - Unit and contract tests covering audio capture encoding, the API, and biometric logic.
+- Leakage-resistant scored-trial manifests with development-only minDCF threshold selection.
 - Target architecture and incremental roadmap.
 
 The system remains experimental: its decision policy is not calibrated and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
@@ -106,7 +107,15 @@ uv run ruff check .
 
 ## Next milestone
 
-Build a versioned evaluation dataset and calibrate the provisional speaker-verification policy with measured FAR, FRR, EER, and minDCF.
+Score a real, consented audio corpus with the versioned evaluation runner. The metric layer and strict scored-trial contract are already available:
+
+```bash
+uv run python scripts/evaluate_scores.py \
+  examples/evaluation/scored-trials.example.json \
+  --output /tmp/voiceid-evaluation-report.json
+```
+
+The bundled scores are synthetic contract fixtures, not VoiceID accuracy results. Read the [evaluation protocol](docs/evaluation.md) before interpreting a report.
 
 ## Engineering decisions
 
@@ -117,6 +126,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0003: Keep the initial verification policy explicitly provisional](docs/decisions/0003-provisional-verification-policy.md)
 - [ADR 0004: Expose a versioned HTTP boundary without coupling it to ML frameworks](docs/decisions/0004-versioned-http-api.md)
 - [ADR 0005: Serve a same-origin web client with client-side PCM capture](docs/decisions/0005-same-origin-web-client.md)
+- [ADR 0006: Calibrate on speaker-disjoint development trials](docs/decisions/0006-speaker-disjoint-calibration.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the [ECAPA-TDNN model card](docs/models/ecapa-tdnn.md).
 

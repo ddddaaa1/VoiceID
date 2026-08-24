@@ -7,7 +7,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
 from voiceid.domain.decision import decide
-from voiceid.domain.metrics import estimate_eer, rates_at_threshold
+from voiceid.domain.metrics import (
+    DetectionCostModel,
+    estimate_eer,
+    minimum_detection_cost,
+    rates_at_threshold,
+)
 from voiceid.domain.models import Decision, QualityReport, VerificationPolicy
 from voiceid.domain.scoring import cosine_similarity, robust_voice_template
 
@@ -70,6 +75,19 @@ class MetricTests(unittest.TestCase):
     def test_eer_selects_balanced_operating_point(self) -> None:
         result = estimate_eer([0.9, 0.8, 0.65, 0.4], [0.7, 0.55, 0.3, 0.2])
         self.assertAlmostEqual(result.false_accept_rate, result.false_reject_rate)
+
+    def test_minimum_detection_cost_selects_a_conservative_threshold(self) -> None:
+        result = minimum_detection_cost(
+            [0.9, 0.8],
+            [0.7, 0.2],
+            DetectionCostModel(target_probability=0.01),
+        )
+        self.assertEqual(result.rates.threshold, 0.8)
+        self.assertEqual(result.normalized_cost, 0.0)
+
+    def test_metrics_reject_non_finite_scores(self) -> None:
+        with self.assertRaisesRegex(ValueError, "finite"):
+            rates_at_threshold([0.9, float("nan")], [0.2], 0.5)
 
 
 if __name__ == "__main__":

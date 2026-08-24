@@ -50,4 +50,6 @@ No VoiceID accuracy result has been established yet. The EER reported by the ups
 - Metrics stratified by duration, device, noise, language, and available demographic attributes.
 - Calibration and threshold selection on data separate from final evaluation.
 - Anti-spoofing evaluation before authentication claims.
+
+The Step 7A metric engine and scored-trial schema now implement the first requirement at the contract level, including speaker-disjoint partitions. No real VoiceID corpus has been scored yet, so the model still has no project-specific accuracy result.
 - Template protection, deletion, and revocation tests.

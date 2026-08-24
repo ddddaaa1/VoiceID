@@ -32,6 +32,13 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 - [ ] **Step 7 — Evaluation and calibration**
   Create versioned trial manifests, calculate FAR/FRR/EER/minDCF, and select thresholds without test-set leakage.
 
+  - [x] **Step 7A — Scored-trial protocol and metric engine**
+    Reject speaker leakage, select minDCF on development only, report held-out metrics, and break down evaluation results by condition.
+  - [ ] **Step 7B — Reproducible audio scoring runner**
+    Generate scored trials from a consented PCM WAVE corpus with the versioned preprocessing and ECAPA adapters.
+  - [ ] **Step 7C — Measured calibration report**
+    Freeze a real manifest, publish dataset limitations and confidence intervals, and replace the provisional threshold only if evidence supports it.
+
 - [ ] **Step 8 — Anti-spoofing**
   Detect replay, synthetic speech, and voice conversion; evaluate the tandem system with ASVspoof protocols.
 
@@ -45,4 +52,4 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 
 ## Current focus
 
-Step 6 is complete. The next increment is Step 7: create a versioned evaluation protocol and calibrate the decision thresholds from measured trials.
+Step 7A is complete. The next increment is Step 7B: generate reproducible scores from a real, consented audio trial corpus.

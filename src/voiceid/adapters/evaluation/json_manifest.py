@@ -82,6 +82,31 @@ def evaluation_report_payload(report: EvaluationReport) -> dict[str, Any]:
     }
 
 
+def scored_trial_manifest_payload(manifest: ScoredTrialManifest) -> dict[str, Any]:
+    return {
+        "schema_version": manifest.schema_version,
+        "dataset": {"id": manifest.dataset_id, "version": manifest.dataset_version},
+        "system": {"model_id": manifest.model_id, "pipeline_id": manifest.pipeline_id},
+        "trials": [
+            {
+                "trial_id": trial.trial_id,
+                "partition": trial.partition.value,
+                "label": trial.label.value,
+                "enrollment_speaker_id": trial.enrollment_speaker_id,
+                "probe_speaker_id": trial.probe_speaker_id,
+                "score": trial.score,
+                "condition": trial.condition,
+            }
+            for trial in manifest.trials
+        ],
+    }
+
+
+def write_scored_trial_manifest(manifest: ScoredTrialManifest, path: Path) -> None:
+    payload = json.dumps(scored_trial_manifest_payload(manifest), indent=2, sort_keys=True)
+    path.write_text(f"{payload}\n", encoding="utf-8")
+
+
 def write_evaluation_report(report: EvaluationReport, path: Path) -> None:
     payload = json.dumps(evaluation_report_payload(report), indent=2, sort_keys=True)
     path.write_text(f"{payload}\n", encoding="utf-8")

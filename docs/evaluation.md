@@ -4,9 +4,50 @@ VoiceID separates **scoring**, **calibration**, and **final evaluation**. This p
 
 ## Current delivery state
 
-Step 7A implements the strict scored-trial contract, validation rules, FAR, FRR, observed EER, normalized minDCF, development-only threshold selection, held-out reporting, and condition breakdowns. Step 7B will generate these scores from a real audio corpus through the versioned preprocessing and ECAPA pipeline.
+Step 7A implements the strict scored-trial contract, validation rules, FAR, FRR, observed EER, normalized minDCF, development-only threshold selection, held-out reporting, and condition breakdowns. Step 7B adds a hashed audio-trial contract and generates scores through the versioned preprocessing, enrollment, verification, and ECAPA pipeline.
 
 No bundled value is a VoiceID benchmark. `examples/evaluation/scored-trials.example.json` contains deliberately synthetic scores used to exercise the contract.
+
+## Audio-trial manifest v1
+
+`voiceid-audio-trials/v1` binds every logical trial to specific PCM WAVE bytes before inference. Start from `examples/evaluation/audio-trials.example.json`; its paths and hashes are placeholders and are not directly runnable.
+
+The dataset metadata requires an ID, immutable version, and consent attestation. Each enrollment declares an identity, true speaker, partition, and three to eight unique recordings. Each trial declares its claimed identity, true probe speaker, expected label, condition, and probe recording.
+
+Every recording reference contains a safe relative `.wav` path and lowercase SHA-256 digest. The manifest is resolved relative to its own directory. Absolute paths, parent traversal, missing files, symlink escapes, empty files, files over the configured limit, and checksum mismatches fail before inference.
+
+Protocol validation also rejects:
+
+- speakers or audio content shared between development and evaluation;
+- enrollment audio reused as a probe;
+- identical audio attributed to different speakers;
+- trials crossing partitions or referencing unknown identities;
+- duplicate trial or enrollment identity IDs;
+- enrollment sets with duplicate recordings;
+- labels that conflict with the declared speakers.
+
+The same probe may be compared against multiple claimed identities inside one partition. This is required for impostor trials, but its digest must always represent the same true speaker.
+
+## Generate real ECAPA scores
+
+Place the manifest beside its referenced `audio/` directory and replace every example digest with the output of:
+
+```bash
+shasum -a 256 path/to/sample.wav
+```
+
+Then run:
+
+```bash
+uv run python scripts/score_audio_trials.py path/to/audio-trials.json \
+  --output /tmp/voiceid-scored-trials.json \
+  --report /tmp/voiceid-evaluation-report.json \
+  --device cpu
+```
+
+The runner constructs templates through `EnrollmentService`, obtains probe scores through `VerificationService`, records the actual model and pipeline identifiers, and writes a scored manifest accepted by Step 7A. The optional report is calibrated only after all scores exist.
+
+An enrollment rejection, invalid asset, checksum mismatch, model-version inconsistency, quality failure, or missing speaker score fails the complete run. Trials are never silently removed because excluding failures would bias the reported system performance.
 
 ## Two partitions with different responsibilities
 

@@ -1,0 +1,40 @@
+{
+  "schema_version": "voiceid-audio-trials/v1",
+  "dataset": {
+    "id": "replace-with-consented-corpus-id",
+    "version": "1",
+    "consent_attestation": "Example only: replace with the documented consent basis for every included speaker."
+  },
+  "enrollments": [
+    {"identity_id": "dev-alice", "speaker_id": "dev-alice", "partition": "development", "samples": [
+      {"path": "audio/dev/alice/enroll-1.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000001"},
+      {"path": "audio/dev/alice/enroll-2.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000002"},
+      {"path": "audio/dev/alice/enroll-3.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000003"}
+    ]},
+    {"identity_id": "dev-bob", "speaker_id": "dev-bob", "partition": "development", "samples": [
+      {"path": "audio/dev/bob/enroll-1.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000004"},
+      {"path": "audio/dev/bob/enroll-2.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000005"},
+      {"path": "audio/dev/bob/enroll-3.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000006"}
+    ]},
+    {"identity_id": "eval-charlie", "speaker_id": "eval-charlie", "partition": "evaluation", "samples": [
+      {"path": "audio/eval/charlie/enroll-1.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000007"},
+      {"path": "audio/eval/charlie/enroll-2.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000008"},
+      {"path": "audio/eval/charlie/enroll-3.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000009"}
+    ]},
+    {"identity_id": "eval-dana", "speaker_id": "eval-dana", "partition": "evaluation", "samples": [
+      {"path": "audio/eval/dana/enroll-1.wav", "sha256": "000000000000000000000000000000000000000000000000000000000000000a"},
+      {"path": "audio/eval/dana/enroll-2.wav", "sha256": "000000000000000000000000000000000000000000000000000000000000000b"},
+      {"path": "audio/eval/dana/enroll-3.wav", "sha256": "000000000000000000000000000000000000000000000000000000000000000c"}
+    ]}
+  ],
+  "trials": [
+    {"trial_id": "dev-g-01", "partition": "development", "label": "genuine", "claimed_identity_id": "dev-alice", "probe_speaker_id": "dev-alice", "sample": {"path": "audio/dev/alice/probe.wav", "sha256": "000000000000000000000000000000000000000000000000000000000000000d"}, "condition": "clean"},
+    {"trial_id": "dev-g-02", "partition": "development", "label": "genuine", "claimed_identity_id": "dev-bob", "probe_speaker_id": "dev-bob", "sample": {"path": "audio/dev/bob/probe.wav", "sha256": "000000000000000000000000000000000000000000000000000000000000000e"}, "condition": "clean"},
+    {"trial_id": "dev-i-01", "partition": "development", "label": "impostor", "claimed_identity_id": "dev-alice", "probe_speaker_id": "dev-bob", "sample": {"path": "audio/dev/bob/probe.wav", "sha256": "000000000000000000000000000000000000000000000000000000000000000e"}, "condition": "clean"},
+    {"trial_id": "dev-i-02", "partition": "development", "label": "impostor", "claimed_identity_id": "dev-bob", "probe_speaker_id": "dev-alice", "sample": {"path": "audio/dev/alice/probe.wav", "sha256": "000000000000000000000000000000000000000000000000000000000000000d"}, "condition": "clean"},
+    {"trial_id": "eval-g-01", "partition": "evaluation", "label": "genuine", "claimed_identity_id": "eval-charlie", "probe_speaker_id": "eval-charlie", "sample": {"path": "audio/eval/charlie/probe.wav", "sha256": "000000000000000000000000000000000000000000000000000000000000000f"}, "condition": "clean"},
+    {"trial_id": "eval-g-02", "partition": "evaluation", "label": "genuine", "claimed_identity_id": "eval-dana", "probe_speaker_id": "eval-dana", "sample": {"path": "audio/eval/dana/probe.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000010"}, "condition": "clean"},
+    {"trial_id": "eval-i-01", "partition": "evaluation", "label": "impostor", "claimed_identity_id": "eval-charlie", "probe_speaker_id": "eval-dana", "sample": {"path": "audio/eval/dana/probe.wav", "sha256": "0000000000000000000000000000000000000000000000000000000000000010"}, "condition": "clean"},
+    {"trial_id": "eval-i-02", "partition": "evaluation", "label": "impostor", "claimed_identity_id": "eval-dana", "probe_speaker_id": "eval-charlie", "sample": {"path": "audio/eval/charlie/probe.wav", "sha256": "000000000000000000000000000000000000000000000000000000000000000f"}, "condition": "clean"}
+  ]
+}

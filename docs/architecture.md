@@ -87,7 +87,7 @@ tests/web/            # Framework-free WAVE encoder tests
 
 The domain layer does not import FastAPI, PyTorch, or a database client. This allows decision rules to be tested with deterministic vectors and lets model implementations change without modifying business rules.
 
-Evaluation follows the same boundary: pure domain metrics consume finite labeled scores, the application layer locks a development-selected threshold, and a strict JSON adapter handles dataset manifests and reports. Model inference remains a separate scoring stage so a held-out evaluation set cannot silently influence policy selection.
+Evaluation follows the same boundary: pure domain metrics consume finite labeled scores, the application layer locks a development-selected threshold, and strict JSON adapters handle audio manifests, scored manifests, and reports. A filesystem adapter verifies bounded PCM WAVE files against SHA-256 before the scoring orchestrator invokes the existing enrollment and verification services. Model inference remains a separate stage so a held-out evaluation set cannot silently influence policy selection.
 
 ## 5. Data model
 

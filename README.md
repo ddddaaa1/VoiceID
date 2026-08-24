@@ -50,6 +50,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Versioned FastAPI endpoints with bounded multipart uploads and stable error contracts.
 - Unit and contract tests covering audio capture encoding, the API, and biometric logic.
 - Leakage-resistant scored-trial manifests with development-only minDCF threshold selection.
+- Hash-locked PCM WAVE trial manifests and a real preprocessing + ECAPA scoring runner.
 - Target architecture and incremental roadmap.
 
 The system remains experimental: its decision policy is not calibrated and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
@@ -107,15 +108,15 @@ uv run ruff check .
 
 ## Next milestone
 
-Score a real, consented audio corpus with the versioned evaluation runner. The metric layer and strict scored-trial contract are already available:
+Score a real, consented audio corpus and publish a measured calibration report. The audio runner, metric layer, and strict contracts are available:
 
 ```bash
-uv run python scripts/evaluate_scores.py \
-  examples/evaluation/scored-trials.example.json \
-  --output /tmp/voiceid-evaluation-report.json
+uv run python scripts/score_audio_trials.py path/to/audio-trials.json \
+  --output /tmp/voiceid-scored-trials.json \
+  --report /tmp/voiceid-evaluation-report.json
 ```
 
-The bundled scores are synthetic contract fixtures, not VoiceID accuracy results. Read the [evaluation protocol](docs/evaluation.md) before interpreting a report.
+Use [the audio manifest template](examples/evaluation/audio-trials.example.json) to define consent, enrollment recordings, probes, SHA-256 digests, partitions, labels, and conditions. The bundled examples are contract fixtures, not VoiceID accuracy results. Read the [evaluation protocol](docs/evaluation.md) before interpreting a report.
 
 ## Engineering decisions
 
@@ -127,6 +128,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0004: Expose a versioned HTTP boundary without coupling it to ML frameworks](docs/decisions/0004-versioned-http-api.md)
 - [ADR 0005: Serve a same-origin web client with client-side PCM capture](docs/decisions/0005-same-origin-web-client.md)
 - [ADR 0006: Calibrate on speaker-disjoint development trials](docs/decisions/0006-speaker-disjoint-calibration.md)
+- [ADR 0007: Bind evaluation trials to hashed audio assets](docs/decisions/0007-hashed-audio-trials.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the [ECAPA-TDNN model card](docs/models/ecapa-tdnn.md).
 

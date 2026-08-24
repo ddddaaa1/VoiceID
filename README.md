@@ -42,6 +42,7 @@ See [the architecture document](docs/architecture.md) for component boundaries, 
 - Python core for robust enrollment, cosine scoring, and anti-spoofing decision fusion.
 - Defensive PCM WAVE decoding, 16 kHz resampling, signal normalization, and quality analysis.
 - Replaceable energy-based VAD baseline with explicit speech segments.
+- Real 192-dimensional ECAPA-TDNN speaker embeddings through a lazy SpeechBrain adapter.
 - Unit tests covering the biometric decision engine.
 - Target architecture and incremental roadmap.
 
@@ -65,15 +66,34 @@ The current test suite has no third-party dependencies:
 python3 -m unittest discover -s tests -v
 ```
 
+## Install the ML environment
+
+The lockfile makes the local ML environment reproducible:
+
+```bash
+uv sync --extra ml --extra dev
+```
+
+Extract and validate an embedding from a 16-bit PCM WAVE file:
+
+```bash
+uv run python scripts/extract_embedding.py path/to/sample.wav
+```
+
+The command reports the model identifier, dimension, norm, and usable speech duration. It intentionally does not print the embedding values.
+
 ## Next milestone
 
-Build an inference adapter around a pretrained ECAPA-TDNN model, extract real speaker embeddings, and produce a reproducible VoxCeleb benchmark before connecting model inference to the web interface.
+Implement the enrollment and verification application services using real ECAPA-TDNN embeddings, then create a reproducible evaluation manifest and benchmark before connecting inference to the web interface.
 
 ## Engineering decisions
 
 Important tradeoffs are recorded as Architecture Decision Records:
 
 - [ADR 0001: Use a replaceable audio preprocessing pipeline](docs/decisions/0001-replaceable-audio-pipeline.md)
+- [ADR 0002: Start with a pretrained ECAPA-TDNN speaker encoder](docs/decisions/0002-pretrained-ecapa-speaker-encoder.md)
+
+Model behavior, provenance, intended use, and limitations are documented in the [ECAPA-TDNN model card](docs/models/ecapa-tdnn.md).
 
 ## Technical references
 

@@ -11,7 +11,6 @@ from voiceid.domain.metrics import estimate_eer, rates_at_threshold
 from voiceid.domain.models import Decision, QualityReport, VerificationPolicy
 from voiceid.domain.scoring import cosine_similarity, robust_voice_template
 
-
 GOOD_AUDIO = QualityReport(3.2, 0.81, 0.001, 24.0)
 
 

@@ -14,6 +14,7 @@ from voiceid.ports.audio import AudioDecoder, VoiceActivityDetector
 class PreprocessingResult:
     processed: PreprocessedAudio
     quality: QualityReport
+    countermeasure_audio: AudioBuffer
 
 
 class AudioPreprocessor:
@@ -56,6 +57,7 @@ class AudioPreprocessor:
         return PreprocessingResult(
             processed=PreprocessedAudio(normalized, segments),
             quality=quality,
+            countermeasure_audio=resampled,
         )
 
 

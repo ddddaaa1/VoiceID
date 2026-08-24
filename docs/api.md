@@ -60,6 +60,7 @@ Example response:
   "decision": "accept",
   "speaker_score": 0.84,
   "spoof_probability": null,
+  "spoof_model_id": null,
   "reasons": ["speaker_match", "spoof_check_not_run"]
 }
 ```
@@ -102,4 +103,6 @@ The application enforces limits while reading spooled uploads and checks `Conten
 - Templates are stored only in process memory.
 - Raw audio is not intentionally persisted, although the multipart implementation may spool request data to temporary storage while handling a request.
 - `provisional-cosine-v1` has not been calibrated against VoiceID evaluation data.
-- Anti-spoofing is not enabled and this absence is included in the result reasons.
+- An audited AASIST adapter is packaged, but anti-spoofing is not enabled until Step 8C produces
+  end-to-end evidence. Its absence is included in the result reasons and `spoof_model_id` remains
+  `null` when no countermeasure runs.

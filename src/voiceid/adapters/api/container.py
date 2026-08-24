@@ -48,6 +48,7 @@ class ServiceContainer:
     settings: ApiSettings = field(default_factory=ApiSettings)
     persistence: str = "memory"
     speaker_model_id: str = "speechbrain/spkrec-ecapa-voxceleb"
+    spoof_model_id: str | None = None
     verification_policy_id: str = "provisional-cosine-v1"
     anti_spoofing_enabled: bool = False
 

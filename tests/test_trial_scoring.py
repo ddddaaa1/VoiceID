@@ -122,7 +122,7 @@ class FakePreprocessor:
         encoded = tuple(ord(character) / 255 for character in key)
         audio = AudioBuffer(encoded, 16_000)
         return PreprocessingResult(
-            PreprocessedAudio(audio, (SpeechSegment(0, len(encoded)),)), quality
+            PreprocessedAudio(audio, (SpeechSegment(0, len(encoded)),)), quality, audio
         )
 
 

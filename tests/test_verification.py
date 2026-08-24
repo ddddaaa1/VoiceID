@@ -29,7 +29,9 @@ class FakePreprocessor:
         key = payload[0]
         audio = AudioBuffer((key / 10, key / 10), 16_000)
         processed = PreprocessedAudio(audio, (SpeechSegment(0, 2),))
-        return PreprocessingResult(processed, BAD_QUALITY if key == 9 else GOOD_QUALITY)
+        return PreprocessingResult(
+            processed, BAD_QUALITY if key == 9 else GOOD_QUALITY, audio
+        )
 
 
 class FakeEmbedder:
@@ -56,7 +58,7 @@ class FakeSpoofDetector:
     def __init__(self, probability: float | None) -> None:
         self.probability = probability
 
-    def spoof_probability(self, audio: PreprocessedAudio) -> float:
+    def spoof_probability(self, audio: AudioBuffer) -> float:
         if self.probability is None:
             raise ModelInferenceError("countermeasure internals")
         return self.probability
@@ -95,6 +97,7 @@ class VerificationServiceTests(unittest.TestCase):
         self.assertEqual(attempt.result.decision, Decision.ACCEPT)
         self.assertAlmostEqual(attempt.result.speaker_score, 1.0)
         self.assertIsNone(attempt.result.spoof_probability)
+        self.assertIsNone(attempt.spoof_model_id)
         self.assertIn("spoof_check_not_run", attempt.result.reasons)
         self.assertEqual(attempt.template_version, 1)
         self.assertEqual(attempt.policy_id, "provisional-cosine-v1")
@@ -122,6 +125,7 @@ class VerificationServiceTests(unittest.TestCase):
         attempt = self.service(spoof_detector=detector).verify("identity-1", b"\x01")
         self.assertEqual(attempt.result.decision, Decision.REJECT)
         self.assertIn("suspected_spoof", attempt.result.reasons)
+        self.assertEqual(attempt.spoof_model_id, "fake-spoof-v1")
 
     def test_reviews_a_non_finite_spoof_score(self) -> None:
         detector = FakeSpoofDetector(float("nan"))

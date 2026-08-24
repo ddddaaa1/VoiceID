@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from voiceid.domain.audio import PreprocessedAudio
+from voiceid.domain.audio import AudioBuffer, PreprocessedAudio
 from voiceid.domain.scoring import Vector
 
 
@@ -24,5 +24,5 @@ class SpoofDetector(Protocol):
     @property
     def model_id(self) -> str: ...
 
-    def spoof_probability(self, audio: PreprocessedAudio) -> float:
-        """Estimate the probability that a sample is replayed or synthetic."""
+    def spoof_probability(self, audio: AudioBuffer) -> float:
+        """Estimate spoof probability from non-normalized mono 16 kHz waveform."""

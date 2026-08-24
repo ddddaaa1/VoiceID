@@ -26,6 +26,7 @@ class VerificationAttempt:
     template_id: str
     template_version: int
     model_id: str
+    spoof_model_id: str | None
     pipeline_id: str
     policy_id: str
     result: VerificationResult
@@ -104,7 +105,7 @@ class VerificationService:
         if self._spoof_detector is not None:
             try:
                 spoof_probability = self._spoof_detector.spoof_probability(
-                    preprocessing.processed
+                    preprocessing.countermeasure_audio
                 )
             except ModelInferenceError:
                 return self._attempt(
@@ -145,6 +146,9 @@ class VerificationService:
             template_id=template.template_id,
             template_version=template.version,
             model_id=template.model_id,
+            spoof_model_id=(
+                self._spoof_detector.model_id if self._spoof_detector is not None else None
+            ),
             pipeline_id=template.pipeline_id,
             policy_id=self._policy.policy_id,
             result=result,

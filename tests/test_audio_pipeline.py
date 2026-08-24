@@ -62,11 +62,17 @@ class AudioPreprocessingTests(unittest.TestCase):
         result = self.pipeline.process(wave_payload(silence + tone + silence))
 
         self.assertEqual(result.processed.audio.sample_rate, 16_000)
+        self.assertEqual(result.countermeasure_audio.sample_rate, 16_000)
         self.assertEqual(len(result.processed.audio.samples), 16_000)
+        self.assertEqual(len(result.countermeasure_audio.samples), 16_000)
         self.assertEqual(len(result.processed.speech_segments), 1)
         self.assertGreater(result.quality.speech_seconds, 0.45)
         self.assertLess(result.quality.speech_seconds, 0.75)
         self.assertGreater(result.quality.estimated_snr_db, 30.0)
+        self.assertLess(
+            max(abs(sample) for sample in result.countermeasure_audio.samples),
+            max(abs(sample) for sample in result.processed.audio.samples),
+        )
 
     def test_silence_produces_no_speech_segments(self) -> None:
         result = self.pipeline.process(wave_payload([0.0] * 8_000))

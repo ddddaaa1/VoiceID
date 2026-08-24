@@ -5,10 +5,25 @@ VoiceID treats speaker verification and presentation-attack detection as indepen
 ## Delivery stages
 
 - **Step 8A — Countermeasure score contract and metrics:** implemented.
-- **Step 8B — Concrete pretrained detector adapter:** pending.
+- **Step 8B — Concrete pretrained detector adapter:** implemented.
 - **Step 8C — ASVspoof evaluation and tandem decision report:** pending.
 
-The application already supports an optional `SpoofDetector` port and safe decision fusion. Until Step 8B supplies and validates a concrete adapter, the default API continues to report `spoof_check_not_run` and exposes `anti_spoofing_enabled=false`.
+The application supports an optional `SpoofDetector` port, safe decision fusion, and an
+integrity-checked adapter for the official pretrained AASIST Logical Access checkpoint. The
+countermeasure is deliberately not enabled in the default API: its softmax output is uncalibrated
+and has not yet been measured through the complete VoiceID pipeline. The default therefore
+continues to report `spoof_check_not_run` and `anti_spoofing_enabled=false`.
+
+## AASIST adapter
+
+The adapter consumes the 16 kHz resampled waveform before peak normalization and VAD extraction.
+It repeats or truncates input to 64,600 samples exactly as the upstream evaluation code does,
+verifies the packaged checkpoint SHA-256 before loading it, and returns the softmax value for the
+upstream spoof class. Every attempt records the concrete countermeasure model ID.
+
+See the [AASIST model card](models/aasist.md) for provenance, hashes, validation, intended use, and
+limitations. Upstream benchmark figures are not copied into VoiceID results because they do not
+measure this repository's end-to-end pipeline.
 
 ## Threat categories
 

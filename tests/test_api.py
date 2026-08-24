@@ -65,6 +65,7 @@ class StubVerificationService:
             template_id="template-1",
             template_version=1,
             model_id="fake-ecapa-v1",
+            spoof_model_id=None,
             pipeline_id="fake-audio-v1",
             policy_id="provisional-cosine-v1",
             result=VerificationResult(
@@ -111,6 +112,7 @@ class ApiContractTests(unittest.TestCase):
                 "api_version": "v1",
                 "persistence": "test-memory",
                 "speaker_model_id": "fake-ecapa-v1",
+                "spoof_model_id": None,
                 "verification_policy_id": "provisional-cosine-v1",
                 "anti_spoofing_enabled": False,
             },
@@ -157,6 +159,7 @@ class ApiContractTests(unittest.TestCase):
         self.assertEqual(body["decision"], "accept")
         self.assertEqual(body["speaker_score"], 0.91)
         self.assertIsNone(body["spoof_probability"])
+        self.assertIsNone(body["spoof_model_id"])
         self.assertIn("spoof_check_not_run", body["reasons"])
         self.assertEqual(self.verification.received, ("client-1", b"one"))
 

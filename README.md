@@ -54,6 +54,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Deterministic LibriSpeech clean-subset import with provenance, license, and archive checksums.
 - Published LibriSpeech clean evaluation with frozen scores and Wilson uncertainty intervals.
 - Versioned anti-spoofing score protocol with leakage checks, calibration, uncertainty, and attack-level reporting.
+- Integrity-checked AASIST adapter with isolated waveform preprocessing and explicit model lineage.
 - Target architecture and incremental roadmap.
 
 The system remains experimental. Its first small clean-speech calibration report is published, but the evidence is insufficient to replace the provisional application policy and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
@@ -148,8 +149,10 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0008: Use speaker-disjoint LibriSpeech clean subsets](docs/decisions/0008-librispeech-clean-evaluation-corpus.md)
 - [ADR 0009: Report Wilson intervals for locked-threshold error rates](docs/decisions/0009-wilson-error-rate-intervals.md)
 - [ADR 0010: Evaluate anti-spoofing independently before tandem fusion](docs/decisions/0010-independent-countermeasure-evaluation.md)
+- [ADR 0011: Preserve a separate waveform for the countermeasure](docs/decisions/0011-preserve-countermeasure-waveform.md)
 
-Model behavior, provenance, intended use, and limitations are documented in the [ECAPA-TDNN model card](docs/models/ecapa-tdnn.md).
+Model behavior, provenance, intended use, and limitations are documented in the
+[ECAPA-TDNN](docs/models/ecapa-tdnn.md) and [AASIST](docs/models/aasist.md) model cards.
 
 ## Technical references
 

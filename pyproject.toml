@@ -7,9 +7,11 @@ name = "voiceid"
 version = "0.1.0"
 description = "Speaker verification and voice anti-spoofing platform"
 requires-python = ">=3.11,<3.15"
+license-files = ["LICENSES/*"]
 
 [project.optional-dependencies]
 ml = [
+    "numpy>=2.3,<3",
     "speechbrain>=1.1,<1.2",
     "torch>=2.11,<2.12",
     "torchaudio>=2.11,<2.12",
@@ -29,9 +31,11 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "voiceid.adapters.api" = ["web/*.html", "web/*.json", "web/assets/*"]
+"voiceid.adapters.models" = ["assets/*.pth"]
 
 [tool.ruff]
 line-length = 100
+extend-exclude = ["src/voiceid/adapters/models/vendor/aasist.py"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

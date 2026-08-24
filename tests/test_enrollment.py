@@ -35,7 +35,9 @@ class FakePreprocessor:
         key = payload[0]
         audio = AudioBuffer((key / 10, key / 10), 16_000)
         processed = PreprocessedAudio(audio, (SpeechSegment(0, 2),))
-        return PreprocessingResult(processed, BAD_QUALITY if key == 9 else GOOD_QUALITY)
+        return PreprocessingResult(
+            processed, BAD_QUALITY if key == 9 else GOOD_QUALITY, audio
+        )
 
 
 class FakeEmbedder:

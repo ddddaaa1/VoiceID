@@ -20,6 +20,7 @@ class HealthResponse(StrictResponse):
     api_version: str
     persistence: str
     speaker_model_id: str
+    spoof_model_id: str | None
     verification_policy_id: str
     anti_spoofing_enabled: bool
 
@@ -67,6 +68,7 @@ class VerificationResponse(StrictResponse):
     template_id: str
     template_version: int
     model_id: str
+    spoof_model_id: str | None
     pipeline_id: str
     policy_id: str
     decision: Decision
@@ -83,6 +85,7 @@ class VerificationResponse(StrictResponse):
             template_id=attempt.template_id,
             template_version=attempt.template_version,
             model_id=attempt.model_id,
+            spoof_model_id=attempt.spoof_model_id,
             pipeline_id=attempt.pipeline_id,
             policy_id=attempt.policy_id,
             decision=attempt.result.decision,

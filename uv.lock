@@ -1636,6 +1636,8 @@ dev = [
     { name = "ruff" },
 ]
 ml = [
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "speechbrain" },
     { name = "torch" },
     { name = "torchaudio" },
@@ -1645,6 +1647,7 @@ ml = [
 requires-dist = [
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.141,<0.142" },
     { name = "httpx2", marker = "extra == 'dev'", specifier = ">=2.10,<3" },
+    { name = "numpy", marker = "extra == 'ml'", specifier = ">=2.3,<3" },
     { name = "python-multipart", marker = "extra == 'api'", specifier = ">=0.0.32,<0.1" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12,<1" },
     { name = "speechbrain", marker = "extra == 'ml'", specifier = ">=1.1,<1.2" },

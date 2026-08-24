@@ -99,6 +99,7 @@ def create_app(
             api_version=API_VERSION,
             persistence=services.persistence,
             speaker_model_id=services.speaker_model_id,
+            spoof_model_id=services.spoof_model_id,
             verification_policy_id=services.verification_policy_id,
             anti_spoofing_enabled=services.anti_spoofing_enabled,
         )

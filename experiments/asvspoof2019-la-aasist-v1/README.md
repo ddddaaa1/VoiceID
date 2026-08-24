@@ -35,7 +35,7 @@ attack-level EER/t-DCF use the evaluation partition and organizer-provided fixed
 | `source-inventory.jsonl` | Exact protocol order, relative FLAC paths, byte sizes, and SHA-256 values. |
 | `spoof-scores.json` | VoiceID higher-is-spoof softmax scores for development/evaluation. |
 | `countermeasure-report.json` | Development-calibrated application metrics and held-out attack categories. |
-| `official-cm-scores.txt` | Higher-is-bona-fide raw logits compatible with the upstream evaluation convention. |
+| `official-cm-scores.txt` | Evaluation-only, higher-is-bona-fide raw logits compatible with the upstream evaluator. |
 | `tandem-report.json` | Pooled and A07–A19 EER/min-tDCF under the official fixed-ASV context. |
 | `provenance.json` | Dataset, protocols, model, pipeline, artifact hashes, and interpretation boundary. |
 

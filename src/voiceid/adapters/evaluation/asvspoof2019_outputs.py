@@ -12,6 +12,7 @@ from voiceid.adapters.evaluation.json_spoof_manifest import spoof_evaluation_rep
 from voiceid.adapters.models.aasist import AasistRuntime
 from voiceid.application.asvspoof2019_scoring import Asvspoof2019ScoreRecord
 from voiceid.application.spoof_evaluation import evaluate_spoof_scores
+from voiceid.domain.evaluation import TrialPartition
 from voiceid.domain.spoofing import (
     AttackCategory,
     SpoofLabel,
@@ -112,6 +113,7 @@ def write_asvspoof2019_outputs(
         f"{record.trial_id} {record.attack_id if record.label is SpoofLabel.SPOOF else '-'} "
         f"{record.label.value} {record.bonafide_logit:.12g}\n"
         for record in records
+        if record.partition is TrialPartition.EVALUATION
     ).encode()
     tandem_payload = (
         json.dumps(
@@ -155,6 +157,7 @@ def write_asvspoof2019_outputs(
                 "spoof_probability": "higher_is_spoof",
                 "official_cm_score": "higher_is_bonafide",
             },
+            "official_cm_partition": "evaluation",
         },
         "trial_count": len(records),
         "artifacts": artifact_hashes,

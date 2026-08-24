@@ -140,7 +140,9 @@ class Asvspoof2019ScoringTests(unittest.TestCase):
             self.assertEqual(len(manifest.trials), 4)
             self.assertEqual(len(artifacts.inventory_sha256), 64)
             self.assertTrue((output / "countermeasure-report.json").is_file())
-            self.assertTrue((output / "official-cm-scores.txt").is_file())
+            official_scores = (output / "official-cm-scores.txt").read_text().splitlines()
+            self.assertEqual(len(official_scores), 2)
+            self.assertTrue(all(line.startswith("LA_E_") for line in official_scores))
             self.assertTrue((output / "tandem-report.json").is_file())
             self.assertTrue((output / "provenance.json").is_file())
 

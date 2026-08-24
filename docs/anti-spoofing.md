@@ -37,7 +37,8 @@ VoiceID publishes two score views from the same inference. `spoof_probability` i
 two-class softmax value used by the application contract, where higher means more likely spoof.
 `official_cm_score` is the upstream class-1 bona-fide logit used for ASVspoof comparison, where
 higher means more likely bona fide. The report never silently treats these different rankings as
-the same score.
+the same score. The upstream-compatible CM file contains the held-out evaluation partition only;
+development remains present in VoiceID's manifest solely for threshold calibration.
 
 ## Threat categories
 

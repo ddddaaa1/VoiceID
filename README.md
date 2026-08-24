@@ -51,6 +51,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Unit and contract tests covering audio capture encoding, the API, and biometric logic.
 - Leakage-resistant scored-trial manifests with development-only minDCF threshold selection.
 - Hash-locked PCM WAVE trial manifests and a real preprocessing + ECAPA scoring runner.
+- Deterministic LibriSpeech clean-subset import with provenance, license, and archive checksums.
 - Target architecture and incremental roadmap.
 
 The system remains experimental: its decision policy is not calibrated and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
@@ -108,7 +109,16 @@ uv run ruff check .
 
 ## Next milestone
 
-Score a real, consented audio corpus and publish a measured calibration report. The audio runner, metric layer, and strict contracts are available:
+Score the reproducible LibriSpeech clean cohort and publish a measured calibration report. The importer, audio runner, metric layer, and strict contracts are available:
+
+```bash
+uv run python scripts/prepare_librispeech.py \
+  --dev-clean data/raw/librispeech/LibriSpeech/dev-clean \
+  --test-clean data/raw/librispeech/LibriSpeech/test-clean \
+  --output data/raw/librispeech/voiceid-clean-v1
+```
+
+Then run the generated hash-locked manifest:
 
 ```bash
 uv run python scripts/score_audio_trials.py path/to/audio-trials.json \
@@ -116,7 +126,7 @@ uv run python scripts/score_audio_trials.py path/to/audio-trials.json \
   --report /tmp/voiceid-evaluation-report.json
 ```
 
-Use [the audio manifest template](examples/evaluation/audio-trials.example.json) to define consent, enrollment recordings, probes, SHA-256 digests, partitions, labels, and conditions. The bundled examples are contract fixtures, not VoiceID accuracy results. Read the [evaluation protocol](docs/evaluation.md) before interpreting a report.
+Use [the audio manifest template](examples/evaluation/audio-trials.example.json) for a different authorized corpus. The bundled examples are contract fixtures, not VoiceID accuracy results. LibriSpeech's public license is not individual biometric consent, and the generated audio remains ignored by Git. Read the [evaluation protocol](docs/evaluation.md) before interpreting a report.
 
 ## Engineering decisions
 

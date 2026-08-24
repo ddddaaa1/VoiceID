@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from voiceid.domain.evaluation import (
     AudioEnrollment,
@@ -53,6 +54,46 @@ def load_audio_trial_manifest(path: Path) -> AudioTrialManifest:
         )
     except (EvaluationProtocolError, ValueError) as error:
         raise ManifestFormatError(str(error)) from error
+
+
+def audio_trial_manifest_payload(manifest: AudioTrialManifest) -> dict[str, Any]:
+    return {
+        "schema_version": manifest.schema_version,
+        "dataset": {
+            "id": manifest.dataset_id,
+            "version": manifest.dataset_version,
+            "consent_attestation": manifest.consent_attestation,
+        },
+        "enrollments": [
+            {
+                "identity_id": enrollment.identity_id,
+                "speaker_id": enrollment.speaker_id,
+                "partition": enrollment.partition.value,
+                "samples": [
+                    {"path": sample.path, "sha256": sample.sha256}
+                    for sample in enrollment.samples
+                ],
+            }
+            for enrollment in manifest.enrollments
+        ],
+        "trials": [
+            {
+                "trial_id": trial.trial_id,
+                "partition": trial.partition.value,
+                "label": trial.label.value,
+                "claimed_identity_id": trial.claimed_identity_id,
+                "probe_speaker_id": trial.probe_speaker_id,
+                "sample": {"path": trial.sample.path, "sha256": trial.sample.sha256},
+                "condition": trial.condition,
+            }
+            for trial in manifest.trials
+        ],
+    }
+
+
+def write_audio_trial_manifest(manifest: AudioTrialManifest, path: Path) -> None:
+    payload = json.dumps(audio_trial_manifest_payload(manifest), indent=2, sort_keys=True)
+    path.write_text(f"{payload}\n", encoding="utf-8")
 
 
 def _parse_enrollment(value: object, index: int) -> AudioEnrollment:

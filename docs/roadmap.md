@@ -52,4 +52,4 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 
 ## Current focus
 
-Step 7B is complete. The next increment is Step 7C: collect a consented multi-speaker corpus, freeze its manifest, calculate confidence intervals, and publish the first measured VoiceID calibration report.
+Step 7C is in progress. The reproducible LibriSpeech clean-subset importer is present; the next increment downloads and verifies the public archives, freezes the generated manifest, scores it, adds confidence intervals, and publishes the first measured VoiceID calibration report.

@@ -42,6 +42,13 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 - [ ] **Step 8 — Anti-spoofing**
   Detect replay, synthetic speech, and voice conversion; evaluate the tandem system with ASVspoof protocols.
 
+  - [x] **Step 8A — Countermeasure protocol and metric engine**
+    Freeze spoof-probability semantics, reject speaker leakage, calibrate on development only, and report held-out errors by attack category.
+  - [ ] **Step 8B — Pretrained countermeasure adapter**
+    Integrate a versioned model behind `SpoofDetector`, document its preprocessing and provenance, and expose its model ID in every attempt.
+  - [ ] **Step 8C — ASVspoof and tandem evaluation**
+    Score official protocols, calculate countermeasure EER and t-DCF, publish limitations, and enable fusion only if evidence supports it.
+
 ## Product infrastructure
 
 - [ ] **Step 9 — Durable and secure persistence**
@@ -54,4 +61,4 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 
 Step 7 is complete. The first measured LibriSpeech clean report freezes its non-audio artifacts, real ECAPA scores, held-out metrics, Wilson intervals, and limitations. Its small correlated cohort does not justify replacing the provisional application threshold.
 
-The next increment is Step 8: introduce an anti-spoofing model and evaluate replay, synthetic speech, and voice conversion together with speaker verification.
+Step 8A is the current increment: its model-independent score contract and metrics prevent an unmeasured countermeasure from being treated as a security control. The next increment is Step 8B: select and integrate the first pretrained detector adapter while preserving the default API's explicit `spoof_check_not_run` state.

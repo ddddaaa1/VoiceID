@@ -1,0 +1,29 @@
+{
+  "schema_version": "voiceid-spoof-scores/v1",
+  "dataset": {
+    "id": "synthetic-spoof-contract-example",
+    "version": "1"
+  },
+  "system": {
+    "countermeasure_model_id": "example-countermeasure-not-a-benchmark",
+    "pipeline_id": "example-spoof-pipeline-v1"
+  },
+  "trials": [
+    {"trial_id": "dev-b-01", "partition": "development", "speaker_id": "dev-a", "label": "bonafide", "attack_category": "bonafide", "attack_id": "bonafide", "spoof_probability": 0.05, "condition": "clean"},
+    {"trial_id": "dev-b-02", "partition": "development", "speaker_id": "dev-a", "label": "bonafide", "attack_category": "bonafide", "attack_id": "bonafide", "spoof_probability": 0.10, "condition": "codec"},
+    {"trial_id": "dev-b-03", "partition": "development", "speaker_id": "dev-b", "label": "bonafide", "attack_category": "bonafide", "attack_id": "bonafide", "spoof_probability": 0.20, "condition": "clean"},
+    {"trial_id": "dev-b-04", "partition": "development", "speaker_id": "dev-b", "label": "bonafide", "attack_category": "bonafide", "attack_id": "bonafide", "spoof_probability": 0.25, "condition": "codec"},
+    {"trial_id": "dev-s-01", "partition": "development", "speaker_id": "dev-a", "label": "spoof", "attack_category": "synthetic", "attack_id": "A01", "spoof_probability": 0.65, "condition": "clean"},
+    {"trial_id": "dev-s-02", "partition": "development", "speaker_id": "dev-a", "label": "spoof", "attack_category": "voice_conversion", "attack_id": "A02", "spoof_probability": 0.75, "condition": "codec"},
+    {"trial_id": "dev-s-03", "partition": "development", "speaker_id": "dev-b", "label": "spoof", "attack_category": "replay", "attack_id": "R01", "spoof_probability": 0.85, "condition": "clean"},
+    {"trial_id": "dev-s-04", "partition": "development", "speaker_id": "dev-b", "label": "spoof", "attack_category": "synthetic", "attack_id": "A03", "spoof_probability": 0.95, "condition": "codec"},
+    {"trial_id": "eval-b-01", "partition": "evaluation", "speaker_id": "eval-c", "label": "bonafide", "attack_category": "bonafide", "attack_id": "bonafide", "spoof_probability": 0.08, "condition": "clean"},
+    {"trial_id": "eval-b-02", "partition": "evaluation", "speaker_id": "eval-c", "label": "bonafide", "attack_category": "bonafide", "attack_id": "bonafide", "spoof_probability": 0.15, "condition": "codec"},
+    {"trial_id": "eval-b-03", "partition": "evaluation", "speaker_id": "eval-d", "label": "bonafide", "attack_category": "bonafide", "attack_id": "bonafide", "spoof_probability": 0.30, "condition": "clean"},
+    {"trial_id": "eval-b-04", "partition": "evaluation", "speaker_id": "eval-d", "label": "bonafide", "attack_category": "bonafide", "attack_id": "bonafide", "spoof_probability": 0.55, "condition": "codec"},
+    {"trial_id": "eval-s-01", "partition": "evaluation", "speaker_id": "eval-c", "label": "spoof", "attack_category": "replay", "attack_id": "R02", "spoof_probability": 0.40, "condition": "clean"},
+    {"trial_id": "eval-s-02", "partition": "evaluation", "speaker_id": "eval-c", "label": "spoof", "attack_category": "replay", "attack_id": "R03", "spoof_probability": 0.70, "condition": "codec"},
+    {"trial_id": "eval-s-03", "partition": "evaluation", "speaker_id": "eval-d", "label": "spoof", "attack_category": "synthetic", "attack_id": "A04", "spoof_probability": 0.80, "condition": "clean"},
+    {"trial_id": "eval-s-04", "partition": "evaluation", "speaker_id": "eval-d", "label": "spoof", "attack_category": "voice_conversion", "attack_id": "A05", "spoof_probability": 0.90, "condition": "codec"}
+  ]
+}

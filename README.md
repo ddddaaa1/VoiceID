@@ -1,20 +1,20 @@
 # VoiceID
 
-VoiceID es una plataforma de **verificación de hablante con detección de ataques por voz**. El objetivo no es reconocer qué se dijo, sino estimar si una muestra pertenece a una identidad registrada y si el audio parece auténtico.
+VoiceID is a **speaker verification and voice attack detection platform**. Its purpose is not to recognize what was said, but to determine whether a voice sample belongs to an enrolled identity and whether the audio appears authentic.
 
-El repositorio comienza con una demo web local y un núcleo de dominio probado. La hoja de ruta incorpora inferencia con PyTorch, evaluación biométrica, almacenamiento seguro, una API asíncrona y MLOps.
+The repository currently combines a local web demo with a tested, framework-independent domain core. The roadmap adds PyTorch inference, biometric evaluation, secure storage, an asynchronous API, and MLOps.
 
-## Qué demuestra el proyecto
+## What this project demonstrates
 
-- Procesamiento de audio: normalización, VAD, control de calidad y segmentación.
-- Deep learning: embeddings ECAPA-TDNN y clasificación anti-spoofing.
-- Lógica biométrica: enrollment, centroides robustos, cosine scoring y calibración.
-- Evaluación: FAR, FRR, EER, ROC-AUC, minDCF y análisis por condiciones.
-- Arquitectura: dominio desacoplado, adaptadores de modelos, API, workers y eventos.
-- MLOps: datasets versionados, experiment tracking, model registry y monitoring.
-- Seguridad y privacidad: plantillas revocables, cifrado y política de retención.
+- Audio processing: normalization, voice activity detection, quality analysis, and segmentation.
+- Deep learning: ECAPA-TDNN speaker embeddings and anti-spoofing classification.
+- Biometric logic: enrollment, robust centroids, cosine scoring, and calibration.
+- Evaluation: FAR, FRR, EER, ROC-AUC, minDCF, and condition-based analysis.
+- Architecture: decoupled domain logic, model adapters, APIs, workers, and events.
+- MLOps: versioned datasets, experiment tracking, a model registry, and monitoring.
+- Security and privacy: revocable templates, encryption, consent, and retention policies.
 
-## Arquitectura objetivo
+## Target architecture
 
 ```mermaid
 flowchart LR
@@ -34,40 +34,46 @@ flowchart LR
     D --> T[Metrics + Drift Monitoring]
 ```
 
-La explicación completa está en [docs/architecture.md](docs/architecture.md).
+See [the architecture document](docs/architecture.md) for component boundaries, evaluation criteria, the threat model, and the delivery roadmap.
 
-## Estado actual
+## Current status
 
-- Demo de UX ejecutada completamente en el navegador.
-- Núcleo Python para enrollment robusto, cosine scoring y fusión antifraude.
-- Pruebas unitarias del motor de decisión.
-- Diseño de arquitectura y roadmap incremental.
+- Browser-based UX prototype with local audio processing.
+- Python core for robust enrollment, cosine scoring, and anti-spoofing decision fusion.
+- Unit tests covering the biometric decision engine.
+- Target architecture and incremental roadmap.
 
-La demo web aún usa características acústicas sencillas. No debe considerarse autenticación biométrica.
+The browser prototype still relies on basic acoustic features. It must not be treated as a biometric authentication system.
 
-## Ejecutar la demo
+## Run the web demo
+
+Microphone access requires a secure browser context. Start a local server:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Abre `http://localhost:8080`.
+Then open `http://localhost:8080`.
 
-## Ejecutar las pruebas del dominio
+## Run the domain tests
 
-No requieren instalar dependencias:
+The current test suite has no third-party dependencies:
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
 
-## Próximo incremento
+## Next milestone
 
-Implementar el servicio de inferencia con un adaptador ECAPA-TDNN preentrenado, extraer embeddings reales y ejecutar un benchmark reproducible sobre VoxCeleb antes de conectar el resultado a la interfaz.
+Build an inference adapter around a pretrained ECAPA-TDNN model, extract real speaker embeddings, and produce a reproducible VoxCeleb benchmark before connecting model inference to the web interface.
 
-## Referencias técnicas
+## Technical references
 
 - [SpeechBrain ECAPA-TDNN](https://speechbrain.readthedocs.io/en/stable/API/speechbrain.lobes.models.ECAPA_TDNN.html)
-- [Modelo preentrenado SpeechBrain/VoxCeleb](https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb)
+- [SpeechBrain VoxCeleb pretrained model](https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb)
 - [ASVspoof 2021](https://www.asvspoof.org/index2021.html)
 - [MLflow Tracking](https://mlflow.org/docs/latest/tracking)
+
+## Safety notice
+
+Voice embeddings are biometric data. This project is currently intended for research and portfolio demonstration only. Production use would require informed consent, a documented retention policy, encryption, revocation, bias analysis, and jurisdiction-specific legal review.

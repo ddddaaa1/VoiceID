@@ -28,7 +28,7 @@ async function record(kind) {
     state.active = kind;
     button.classList.add("recording");
     button.querySelector("span:last-child").textContent = "Grabando…";
-    status.textContent = "Habla ahora — la grabación termina en 5 segundos";
+    status.textContent = "Speak now — recording ends in 5 seconds";
 
     const frames = [];
     const spectrum = new Uint8Array(analyser.frequencyBinCount);
@@ -53,21 +53,21 @@ async function record(kind) {
 
     if (kind === "enroll") {
       state.profile = signature;
-      status.textContent = "Perfil acústico creado en este dispositivo ✓";
+      status.textContent = "Acoustic profile created on this device ✓";
       const verifyCard = document.querySelector("#verify-card");
       verifyCard.classList.remove("muted");
       document.querySelector("#verify-button").disabled = false;
-      document.querySelector("#verify-status").textContent = "Listo para comparar";
+      document.querySelector("#verify-status").textContent = "Ready to compare";
     } else {
       showResult(similarity(state.profile, signature));
-      status.textContent = "Comparación terminada ✓";
+      status.textContent = "Comparison complete ✓";
     }
   } catch (error) {
     state.active = null;
     resetButton(button, kind);
     status.textContent = error.name === "NotAllowedError"
-      ? "Necesitamos permiso para usar el micrófono"
-      : "No pudimos acceder al micrófono en este navegador";
+      ? "Microphone access is required"
+      : "This browser could not access the microphone";
   }
 }
 
@@ -108,18 +108,18 @@ function animateBars(kind, spectrum) {
 function resetButton(button, kind) {
   button.classList.remove("recording");
   button.querySelector("span:last-child").textContent = kind === "enroll"
-    ? "Volver a registrar"
-    : "Grabar otra comparación";
+    ? "Enroll again"
+    : "Record another comparison";
 }
 
 function showResult(score) {
   const result = document.querySelector("#result");
   document.querySelector("#score-value").textContent = `${score}%`;
   document.querySelector("#result-title").textContent = score >= 75
-    ? "Las muestras se parecen bastante"
-    : score >= 50 ? "Hay algunas similitudes" : "Las muestras son diferentes";
+    ? "The samples are highly similar"
+    : score >= 50 ? "The samples share some similarities" : "The samples are different";
   document.querySelector("#result-copy").textContent =
-    "Este porcentaje describe similitud acústica, no confirma la identidad de una persona.";
+    "This percentage describes acoustic similarity; it does not confirm a person's identity.";
   result.hidden = false;
   result.scrollIntoView({ behavior: "smooth", block: "center" });
 }

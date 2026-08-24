@@ -1,159 +1,159 @@
-# Arquitectura de VoiceID
+# VoiceID Architecture
 
-## 1. Problema
+## 1. Problem definition
 
-VoiceID recibe una muestra de voz y responde tres preguntas distintas:
+VoiceID receives a voice sample and answers three independent questions:
 
-1. ¿Contiene suficiente voz utilizable?
-2. ¿La voz coincide con la identidad registrada?
-3. ¿La señal parece genuina o corresponde a un replay/deepfake?
+1. Does the sample contain enough usable speech?
+2. Does the voice match the claimed enrolled identity?
+3. Does the signal appear bona fide, replayed, or synthetically generated?
 
-Separar estas preguntas es importante: una similitud alta no implica autenticidad y un audio genuino no implica que pertenezca al usuario.
+These questions must remain separate. A high speaker similarity score does not prove that a sample is authentic, and bona fide audio does not prove that it belongs to the claimed speaker.
 
-## 2. Pipeline de inferencia
+## 2. Inference pipeline
 
 ```mermaid
 sequenceDiagram
-    participant C as Cliente
+    participant C as Client
     participant API as API
     participant Q as Quality/VAD
-    participant SV as Speaker model
+    participant SV as Speaker Model
     participant CM as Countermeasure
-    participant DE as Decision engine
+    participant DE as Decision Engine
 
     C->>API: audio + claimed_identity
     API->>Q: decode/resample/segment
-    Q-->>API: speech segments + quality
-    par Modelos independientes
-        API->>SV: segmentos válidos
-        SV-->>API: embedding normalizado
-        API->>CM: waveform/espectrograma
+    Q-->>API: speech segments + quality report
+    par Independent models
+        API->>SV: valid speech segments
+        SV-->>API: normalized embedding
+        API->>CM: waveform/spectrogram
         CM-->>API: spoof probability
     end
     API->>DE: similarity + spoof + quality + policy
-    DE-->>C: accept/reject/review + reasons
+    DE-->>C: accept/reject/review + reason codes
 ```
 
-### Preprocesamiento
+### Audio preprocessing
 
-- Decodificación segura y límite de duración/tamaño.
-- Conversión mono PCM a 16 kHz.
-- VAD para retirar silencios y estimar duración efectiva.
-- Métricas: clipping, RMS, SNR aproximado y porcentaje de voz.
-- Rechazo temprano de muestras insuficientes.
+- Safely decode audio while enforcing duration and size limits.
+- Convert input to 16 kHz mono PCM.
+- Use voice activity detection to remove silence and measure effective speech duration.
+- Calculate clipping, RMS, approximate SNR, and speech ratio.
+- Reject unusable samples before expensive inference.
 
 ### Speaker encoder
 
-ECAPA-TDNN produce un vector denso que representa rasgos del hablante. El enrollment usa varias muestras y crea un centroide robusto; las muestras atípicas se excluyen antes de guardar la plantilla.
+ECAPA-TDNN produces a dense vector representing speaker characteristics. Enrollment combines several recordings into a robust centroid and removes inconsistent samples before storing the resulting voice template.
 
-El score inicial será similitud coseno. Después se compararán adaptive score normalization y PLDA. Los thresholds nunca se eligen “a ojo”: se calibran con un conjunto de desarrollo y una función de coste.
+The initial backend uses cosine similarity. Later experiments will compare adaptive score normalization and PLDA. Thresholds must be calibrated on a development set against an explicit cost function rather than selected manually.
 
-### Anti-spoofing
+### Anti-spoofing countermeasure
 
-Un modelo independiente analiza artefactos de síntesis, conversión y replay. Se entrenará/evaluará con los protocolos LA, PA y DF de ASVspoof. Speaker verification y countermeasure conservarán métricas separadas además de una métrica tándem.
+An independent model analyzes artifacts introduced by speech synthesis, voice conversion, and replay. It will be trained and evaluated against the ASVspoof Logical Access, Physical Access, and Deepfake protocols. Speaker verification and countermeasure metrics remain separate in addition to the tandem system metric.
 
 ### Decision engine
 
-La política combina score de identidad, probabilidad de spoof, calidad, duración de voz, versión del modelo y nivel de riesgo. Devuelve una decisión explícita (`accept`, `reject`, `review`) y reason codes auditables. No oculta errores de calidad dentro de un score biométrico.
+The policy combines the speaker score, spoof probability, audio quality, speech duration, model version, and operation risk. It returns an explicit `accept`, `reject`, or `review` decision with auditable reason codes. Quality failures are never hidden inside a biometric score.
 
-## 3. Componentes desplegables
+## 3. Deployable components
 
-| Componente | Responsabilidad | Tecnología prevista |
+| Component | Responsibility | Planned technology |
 |---|---|---|
-| Web | enrollment, verificación, resultados | TypeScript / React |
-| API | contratos, autenticación, rate limiting | FastAPI / Pydantic |
-| Orchestrator | pipeline y políticas | Python |
-| Inference worker | VAD, embeddings, anti-spoof | PyTorch / ONNX Runtime |
-| Job queue | inferencia larga y backpressure | Redis |
-| Metadata | identidades, sesiones, auditoría | PostgreSQL |
-| Audio store | muestras cifradas con TTL | S3/MinIO |
-| Experiments | runs, métricas, artefactos | MLflow |
-| Observability | latencia, errores, drift | OpenTelemetry / Prometheus |
+| Web | Enrollment, verification, and result presentation | TypeScript / React |
+| API | Contracts, authentication, and rate limiting | FastAPI / Pydantic |
+| Orchestrator | Pipeline execution and policy enforcement | Python |
+| Inference worker | VAD, speaker embeddings, and anti-spoofing | PyTorch / ONNX Runtime |
+| Job queue | Long-running inference and backpressure | Redis |
+| Metadata store | Identities, sessions, and audit records | PostgreSQL |
+| Audio store | Encrypted samples with expiration policies | S3 / MinIO |
+| Experiment system | Runs, metrics, artifacts, and lineage | MLflow |
+| Observability | Latency, errors, traces, and drift | OpenTelemetry / Prometheus |
 
-Se comienza como modular monolith. API, dominio y adaptadores viven en el mismo despliegue y se separan en workers solo cuando la carga o el uso de GPU lo justifique.
+The system begins as a modular monolith. The API, domain, and adapters share one deployment until load characteristics or GPU utilization justify independent workers.
 
-## 4. Límites del código
+## 4. Code boundaries
 
 ```text
 src/voiceid/
-├── domain/          # reglas puras, sin frameworks ni modelos concretos
-├── application/     # casos de uso: enroll, verify, evaluate
-├── ports/           # protocolos para storage, modelos y eventos
-└── adapters/        # SpeechBrain, ASVspoof model, Postgres, S3, HTTP
+├── domain/          # Pure rules without frameworks or concrete models
+├── application/     # Enroll, verify, and evaluate use cases
+├── ports/           # Protocols for models, storage, and events
+└── adapters/        # SpeechBrain, anti-spoof model, PostgreSQL, S3, and HTTP
 ```
 
-El dominio no importa FastAPI, PyTorch ni una base de datos. Esto permite probar decisiones con vectores deterministas y cambiar modelos sin modificar reglas de negocio.
+The domain layer does not import FastAPI, PyTorch, or a database client. This allows decision rules to be tested with deterministic vectors and lets model implementations change without modifying business rules.
 
-## 5. Modelo de datos
+## 5. Data model
 
-- `Identity`: sujeto lógico, estado y política de consentimiento.
-- `Enrollment`: conjunto de muestras y versión del pipeline.
-- `VoiceTemplate`: centroide normalizado, modelo, dimensión y fecha de expiración.
-- `VerificationAttempt`: scores, quality report, decisión y reason codes.
-- `ModelRelease`: artefacto, dataset lineage, thresholds y métricas.
+- `Identity`: logical subject, lifecycle state, and consent policy.
+- `Enrollment`: a set of samples processed by a specific pipeline version.
+- `VoiceTemplate`: normalized centroid, model identifier, dimension, and expiration date.
+- `VerificationAttempt`: scores, quality report, decision, and reason codes.
+- `ModelRelease`: artifact, dataset lineage, thresholds, and evaluation metrics.
 
-Las grabaciones y las plantillas no son equivalentes: se almacenan por separado, con políticas de retención distintas. En producción, la plantilla debe cifrarse, versionarse y poder revocarse.
+Recordings and templates are not equivalent assets. They are stored separately and follow different retention policies. A production template must be encrypted, versioned, revocable, and access-controlled.
 
-## 6. Evaluación
+## 6. Evaluation strategy
 
 ### Speaker verification
 
-- FAR: impostores aceptados.
-- FRR: usuarios legítimos rechazados.
-- EER: punto donde FAR y FRR se cruzan.
-- minDCF: coste mínimo ponderado según el escenario.
-- Curvas DET/ROC y calibración por dispositivo, ruido, idioma y duración.
+- **FAR:** proportion of impostor attempts incorrectly accepted.
+- **FRR:** proportion of genuine attempts incorrectly rejected.
+- **EER:** operating point where FAR and FRR are equal.
+- **minDCF:** minimum weighted cost for the intended operating scenario.
+- DET/ROC curves and calibration analysis by device, noise, language, and duration.
 
 ### Anti-spoofing
 
-- EER de countermeasure.
-- min t-DCF para medir el sistema junto con speaker verification.
-- Resultados separados para logical access, physical access y deepfake.
-- Pruebas fuera de distribución con codecs y generadores no vistos.
+- Countermeasure EER.
+- Minimum tandem detection cost function for the combined system.
+- Separate Logical Access, Physical Access, and Deepfake results.
+- Out-of-distribution testing with unseen codecs and generators.
 
-### Operación
+### Operational performance
 
-- p50/p95/p99 de latencia y real-time factor.
-- distribución de scores y quality failures.
-- drift de embeddings sin registrar audio crudo en telemetría.
+- p50, p95, and p99 latency plus real-time factor.
+- Speaker-score distribution and quality-failure rates.
+- Embedding drift monitoring without placing raw audio in telemetry.
 
-## 7. Threat model mínimo
+## 7. Minimum threat model
 
-- Replay de una grabación del usuario.
-- Voz sintetizada o clonada.
+- Replay of a genuine user's recording.
+- Synthetic or cloned speech.
 - Voice conversion.
-- Inyección directa de archivos al endpoint.
-- Enrollment fraudulento.
-- Robo o correlación de plantillas biométricas.
-- Abuso por intentos masivos y enumeración de identidades.
+- Direct file injection into the verification endpoint.
+- Fraudulent enrollment.
+- Voice-template theft or cross-service correlation.
+- High-volume attempts and identity enumeration.
 
-Los controles incluyen challenge phrases opcionales, anti-spoofing, rate limits, liveness por sesión, cifrado, TTL, auditoría y separación entre identificador público e identidad interna.
+Controls include optional challenge phrases, anti-spoofing, session liveness, rate limits, encryption, expiration, audit trails, and separation between public identifiers and internal identities.
 
-## 8. Plan incremental
+## 8. Incremental delivery plan
 
-### Fase 1 — baseline científico
+### Phase 1 — Scientific baseline
 
-- Dataset manifest versionado.
-- VAD y quality gates.
-- ECAPA-TDNN preentrenado.
-- Benchmark reproducible y reporte EER.
-- API local de enrollment/verification.
+- Versioned dataset manifest.
+- VAD and audio quality gates.
+- Pretrained ECAPA-TDNN inference.
+- Reproducible benchmark and EER report.
+- Local enrollment and verification API.
 
-### Fase 2 — sistema antifraude
+### Phase 2 — Anti-fraud system
 
-- Baseline RawNet2/AASIST sobre ASVspoof.
-- Decision fusion y min t-DCF.
-- Ataques de replay y audio sintético en pruebas.
+- RawNet2 or AASIST baseline on ASVspoof.
+- Decision fusion and minimum tandem DCF.
+- Automated replay and synthetic-audio tests.
 
-### Fase 3 — arquitectura de producto
+### Phase 3 — Product architecture
 
-- PostgreSQL, object storage, jobs y consent/retention flows.
-- Autenticación, rate limiting, audit trail y observabilidad.
-- SDK web y dashboard de intentos.
+- PostgreSQL, object storage, jobs, consent, and retention workflows.
+- Authentication, rate limiting, audit trail, and observability.
+- Web SDK and verification-attempt dashboard.
 
-### Fase 4 — MLOps y producción
+### Phase 4 — MLOps and production readiness
 
-- DVC o manifests con checksums para datasets.
-- MLflow para runs, registry y lineage.
-- CI con tests, image scanning y evaluación de modelos.
-- Canary release, monitoring de drift y rollback.
+- DVC or checksum-based manifests for dataset lineage.
+- MLflow experiment tracking and model registry.
+- CI with unit tests, model evaluation, and container scanning.
+- Canary releases, drift monitoring, and model rollback.

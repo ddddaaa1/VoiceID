@@ -18,6 +18,7 @@ from voiceid.application.spoof_evaluation import evaluate_spoof_scores
 from voiceid.domain.evaluation import TrialPartition
 from voiceid.domain.spoof_metrics import (
     CountermeasureCostModel,
+    countermeasure_cost,
     countermeasure_rates,
     estimate_countermeasure_eer,
     minimum_countermeasure_cost,
@@ -75,6 +76,34 @@ class CountermeasureMetricTests(unittest.TestCase):
         )
         self.assertEqual(eer.bonafide_reject_rate, eer.spoof_accept_rate)
         self.assertEqual(minimum.normalized_cost, 0.5)
+
+    def test_optimized_sweep_matches_naive_threshold_semantics_with_ties(self) -> None:
+        bonafide = [0.0, 0.2, 0.2, 0.8, 1.0]
+        spoof = [0.0, 0.2, 0.7, 0.7, 1.0]
+        thresholds = sorted({0.0, 1.0, *bonafide, *spoof})
+        rates = [countermeasure_rates(bonafide, spoof, threshold) for threshold in thresholds]
+        expected_eer = min(
+            rates,
+            key=lambda item: (
+                abs(item.bonafide_reject_rate - item.spoof_accept_rate),
+                item.balanced_error_rate,
+                item.spoof_accept_rate,
+                item.threshold,
+            ),
+        )
+        model = CountermeasureCostModel(spoof_prior=0.25)
+        expected_cost = min(
+            (countermeasure_cost(item, model) for item in rates),
+            key=lambda item: (
+                item.normalized_cost,
+                item.rates.spoof_accept_rate,
+                item.rates.bonafide_reject_rate,
+                item.rates.threshold,
+            ),
+        )
+
+        self.assertEqual(estimate_countermeasure_eer(bonafide, spoof), expected_eer)
+        self.assertEqual(minimum_countermeasure_cost(bonafide, spoof, model), expected_cost)
 
     def test_rejects_invalid_probabilities_and_costs(self) -> None:
         with self.assertRaisesRegex(ValueError, "between 0 and 1"):

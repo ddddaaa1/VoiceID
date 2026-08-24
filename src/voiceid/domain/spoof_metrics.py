@@ -73,10 +73,7 @@ def estimate_countermeasure_eer(
 ) -> CountermeasureRates:
     bonafide = _validate_probabilities(bonafide_scores, "bonafide")
     spoof = _validate_probabilities(spoof_scores, "spoof")
-    evaluated = [
-        countermeasure_rates(bonafide, spoof, threshold)
-        for threshold in _candidate_thresholds(bonafide, spoof)
-    ]
+    evaluated = _threshold_sweep(bonafide, spoof)
     return min(
         evaluated,
         key=lambda item: (
@@ -114,8 +111,7 @@ def minimum_countermeasure_cost(
     spoof = _validate_probabilities(spoof_scores, "spoof")
     cost_model = model or CountermeasureCostModel()
     evaluated = [
-        countermeasure_cost(countermeasure_rates(bonafide, spoof, threshold), cost_model)
-        for threshold in _candidate_thresholds(bonafide, spoof)
+        countermeasure_cost(rates, cost_model) for rates in _threshold_sweep(bonafide, spoof)
     ]
     return min(
         evaluated,
@@ -146,3 +142,39 @@ def _candidate_thresholds(
     bonafide_scores: Sequence[float], spoof_scores: Sequence[float]
 ) -> tuple[float, ...]:
     return tuple(sorted({0.0, 1.0, *bonafide_scores, *spoof_scores}))
+
+
+def _threshold_sweep(
+    bonafide_scores: tuple[float, ...], spoof_scores: tuple[float, ...]
+) -> tuple[CountermeasureRates, ...]:
+    """Evaluate every observed threshold in one ordered pass.
+
+    Scores equal to the threshold remain classified as spoof. Advancing each
+    cursor only past strictly smaller scores therefore preserves the public
+    ``score >= threshold`` decision contract without an O(n²) rescan.
+    """
+
+    bonafide = sorted(bonafide_scores)
+    spoof = sorted(spoof_scores)
+    bonafide_below = 0
+    spoof_below = 0
+    evaluated = []
+    for threshold in _candidate_thresholds(bonafide, spoof):
+        while bonafide_below < len(bonafide) and bonafide[bonafide_below] < threshold:
+            bonafide_below += 1
+        while spoof_below < len(spoof) and spoof[spoof_below] < threshold:
+            spoof_below += 1
+        bonafide_rejects = len(bonafide) - bonafide_below
+        spoof_accepts = spoof_below
+        evaluated.append(
+            CountermeasureRates(
+                threshold=threshold,
+                bonafide_reject_rate=bonafide_rejects / len(bonafide),
+                spoof_accept_rate=spoof_accepts / len(spoof),
+                bonafide_rejects=bonafide_rejects,
+                spoof_accepts=spoof_accepts,
+                bonafide_trials=len(bonafide),
+                spoof_trials=len(spoof),
+            )
+        )
+    return tuple(evaluated)

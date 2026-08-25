@@ -14,7 +14,7 @@ ml = [
     "numpy>=2.3,<3",
     "soundfile>=0.13,<0.14",
     "speechbrain>=1.1,<1.2",
-    "torch>=2.11,<2.12",
+    "torch>=2.11,<2.14",
     "torchaudio>=2.11,<2.12",
 ]
 api = [

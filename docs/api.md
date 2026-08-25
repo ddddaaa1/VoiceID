@@ -115,7 +115,65 @@ the server assigns its risk level.
 
 See [risk-aware action authorization](action-authorization.md) for the action catalog and safety
 rules. The endpoint returns a policy decision; it does not execute the action or issue a signed
-authorization capability.
+authorization capability. Durable clients use the grant endpoints below when an actionable,
+replay-resistant permission is required.
+
+## Issue a signed authorization grant
+
+Signed grants are available only in durable mode and require an authenticated device. Generate a
+fresh cryptographically random nonce for every request; never derive it from an identity or reuse it
+after any successful issuance.
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/identities/demo-user/authorization-grants \
+  -H 'X-VoiceID-Device-ID: wearable-demo' \
+  -H "Authorization: Device ${VOICEID_DEMO_DEVICE_CREDENTIAL}" \
+  -F 'action=play_media' \
+  -F "request_nonce=$(openssl rand -hex 16)" \
+  -F 'sample=@probe.wav;type=audio/wav'
+```
+
+The response always includes the complete `ActionAuthorizationResponse` as `authorization`.
+`grant` is `null` for `deny` and `step_up`; only `allow` can issue a token. The grant portion of an
+allow response is:
+
+```json
+{
+  "grant": {
+    "grant_id": "grant-1",
+    "authorization_id": "authorization-1",
+    "identity_id": "demo-user",
+    "device_id": "wearable-demo",
+    "action": "play_media",
+    "issued_at": "2026-08-25T12:00:00Z",
+    "expires_at": "2026-08-25T12:00:30Z",
+    "token": "base64url-claims.base64url-signature"
+  }
+}
+```
+
+## Consume a grant
+
+The same authenticated device submits the token and exact protected action before expiration:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/authorization-grants/consume \
+  -H 'Content-Type: application/json' \
+  -H 'X-VoiceID-Device-ID: wearable-demo' \
+  -H "Authorization: Device ${VOICEID_DEMO_DEVICE_CREDENTIAL}" \
+  -d '{"token":"base64url-claims.base64url-signature","action":"play_media"}'
+```
+
+Consumption atomically marks the grant used. Repeating it returns
+`grant_invalid_or_unavailable`, the same error used for malformed, forged, expired, mismatched, or
+unknown grants. This intentionally avoids exposing token state. Treat the token as a secret: do not
+place it in URLs, logs, analytics, or client persistence.
+
+The token is signed, not encrypted. Its identity, device, action, nonce, and timestamps are encoded
+claims and must not contain additional confidential data.
+
+All `/api/v1/*` responses include `Cache-Control: no-store`; clients and trusted proxies must not
+override this for biometric evidence or grant tokens.
 
 ## Error envelope
 
@@ -149,8 +207,9 @@ The application enforces limits while reading spooled uploads and checks `Conten
 ## Current constraints
 
 - Accepted inputs are bounded 16-bit PCM WAVE files.
-- There is no authentication yet. A single-node per-client rate limit is enforced, but a trusted
-  ingress and shared limiter are required for multi-node deployment.
+- General identity endpoints do not implement end-user authentication. Signed-grant endpoints in
+  durable mode authenticate a reference device credential, but a trusted TLS ingress and managed
+  device identity are still required for production.
 - Templates are stored only in process memory.
 - Raw audio is not intentionally persisted, although the multipart implementation may spool request data to temporary storage while handling a request.
 - `provisional-cosine-v1` has not been calibrated against VoiceID evaluation data.
@@ -158,5 +217,6 @@ The application enforces limits while reading spooled uploads and checks `Conten
   disabled because the development-calibrated threshold did not transfer safely to held-out
   attacks. Its absence is included in the result reasons and `spoof_model_id` remains `null` when
   no countermeasure runs.
-- Action authorization is an experimental policy response. It is not yet bound to an authenticated
-  device, nonce, downstream action execution, or tamper-resistant audit record.
+- The API never executes the protected downstream action. The consuming service must treat a
+  successful one-time consumption response as scoped only to its returned device, identity, and
+  action.

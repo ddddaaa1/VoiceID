@@ -2,12 +2,14 @@
 
 ## Security model
 
-The durable single-node adapter stores versioned templates, consent grants, revocation state, and
-audit events in SQLite. Voice embeddings are serialized and encrypted with AES-256-GCM before a
+The durable single-node adapter stores versioned templates, consent grants, revocation state,
+authorization-grant state, and audit events in SQLite. Voice embeddings are serialized and
+encrypted with AES-256-GCM before a
 transaction reaches the database. Associated data binds each ciphertext to its identity, template,
 version, model, and pipeline, so moving ciphertext between rows fails authentication.
 
-Encryption and audit keys are supplied at process startup and are never stored in the database.
+Encryption, audit, and authorization-signing keys are supplied at process startup and are never
+stored in the database.
 Audit events form an HMAC-SHA-256 chain; changing an event, its order, or its predecessor breaks
 verification. Database backups are still sensitive because identity identifiers, consent metadata,
 and timestamps are not field-encrypted. Production must combine application encryption with
@@ -21,20 +23,43 @@ object store.
 
 ## Run the durable application
 
-Install the persistence extra and generate two independent secrets:
+Install the persistence extra and generate independent secrets for templates, audit chaining,
+grant signing, and a reference device:
 
 ```bash
 uv sync --extra ml --extra api --extra persistence --extra dev
 export VOICEID_TEMPLATE_KEY="$(openssl rand -base64 32)"
 export VOICEID_AUDIT_KEY="$(openssl rand -base64 32)"
+export VOICEID_GRANT_KEY="$(openssl rand -base64 32)"
+export VOICEID_DEMO_DEVICE_CREDENTIAL="$(openssl rand -base64 32)"
+export VOICEID_DEVICE_CREDENTIALS="{\"wearable-demo\":\"${VOICEID_DEMO_DEVICE_CREDENTIAL}\"}"
 export VOICEID_DATABASE_PATH="data/voiceid.sqlite3"
 uv run uvicorn voiceid.adapters.api.durable_app:app --host 127.0.0.1 --port 8000
 ```
 
-Environment variables are shown for local development. Do not put the secrets in `.env`, shell
+`VOICEID_DEVICE_CREDENTIALS` maps server-approved device IDs to base64-encoded 32-byte opaque
+credentials. Environment variables are shown for local development. Do not put the secrets in `.env`, shell
 history, container images, Compose files, or Git. Deployment should inject them from a secret
 manager. Losing the template key makes existing embeddings unrecoverable; leaking it requires
 rotation, reenrollment, and incident response.
+
+Grant signing and device credentials require independent rotation plans. Rotating the grant key
+invalidates unexpired tokens, which last only 30 seconds by default. Rotating a device credential
+requires restarting this single-node reference process; there is no dynamic fleet registry.
+
+## Authorization grant persistence
+
+SQLite stores grant claims, a unique `(device_id, request_nonce)` pair, expiration, consumption time,
+and only the SHA-256 digest of the signed token. The bearer token is returned once and is never
+stored. `BEGIN IMMEDIATE` serializes issuance and consumption so concurrent requests cannot consume
+the same grant twice. Issuance decisions and successful consumption are also appended to the HMAC
+audit chain. Consumption also rechecks active biometric consent, so revocation or consent expiration
+invalidates an otherwise unexpired grant. The retention purge removes expired or consumed grant
+rows; their aggregate decision and consumption evidence remains in the chained audit log.
+
+Schema version 2 migrates an existing version-1 database by adding the authorization-grant table
+without modifying templates, consent, or audit history. PostgreSQL deployments apply
+`002_authorization_grants.sql` after the original governance migration.
 
 ## Consent-first workflow
 

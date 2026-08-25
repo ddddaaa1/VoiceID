@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import base64
 import sys
+import tempfile
 import unittest
 from datetime import UTC, datetime
 from pathlib import Path
@@ -10,13 +12,18 @@ sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 from fastapi.testclient import TestClient
 
 from voiceid.adapters.api.app import create_app
-from voiceid.adapters.api.container import ApiSettings, ServiceContainer
+from voiceid.adapters.api.container import (
+    ApiSettings,
+    ServiceContainer,
+    build_durable_container,
+)
 from voiceid.application.authorization import ActionAuthorizationAttempt
 from voiceid.application.enrollment import (
     EnrollmentRejected,
     EnrollmentResult,
     SampleIssue,
 )
+from voiceid.application.grants import AuthorizationGrantIssue, AuthorizationGrantUnavailable
 from voiceid.application.verification import VerificationAttempt, VerificationUnavailable
 from voiceid.domain.authorization import (
     ActionAuthorizationResult,
@@ -26,6 +33,7 @@ from voiceid.domain.authorization import (
 )
 from voiceid.domain.enrollment import VoiceTemplate
 from voiceid.domain.governance import ConsentGrant, RevocationResult
+from voiceid.domain.grants import AuthorizationGrant, ConsumedAuthorizationGrant
 from voiceid.domain.models import Decision, VerificationResult
 
 CREATED_AT = datetime(2026, 8, 24, 15, 0, tzinfo=UTC)
@@ -98,6 +106,7 @@ class StubAuthorizationService:
     ) -> ActionAuthorizationAttempt:
         self.received = identity_id, action, payload
         verification = self.verification.verify(identity_id, payload)
+        low_risk = action is ProtectedAction.PLAY_MEDIA
         return ActionAuthorizationAttempt(
             authorization_id="authorization-1",
             created_at=CREATED_AT,
@@ -105,11 +114,72 @@ class StubAuthorizationService:
             verification=verification,
             result=ActionAuthorizationResult(
                 action=action,
-                risk=ActionRisk.HIGH,
-                decision=AuthorizationDecision.STEP_UP,
-                reasons=("high_risk_action", "device_authentication_required"),
+                risk=ActionRisk.LOW if low_risk else ActionRisk.HIGH,
+                decision=(
+                    AuthorizationDecision.ALLOW if low_risk else AuthorizationDecision.STEP_UP
+                ),
+                reasons=(
+                    ("voice_assurance_sufficient",)
+                    if low_risk
+                    else ("high_risk_action", "device_authentication_required")
+                ),
             ),
         )
+
+
+class StubGrantService:
+    def __init__(self, authorization: StubAuthorizationService) -> None:
+        self.authorization = authorization
+        self.issued = None
+        self.consumed = None
+
+    def issue(
+        self,
+        identity_id: str,
+        device_id: str,
+        request_nonce: str,
+        action: ProtectedAction,
+        payload: bytes,
+    ) -> AuthorizationGrantIssue:
+        self.issued = identity_id, device_id, request_nonce, action, payload
+        authorization = self.authorization.authorize(identity_id, action, payload)
+        if request_nonce == "nonce-reused-0001":
+            raise AuthorizationGrantUnavailable("request_nonce_reused")
+        grant = AuthorizationGrant(
+            grant_id="grant-1",
+            authorization_id=authorization.authorization_id,
+            identity_id=identity_id,
+            device_id=device_id,
+            action=action,
+            request_nonce=request_nonce,
+            issued_at=CREATED_AT,
+            expires_at=datetime(2026, 8, 24, 15, 0, 30, tzinfo=UTC),
+        )
+        return AuthorizationGrantIssue(authorization, grant, "signed-grant-token")
+
+    def consume(
+        self,
+        token: str,
+        *,
+        device_id: str,
+        action: ProtectedAction,
+    ) -> ConsumedAuthorizationGrant:
+        self.consumed = token, device_id, action
+        if token == "invalid-token":
+            raise AuthorizationGrantUnavailable("grant_invalid_or_unavailable")
+        return ConsumedAuthorizationGrant(
+            grant_id="grant-1",
+            authorization_id="authorization-1",
+            identity_id="client-1",
+            device_id=device_id,
+            action=action,
+            consumed_at=CREATED_AT,
+        )
+
+
+class StubDeviceCredentialVerifier:
+    def verify(self, device_id: str, credential: str) -> bool:
+        return device_id == "wearable-1" and credential == "device-secret"
 
 
 class StubGovernanceService:
@@ -147,6 +217,7 @@ class ApiContractTests(unittest.TestCase):
         self.enrollment = StubEnrollmentService()
         self.verification = StubVerificationService()
         self.authorization = StubAuthorizationService(self.verification)
+        self.grants = StubGrantService(self.authorization)
         self.governance = StubGovernanceService()
         container = ServiceContainer(
             enrollment=self.enrollment,
@@ -161,6 +232,9 @@ class ApiContractTests(unittest.TestCase):
             persistence="test-memory",
             speaker_model_id="fake-ecapa-v1",
             governance=self.governance,
+            authorization_grants=self.grants,  # type: ignore[arg-type]
+            device_credentials=StubDeviceCredentialVerifier(),
+            authorization_grants_enabled=True,
         )
         self.client = TestClient(create_app(container))
 
@@ -179,6 +253,7 @@ class ApiContractTests(unittest.TestCase):
                 "verification_policy_id": "provisional-cosine-v1",
                 "anti_spoofing_enabled": False,
                 "authorization_policy_id": "wearable-action-risk-v1",
+                "authorization_grants_enabled": True,
             },
         )
 
@@ -259,6 +334,82 @@ class ApiContractTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.json()["error"]["code"], "request_validation_failed")
+
+    def test_signed_authorization_grant_issue_and_consumption_contracts(self) -> None:
+        headers = {
+            "X-VoiceID-Device-ID": "wearable-1",
+            "Authorization": "Device device-secret",
+        }
+        issue_response = self.client.post(
+            "/api/v1/identities/client-1/authorization-grants",
+            headers=headers,
+            data={"action": "play_media", "request_nonce": "nonce-1234567890"},
+            files=wave_files("sample", b"one"),
+        )
+
+        self.assertEqual(issue_response.status_code, 200)
+        self.assertEqual(issue_response.headers["cache-control"], "no-store")
+        issue_body = issue_response.json()
+        self.assertEqual(issue_body["authorization"]["decision"], "allow")
+        self.assertEqual(issue_body["grant"]["grant_id"], "grant-1")
+        self.assertEqual(issue_body["grant"]["token"], "signed-grant-token")
+        self.assertEqual(
+            self.grants.issued,
+            (
+                "client-1",
+                "wearable-1",
+                "nonce-1234567890",
+                ProtectedAction.PLAY_MEDIA,
+                b"one",
+            ),
+        )
+
+        consume_response = self.client.post(
+            "/api/v1/authorization-grants/consume",
+            headers=headers,
+            json={"token": "signed-grant-token", "action": "play_media"},
+        )
+        self.assertEqual(consume_response.status_code, 200)
+        self.assertEqual(consume_response.json()["grant_id"], "grant-1")
+        self.assertEqual(
+            self.grants.consumed,
+            ("signed-grant-token", "wearable-1", ProtectedAction.PLAY_MEDIA),
+        )
+
+    def test_grant_endpoints_require_valid_device_credentials(self) -> None:
+        response = self.client.post(
+            "/api/v1/authorization-grants/consume",
+            headers={
+                "X-VoiceID-Device-ID": "wearable-1",
+                "Authorization": "Device wrong-secret",
+            },
+            json={"token": "signed-grant-token", "action": "play_media"},
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json()["error"]["code"], "device_authentication_failed")
+
+    def test_grant_failures_do_not_reveal_consumption_state(self) -> None:
+        headers = {
+            "X-VoiceID-Device-ID": "wearable-1",
+            "Authorization": "Device device-secret",
+        }
+        invalid = self.client.post(
+            "/api/v1/authorization-grants/consume",
+            headers=headers,
+            json={"token": "invalid-token", "action": "play_media"},
+        )
+        reused_nonce = self.client.post(
+            "/api/v1/identities/client-1/authorization-grants",
+            headers=headers,
+            data={"action": "play_media", "request_nonce": "nonce-reused-0001"},
+            files=wave_files("sample", b"one"),
+        )
+
+        self.assertEqual(invalid.status_code, 403)
+        self.assertEqual(invalid.json()["error"]["code"], "grant_invalid_or_unavailable")
+        self.assertEqual(reused_nonce.status_code, 409)
+        self.assertEqual(reused_nonce.json()["error"]["code"], "request_nonce_reused")
 
     def test_consent_and_revocation_contracts(self) -> None:
         consent_response = self.client.post(
@@ -344,10 +495,30 @@ class ApiContractTests(unittest.TestCase):
         self.assertIn("/api/v1/identities/{identity_id}/enroll", schema["paths"])
         self.assertIn("/api/v1/identities/{identity_id}/verify", schema["paths"])
         self.assertIn("/api/v1/identities/{identity_id}/authorize", schema["paths"])
+        self.assertIn("/api/v1/identities/{identity_id}/authorization-grants", schema["paths"])
+        self.assertIn("/api/v1/authorization-grants/consume", schema["paths"])
         self.assertIn("EnrollmentResponse", schema["components"]["schemas"])
         self.assertIn("VerificationResponse", schema["components"]["schemas"])
         self.assertIn("ActionAuthorizationResponse", schema["components"]["schemas"])
+        self.assertIn("AuthorizationGrantIssueResponse", schema["components"]["schemas"])
         self.assertIn("ErrorResponse", schema["components"]["schemas"])
+
+
+class DurableContainerTests(unittest.TestCase):
+    def test_durable_container_enables_grants_without_loading_model_weights(self) -> None:
+        credential = base64.b64encode(b"d" * 32).decode("ascii")
+        with tempfile.TemporaryDirectory() as directory:
+            container = build_durable_container(
+                Path(directory) / "voiceid.sqlite3",
+                template_encryption_key=b"t" * 32,
+                audit_hmac_key=b"a" * 32,
+                grant_signing_key=b"g" * 32,
+                device_credentials={"wearable-1": credential},
+            )
+
+        self.assertTrue(container.authorization_grants_enabled)
+        self.assertIsNotNone(container.authorization_grants)
+        self.assertTrue(container.device_credentials.verify("wearable-1", credential))
 
 
 if __name__ == "__main__":

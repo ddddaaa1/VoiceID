@@ -56,6 +56,8 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - One-to-one speaker verification with auditable decisions and provisional policy versioning.
 - Risk-aware action authorization for assistants, private content, messaging, purchases, and
   physical access, with mandatory step-up authentication for high-risk operations.
+- Authenticated durable-device flow with signed 30-second capabilities, unique request nonces,
+  device/action binding, hash-only token storage, and atomic one-time consumption.
 - Versioned FastAPI endpoints with bounded multipart uploads and stable error contracts.
 - Unit and contract tests covering audio capture encoding, the API, and biometric logic.
 - Leakage-resistant scored-trial manifests with development-only minDCF threshold selection.
@@ -195,6 +197,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0013: Checkpoint corpus inference without weakening evidence](docs/decisions/0013-checkpoint-corpus-inference.md)
 - [ADR 0014: Publish aggregate biometric evidence only](docs/decisions/0014-publish-aggregate-biometric-evidence.md)
 - [ADR 0015: Separate biometric evidence from action authorization](docs/decisions/0015-separate-biometric-and-action-policy.md)
+- [ADR 0016: Issue short-lived, device-bound, single-use grants](docs/decisions/0016-short-lived-single-use-grants.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the
 [ECAPA-TDNN](docs/models/ecapa-tdnn.md) and [AASIST](docs/models/aasist.md) model cards.

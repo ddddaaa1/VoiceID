@@ -9,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from voiceid.application.enrollment import EnrollmentRejected
+from voiceid.application.grants import AuthorizationGrantUnavailable
 from voiceid.application.verification import VerificationUnavailable
 
 
@@ -69,6 +70,17 @@ def register_error_handlers(app: FastAPI) -> None:
             status_code,
             error.code,
             "The verification request could not be processed.",
+        )
+
+    @app.exception_handler(AuthorizationGrantUnavailable)
+    async def handle_grant_unavailable(
+        _request: Request, error: AuthorizationGrantUnavailable
+    ) -> JSONResponse:
+        status_code = 409 if error.code == "request_nonce_reused" else 403
+        return error_response(
+            status_code,
+            error.code,
+            "The authorization grant could not be issued or consumed.",
         )
 
     @app.exception_handler(RequestValidationError)

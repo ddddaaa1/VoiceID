@@ -53,5 +53,7 @@ jobs:
       - name: Validate Compose deployment
         env:
           VOICEID_AUDIT_KEY: ci-compose-validation-only
+          VOICEID_DEVICE_CREDENTIALS: ci-compose-validation-only
+          VOICEID_GRANT_KEY: ci-compose-validation-only
           VOICEID_TEMPLATE_KEY: ci-compose-validation-only
         run: docker compose config --quiet

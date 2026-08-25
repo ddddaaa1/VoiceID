@@ -10,13 +10,16 @@ from voiceid.adapters.audio.wave_decoder import PcmWaveDecoder
 from voiceid.adapters.models.speechbrain_ecapa import SpeechBrainEcapaEmbedder
 from voiceid.adapters.repositories.memory import InMemoryVoiceTemplateRepository
 from voiceid.adapters.repositories.sqlite import AesGcmCipher, SqliteBiometricRepository
+from voiceid.adapters.security.grants import HmacGrantSigner, StaticDeviceCredentialVerifier
 from voiceid.application.authorization import ActionAuthorizationService
 from voiceid.application.enrollment import EnrollmentService
 from voiceid.application.governance import IdentityGovernanceService
+from voiceid.application.grants import AuthorizationGrantService
 from voiceid.application.preprocessing import AudioPreprocessor
 from voiceid.application.verification import VerificationService
 from voiceid.domain.authorization import ActionAuthorizationPolicy
 from voiceid.domain.models import VerificationPolicy
+from voiceid.ports.authorization import DeviceCredentialVerifier
 
 
 @dataclass(frozen=True, slots=True)
@@ -66,6 +69,9 @@ class ServiceContainer:
     anti_spoofing_enabled: bool = False
     authorization_policy_id: str = "wearable-action-risk-v1"
     governance: IdentityGovernanceService | None = None
+    authorization_grants: AuthorizationGrantService | None = None
+    device_credentials: DeviceCredentialVerifier | None = None
+    authorization_grants_enabled: bool = False
 
 
 def build_default_container() -> ServiceContainer:
@@ -95,6 +101,8 @@ def build_durable_container(
     *,
     template_encryption_key: bytes,
     audit_hmac_key: bytes,
+    grant_signing_key: bytes,
+    device_credentials: dict[str, str],
     settings: ApiSettings | None = None,
 ) -> ServiceContainer:
     """Build a consent-gated, encrypted single-node deployment container."""
@@ -116,7 +124,15 @@ def build_durable_container(
         policy=policy,
     )
     authorization_policy = ActionAuthorizationPolicy()
+    authorization = ActionAuthorizationService(verification, policy=authorization_policy)
     governance = IdentityGovernanceService(repository, repository)
+    grant_service = AuthorizationGrantService(
+        authorization,
+        repository,
+        HmacGrantSigner(grant_signing_key),
+        repository,
+        consent_repository=repository,
+    )
     return ServiceContainer(
         enrollment=EnrollmentService(
             preprocessor,
@@ -125,11 +141,14 @@ def build_durable_container(
             consent_repository=repository,
         ),
         verification=verification,
-        authorization=ActionAuthorizationService(verification, policy=authorization_policy),
+        authorization=authorization,
         settings=settings or ApiSettings(),
-        persistence="encrypted-sqlite-v1",
+        persistence="encrypted-sqlite-v2",
         speaker_model_id=embedder.model_id,
         verification_policy_id=policy.policy_id,
         authorization_policy_id=authorization_policy.policy_id,
         governance=governance,
+        authorization_grants=grant_service,
+        device_credentials=StaticDeviceCredentialVerifier(device_credentials),
+        authorization_grants_enabled=True,
     )

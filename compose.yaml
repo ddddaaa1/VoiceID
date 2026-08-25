@@ -6,6 +6,8 @@ services:
     environment:
       VOICEID_AUDIT_KEY: ${VOICEID_AUDIT_KEY:?set a base64-encoded 32-byte audit key}
       VOICEID_DATABASE_PATH: /app/data/voiceid.sqlite3
+      VOICEID_DEVICE_CREDENTIALS: ${VOICEID_DEVICE_CREDENTIALS:?set a JSON device credential map}
+      VOICEID_GRANT_KEY: ${VOICEID_GRANT_KEY:?set a base64-encoded 32-byte grant key}
       VOICEID_TEMPLATE_KEY: ${VOICEID_TEMPLATE_KEY:?set a base64-encoded 32-byte template key}
     ports:
       - "127.0.0.1:${VOICEID_PORT:-8000}:8000"

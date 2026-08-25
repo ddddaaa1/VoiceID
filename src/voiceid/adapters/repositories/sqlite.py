@@ -15,8 +15,10 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Protocol
 
+from voiceid.domain.authorization import ProtectedAction
 from voiceid.domain.enrollment import VoiceTemplate
 from voiceid.domain.governance import AuditEvent, ConsentGrant, RevocationResult
+from voiceid.domain.grants import AuthorizationGrant, ConsumedAuthorizationGrant
 
 
 class AuthenticatedCipher(Protocol):
@@ -50,7 +52,7 @@ class AesGcmCipher:
 class SqliteBiometricRepository:
     """Transactional templates, consent, revocation, retention, and chained audit."""
 
-    SCHEMA_VERSION = 1
+    SCHEMA_VERSION = 2
 
     def __init__(
         self,
@@ -82,10 +84,10 @@ class SqliteBiometricRepository:
             self._path.parent.mkdir(parents=True, exist_ok=True)
             with closing(self._connection_factory()) as connection, connection:
                 version = connection.execute("PRAGMA user_version").fetchone()[0]
-                if version not in {0, self.SCHEMA_VERSION}:
+                if version not in {0, 1, self.SCHEMA_VERSION}:
                     raise RuntimeError("unsupported biometric database schema version")
-                connection.executescript(_SQLITE_SCHEMA)
-                if version == 0:
+                connection.executescript(_SQLITE_SCHEMA if version != 1 else _SQLITE_SCHEMA_V2)
+                if version in {0, 1}:
                     connection.execute(f"PRAGMA user_version = {self.SCHEMA_VERSION}")
             self._initialized = True
 
@@ -245,6 +247,11 @@ class SqliteBiometricRepository:
                    WHERE revoked_at IS NOT NULL AND revoked_at <= ?""",
                 (cutoff.isoformat(),),
             )
+            connection.execute(
+                """DELETE FROM authorization_grants
+                   WHERE expires_at <= ? OR consumed_at IS NOT NULL""",
+                (at.isoformat(),),
+            )
         return cursor.rowcount
 
     def append(self, event: AuditEvent) -> None:
@@ -276,6 +283,83 @@ class SqliteBiometricRepository:
                     previous_hash,
                     event_hash,
                 ),
+            )
+
+    def issue_grant(self, grant: AuthorizationGrant, token_sha256: str) -> bool:
+        self.initialize()
+        _validate_sha256(token_sha256)
+        with closing(self._connection_factory()) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            try:
+                connection.execute(
+                    """INSERT INTO authorization_grants (
+                           grant_id, authorization_id, identity_id, device_id, action,
+                           request_nonce, issued_at, expires_at, token_sha256
+                       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        grant.grant_id,
+                        grant.authorization_id,
+                        grant.identity_id,
+                        grant.device_id,
+                        grant.action.value,
+                        grant.request_nonce,
+                        grant.issued_at.isoformat(),
+                        grant.expires_at.isoformat(),
+                        token_sha256,
+                    ),
+                )
+            except sqlite3.IntegrityError:
+                return False
+        return True
+
+    def consume_grant(
+        self,
+        *,
+        grant_id: str,
+        device_id: str,
+        action: ProtectedAction,
+        token_sha256: str,
+        consumed_at: datetime,
+    ) -> ConsumedAuthorizationGrant | None:
+        self.initialize()
+        _require_aware(consumed_at)
+        _validate_sha256(token_sha256)
+        with closing(self._connection_factory()) as connection, connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                """SELECT authorization_id, identity_id, device_id, action, expires_at,
+                          token_sha256, consumed_at
+                   FROM authorization_grants WHERE grant_id = ?""",
+                (grant_id,),
+            ).fetchone()
+            if row is None:
+                return None
+            try:
+                expires_at = datetime.fromisoformat(row[4])
+            except ValueError:
+                return None
+            if (
+                row[6] is not None
+                or consumed_at >= expires_at
+                or row[2] != device_id
+                or row[3] != action.value
+                or not hmac.compare_digest(row[5], token_sha256)
+            ):
+                return None
+            cursor = connection.execute(
+                """UPDATE authorization_grants SET consumed_at = ?
+                   WHERE grant_id = ? AND consumed_at IS NULL""",
+                (consumed_at.isoformat(), grant_id),
+            )
+            if cursor.rowcount != 1:
+                return None
+            return ConsumedAuthorizationGrant(
+                grant_id=grant_id,
+                authorization_id=row[0],
+                identity_id=row[1],
+                device_id=row[2],
+                action=ProtectedAction(row[3]),
+                consumed_at=consumed_at,
             )
 
     def verify_audit_chain(self) -> bool:
@@ -315,6 +399,17 @@ def _template_aad(
 def _require_aware(value: datetime) -> None:
     if value.tzinfo is None:
         raise ValueError("timestamp must be timezone-aware")
+
+
+def _validate_sha256(value: str) -> None:
+    if len(value) != 64:
+        raise ValueError("token_sha256 must be a lowercase SHA-256 digest")
+    try:
+        decoded = bytes.fromhex(value)
+    except ValueError as error:
+        raise ValueError("token_sha256 must be a lowercase SHA-256 digest") from error
+    if decoded.hex() != value:
+        raise ValueError("token_sha256 must be a lowercase SHA-256 digest")
 
 
 _SQLITE_SCHEMA = """
@@ -360,4 +455,38 @@ CREATE TABLE IF NOT EXISTS audit_events (
     previous_hash TEXT NOT NULL,
     event_hash TEXT NOT NULL UNIQUE
 );
+
+CREATE TABLE IF NOT EXISTS authorization_grants (
+    grant_id TEXT PRIMARY KEY,
+    authorization_id TEXT NOT NULL,
+    identity_id TEXT NOT NULL,
+    device_id TEXT NOT NULL,
+    action TEXT NOT NULL,
+    request_nonce TEXT NOT NULL,
+    issued_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    token_sha256 TEXT NOT NULL CHECK (length(token_sha256) = 64),
+    consumed_at TEXT,
+    UNIQUE(device_id, request_nonce)
+);
+CREATE INDEX IF NOT EXISTS authorization_grants_expiration
+ON authorization_grants(expires_at);
+"""
+
+
+_SQLITE_SCHEMA_V2 = """
+CREATE TABLE authorization_grants (
+    grant_id TEXT PRIMARY KEY,
+    authorization_id TEXT NOT NULL,
+    identity_id TEXT NOT NULL,
+    device_id TEXT NOT NULL,
+    action TEXT NOT NULL,
+    request_nonce TEXT NOT NULL,
+    issued_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    token_sha256 TEXT NOT NULL CHECK (length(token_sha256) = 64),
+    consumed_at TEXT,
+    UNIQUE(device_id, request_nonce)
+);
+CREATE INDEX authorization_grants_expiration ON authorization_grants(expires_at);
 """

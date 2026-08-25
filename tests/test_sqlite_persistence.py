@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import sqlite3
 import tempfile
 import unittest
@@ -11,8 +12,10 @@ from cryptography.exceptions import InvalidTag
 
 from voiceid.adapters.repositories.sqlite import AesGcmCipher, SqliteBiometricRepository
 from voiceid.application.governance import IdentityGovernanceService
+from voiceid.domain.authorization import ProtectedAction
 from voiceid.domain.enrollment import VoiceTemplate
 from voiceid.domain.governance import AuditEvent, ConsentGrant
+from voiceid.domain.grants import AuthorizationGrant
 
 NOW = datetime(2026, 8, 25, 12, 0, tzinfo=UTC)
 
@@ -51,6 +54,19 @@ def consent(*, expires_at: datetime = NOW + timedelta(days=30)) -> ConsentGrant:
         notice_version="privacy-v1",
         granted_at=NOW,
         expires_at=expires_at,
+    )
+
+
+def authorization_grant(*, nonce: str = "nonce-1234567890") -> AuthorizationGrant:
+    return AuthorizationGrant(
+        grant_id="grant-1",
+        authorization_id="authorization-1",
+        identity_id="identity-1",
+        device_id="device-1",
+        action=ProtectedAction.PLAY_MEDIA,
+        request_nonce=nonce,
+        issued_at=NOW,
+        expires_at=NOW + timedelta(seconds=30),
     )
 
 
@@ -100,6 +116,9 @@ class SqliteBiometricRepositoryTests(unittest.TestCase):
     def test_retention_revokes_expired_consent_then_purges_after_window(self) -> None:
         self.repository.grant(consent(expires_at=NOW + timedelta(days=1)))
         self.repository.save(template(1))
+        self.repository.issue_grant(
+            authorization_grant(), hashlib.sha256(b"signed-token").hexdigest()
+        )
 
         first = self.repository.purge_expired(NOW + timedelta(days=2))
         second = self.repository.purge_expired(NOW + timedelta(days=10))
@@ -107,6 +126,11 @@ class SqliteBiometricRepositoryTests(unittest.TestCase):
         self.assertEqual(first, 0)
         self.assertEqual(second, 1)
         self.assertIsNone(self.repository.get_active("identity-1"))
+        with closing(sqlite3.connect(self.path)) as connection, connection:
+            grant_count = connection.execute(
+                "SELECT COUNT(*) FROM authorization_grants"
+            ).fetchone()[0]
+        self.assertEqual(grant_count, 0)
 
     def test_hmac_chain_detects_audit_tampering(self) -> None:
         self.repository.append(
@@ -142,6 +166,61 @@ class SqliteBiometricRepositoryTests(unittest.TestCase):
         self.assertEqual(cipher.decrypt(nonce, ciphertext, b"identity-1"), b"sensitive-template")
         with self.assertRaises(InvalidTag):
             cipher.decrypt(nonce, ciphertext, b"different-identity")
+
+    def test_authorization_grant_survives_restart_and_is_consumed_once(self) -> None:
+        token_digest = hashlib.sha256(b"signed-token").hexdigest()
+        self.assertTrue(self.repository.issue_grant(authorization_grant(), token_digest))
+
+        reopened = SqliteBiometricRepository(
+            self.path,
+            TestCipher(),
+            audit_hmac_key=b"a" * 32,
+        )
+        consumed = reopened.consume_grant(
+            grant_id="grant-1",
+            device_id="device-1",
+            action=ProtectedAction.PLAY_MEDIA,
+            token_sha256=token_digest,
+            consumed_at=NOW + timedelta(seconds=1),
+        )
+        replay = reopened.consume_grant(
+            grant_id="grant-1",
+            device_id="device-1",
+            action=ProtectedAction.PLAY_MEDIA,
+            token_sha256=token_digest,
+            consumed_at=NOW + timedelta(seconds=2),
+        )
+
+        self.assertIsNotNone(consumed)
+        self.assertIsNone(replay)
+
+    def test_authorization_grant_rejects_duplicate_device_nonce_and_wrong_binding(self) -> None:
+        digest = hashlib.sha256(b"signed-token").hexdigest()
+        self.assertTrue(self.repository.issue_grant(authorization_grant(), digest))
+        self.assertFalse(self.repository.issue_grant(authorization_grant(), digest))
+        self.assertIsNone(
+            self.repository.consume_grant(
+                grant_id="grant-1",
+                device_id="other-device",
+                action=ProtectedAction.PLAY_MEDIA,
+                token_sha256=digest,
+                consumed_at=NOW + timedelta(seconds=1),
+            )
+        )
+
+    def test_schema_v1_is_migrated_to_authorization_grants_v2(self) -> None:
+        with closing(sqlite3.connect(self.path)) as connection, connection:
+            connection.execute("PRAGMA user_version = 1")
+
+        self.repository.initialize()
+
+        with closing(sqlite3.connect(self.path)) as connection, connection:
+            version = connection.execute("PRAGMA user_version").fetchone()[0]
+            table = connection.execute(
+                "SELECT name FROM sqlite_master WHERE name = 'authorization_grants'"
+            ).fetchone()
+        self.assertEqual(version, 2)
+        self.assertEqual(table[0], "authorization_grants")
 
     def test_refuses_to_downgrade_an_unknown_future_schema(self) -> None:
         with closing(sqlite3.connect(self.path)) as connection, connection:

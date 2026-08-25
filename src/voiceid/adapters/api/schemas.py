@@ -8,9 +8,11 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from voiceid.application.authorization import ActionAuthorizationAttempt
 from voiceid.application.enrollment import EnrollmentResult
+from voiceid.application.grants import AuthorizationGrantIssue
 from voiceid.application.verification import VerificationAttempt
 from voiceid.domain.authorization import ActionRisk, AuthorizationDecision, ProtectedAction
 from voiceid.domain.governance import ConsentGrant, RevocationResult
+from voiceid.domain.grants import ConsumedAuthorizationGrant
 from voiceid.domain.models import Decision
 
 
@@ -31,6 +33,7 @@ class HealthResponse(StrictResponse):
     verification_policy_id: str
     anti_spoofing_enabled: bool
     authorization_policy_id: str
+    authorization_grants_enabled: bool
 
 
 class SampleIssueResponse(StrictResponse):
@@ -127,6 +130,59 @@ class ActionAuthorizationResponse(StrictResponse):
             reasons=list(attempt.result.reasons),
             verification=VerificationResponse.from_attempt(attempt.verification),
         )
+
+
+class AuthorizationGrantResponse(StrictResponse):
+    grant_id: str
+    authorization_id: str
+    identity_id: str
+    device_id: str
+    action: ProtectedAction
+    issued_at: datetime
+    expires_at: datetime
+    token: str
+
+
+class AuthorizationGrantIssueResponse(StrictResponse):
+    authorization: ActionAuthorizationResponse
+    grant: AuthorizationGrantResponse | None
+
+    @classmethod
+    def from_issue(cls, issue: AuthorizationGrantIssue) -> AuthorizationGrantIssueResponse:
+        grant_response = None
+        if issue.grant is not None and issue.token is not None:
+            grant_response = AuthorizationGrantResponse(
+                grant_id=issue.grant.grant_id,
+                authorization_id=issue.grant.authorization_id,
+                identity_id=issue.grant.identity_id,
+                device_id=issue.grant.device_id,
+                action=issue.grant.action,
+                issued_at=issue.grant.issued_at,
+                expires_at=issue.grant.expires_at,
+                token=issue.token,
+            )
+        return cls(
+            authorization=ActionAuthorizationResponse.from_attempt(issue.authorization),
+            grant=grant_response,
+        )
+
+
+class GrantConsumptionRequest(StrictRequest):
+    token: str = Field(min_length=1, max_length=4096)
+    action: ProtectedAction
+
+
+class GrantConsumptionResponse(StrictResponse):
+    grant_id: str
+    authorization_id: str
+    identity_id: str
+    device_id: str
+    action: ProtectedAction
+    consumed_at: datetime
+
+    @classmethod
+    def from_result(cls, result: ConsumedAuthorizationGrant) -> GrantConsumptionResponse:
+        return cls(**{field: getattr(result, field) for field in cls.model_fields})
 
 
 class ConsentRequest(StrictRequest):

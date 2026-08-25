@@ -72,6 +72,9 @@ distribution. Labeled evaluation remains necessary before threshold or model cha
 docker build -t voiceid:local .
 export VOICEID_TEMPLATE_KEY="$(openssl rand -base64 32)"
 export VOICEID_AUDIT_KEY="$(openssl rand -base64 32)"
+export VOICEID_GRANT_KEY="$(openssl rand -base64 32)"
+export VOICEID_DEMO_DEVICE_CREDENTIAL="$(openssl rand -base64 32)"
+export VOICEID_DEVICE_CREDENTIALS="{\"wearable-demo\":\"${VOICEID_DEMO_DEVICE_CREDENTIAL}\"}"
 docker compose up --build
 ```
 

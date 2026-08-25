@@ -68,7 +68,7 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
   Separate biometric evidence from product permission, assign risk on the server, expose
   `allow`/`deny`/`step_up` decisions, and demonstrate the policy in the web workflow.
 
-- [ ] **Step 12 — Replay-resistant authorization grants**
+- [x] **Step 12 — Replay-resistant authorization grants**
   Authenticate devices, bind action requests to nonces and short expirations, issue signed
   single-use capabilities, and persist authorization audit evidence.
 
@@ -100,6 +100,11 @@ aggregate score-drift monitoring, and an immutable-image rollback runbook.
 
 Step 11 begins the wearable product track. It introduces the server-owned
 `wearable-action-risk-v1` catalog and preserves the complete verification lineage inside each
-authorization decision. Steps 12–14 remain necessary for trustworthy device integration and edge
-deployment. VoiceID remains an experimental portfolio system, not a production biometric
+authorization decision.
+
+Step 12 adds authenticated reference devices, canonical HMAC-signed 30-second grants, unique
+request nonces, device/action binding, atomic one-time consumption, hash-only token persistence,
+and chained audit evidence. Static device credentials are intentionally limited to the single-node
+reference deployment. Steps 13–14 remain necessary for edge inference and a real companion-device
+integration. VoiceID remains an experimental portfolio system, not a production biometric
 authenticator.

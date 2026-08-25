@@ -42,7 +42,7 @@ VoiceID: quality -> speaker match -> optional spoof check
         v
 Action policy: allow | deny | step_up
         |
-        +---- low risk ----------> perform action
+        +---- allow -> signed 30-second grant -> consume once -> perform action
         +---- moderate/high -----> phone biometric or passkey when required
 ```
 
@@ -55,14 +55,17 @@ requires a smaller quantized model plus hardware-specific integration.
 - The action catalog and risk mapping are server-controlled and versioned as
   `wearable-action-risk-v1`.
 - An `allow` response is scoped to the named action and must not be reused for another operation.
-- The current endpoint does not issue a signed capability token or execute the downstream action.
-- Authorization attempts are returned with the complete verification lineage but are not yet
-  persisted as a dedicated audit record.
+- Durable mode can exchange an `allow` decision for an HMAC-signed, device-bound grant. The grant
+  has a unique caller nonce, expires after 30 seconds, and is atomically consumed once.
+- SQLite stores the grant claims and token SHA-256 digest, never the bearer token. Decisions and
+  successful consumption enter the tamper-evident audit chain.
+- Identity revocation or consent expiration makes an otherwise unexpired grant unavailable.
+- The policy-only `/authorize` endpoint still executes no downstream action and produces no grant.
 - A microphone cannot prove that the speaker is wearing the device. Nearby speech, replay, voice
   conversion, and synthetic audio remain relevant attacks.
-- Production deployments require authenticated devices, challenge binding, short-lived signed
-  authorization grants, replay protection, policy administration, and deployment-specific
-  calibration.
+- The reference device credential registry is static and deployment-injected. Production fleets
+  still require managed device identity, credential rotation/revocation, TLS, policy administration,
+  and deployment-specific biometric calibration.
 
 ## Extension strategy
 

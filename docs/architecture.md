@@ -112,6 +112,8 @@ Evaluation follows the same boundary: pure domain metrics consume finite labeled
 - `VerificationAttempt`: scores, quality report, decision, and reason codes.
 - `ActionAuthorizationAttempt`: requested action, server-assigned risk, authorization decision,
   policy lineage, and the underlying verification attempt.
+- `AuthorizationGrant`: short-lived device/action binding, unique request nonce, token digest,
+  expiration, and atomic consumption state.
 - `ModelRelease`: artifact, dataset lineage, thresholds, and evaluation metrics.
 
 Recordings and templates are not equivalent assets. They are stored separately and follow different retention policies. A production template must be encrypted, versioned, revocable, and access-controlled.

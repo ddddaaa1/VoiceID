@@ -1,0 +1,272 @@
+{
+  "attacks": {
+    "A07": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": 0.7077606320381165,
+      "minimum": {
+        "bonafide_reject_rate": 0.005302515295717199,
+        "normalized_cost": 0.01784506716298612,
+        "spoof_accept_rate": 0.005087505087505087,
+        "threshold": 0.7173312902450562
+      },
+      "observed_eer": 0.005296760293361244,
+      "spoof_trials": 4914
+    },
+    "A08": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": 0.22970512509346008,
+      "minimum": {
+        "bonafide_reject_rate": 0.0025832766825288917,
+        "normalized_cost": 0.012116728451099226,
+        "spoof_accept_rate": 0.005901505901505902,
+        "threshold": -0.22192558646202087
+      },
+      "observed_eer": 0.004244162061973075,
+      "spoof_trials": 4914
+    },
+    "A09": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": -5.231116771697998,
+      "minimum": {
+        "bonafide_reject_rate": 0.0,
+        "normalized_cost": 0.0,
+        "spoof_accept_rate": 0.0,
+        "threshold": -5.231116771697998
+      },
+      "observed_eer": 0.0,
+      "spoof_trials": 4914
+    },
+    "A10": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": 1.526881217956543,
+      "minimum": {
+        "bonafide_reject_rate": 0.008565601631543168,
+        "normalized_cost": 0.028341377239554016,
+        "spoof_accept_rate": 0.007733007733007733,
+        "threshold": 1.5506435632705688
+      },
+      "observed_eer": 0.008556305089275858,
+      "spoof_trials": 4914
+    },
+    "A11": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": -0.8533384203910828,
+      "minimum": {
+        "bonafide_reject_rate": 0.0019034670292318152,
+        "normalized_cost": 0.005800638889122618,
+        "spoof_accept_rate": 0.001221001221001221,
+        "threshold": -0.7488499283790588
+      },
+      "observed_eer": 0.0017995034650371156,
+      "spoof_trials": 4914
+    },
+    "A12": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": 1.1147288084030151,
+      "minimum": {
+        "bonafide_reject_rate": 0.008293677770224337,
+        "normalized_cost": 0.02198913758895955,
+        "spoof_accept_rate": 0.002035002035002035,
+        "threshold": 1.512026309967041
+      },
+      "observed_eer": 0.007096263758398361,
+      "spoof_trials": 4914
+    },
+    "A13": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": -1.5536372661590576,
+      "minimum": {
+        "bonafide_reject_rate": 0.0016315431679129844,
+        "normalized_cost": 0.003925403715532625,
+        "spoof_accept_rate": 0.0,
+        "threshold": -0.95338374376297
+      },
+      "observed_eer": 0.0014600413308774969,
+      "spoof_trials": 4914
+    },
+    "A14": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": -1.4317946434020996,
+      "minimum": {
+        "bonafide_reject_rate": 0.0017675050985723998,
+        "normalized_cost": 0.005066521505827826,
+        "spoof_accept_rate": 0.000814000814000814,
+        "threshold": -0.8299838900566101
+      },
+      "observed_eer": 0.0016297723979573062,
+      "spoof_trials": 4914
+    },
+    "A15": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": 0.7705538868904114,
+      "minimum": {
+        "bonafide_reject_rate": 0.006254248810333107,
+        "normalized_cost": 0.018303384165544986,
+        "spoof_accept_rate": 0.003256003256003256,
+        "threshold": 0.9343301057815552
+      },
+      "observed_eer": 0.005534472325770762,
+      "spoof_trials": 4914
+    },
+    "A16": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": 1.0283735990524292,
+      "minimum": {
+        "bonafide_reject_rate": 0.0028552005438477225,
+        "normalized_cost": 0.017858467491193086,
+        "spoof_accept_rate": 0.01098901098901099,
+        "threshold": -0.14188474416732788
+      },
+      "observed_eer": 0.006519089591829225,
+      "spoof_trials": 4914
+    },
+    "A17": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": 1.8084102869033813,
+      "minimum": {
+        "bonafide_reject_rate": 0.008293677770224337,
+        "normalized_cost": 0.036641152240974195,
+        "spoof_accept_rate": 0.016687016687016686,
+        "threshold": 1.5200378894805908
+      },
+      "observed_eer": 0.012630736084169123,
+      "spoof_trials": 4914
+    },
+    "A18": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": 2.5680041313171387,
+      "minimum": {
+        "bonafide_reject_rate": 0.01617946974847043,
+        "normalized_cost": 0.08084796210007379,
+        "spoof_accept_rate": 0.04192104192104192,
+        "threshold": 2.0712077617645264
+      },
+      "observed_eer": 0.0260763583673169,
+      "spoof_trials": 4914
+    },
+    "A19": {
+      "bonafide_trials": 7355,
+      "coefficients": {
+        "c0": 0.0,
+        "c1": 0.9150441201314283,
+        "c2": 0.38032622648007264
+      },
+      "eer_threshold": 1.0283735990524292,
+      "minimum": {
+        "bonafide_reject_rate": 0.0025832766825288917,
+        "normalized_cost": 0.018425234759605533,
+        "spoof_accept_rate": 0.01221001221001221,
+        "threshold": -0.2180367410182953
+      },
+      "observed_eer": 0.006519089591829225,
+      "spoof_trials": 4914
+    }
+  },
+  "cost_model": {
+    "asv_false_accept_cost": 10.0,
+    "asv_miss_cost": 1.0,
+    "countermeasure_false_accept_cost": 10.0,
+    "countermeasure_miss_cost": 1.0,
+    "nontarget_prior": 0.0095,
+    "spoof_prior": 0.05,
+    "target_prior": 0.9405
+  },
+  "fixed_asv": {
+    "asv_eer_threshold": -5.680051,
+    "coefficients": {
+      "c0": 0.0,
+      "c1": 0.9150441201314283,
+      "c2": 0.38032622648007264
+    },
+    "false_accept_rate": 0.024604674888228765,
+    "miss_rate": 0.024581005586592177,
+    "nontarget_trials": 33327,
+    "observed_asv_eer": 0.02457783738686887,
+    "scores_sha256": "e049f322fef221a7e549dc973bb4cf508e9de221eed27dd09a25d46dee595a33",
+    "spoof_miss_rate": 0.23934754703985472,
+    "spoof_trials": 63882,
+    "target_trials": 5370
+  },
+  "interpretation": "End-to-end VoiceID AASIST result under the official fixed-ASV model.",
+  "partition": "evaluation",
+  "pooled": {
+    "bonafide_trials": 7355,
+    "coefficients": {
+      "c0": 0.0,
+      "c1": 0.9150441201314283,
+      "c2": 0.38032622648007264
+    },
+    "eer_threshold": 1.4938156604766846,
+    "minimum": {
+      "bonafide_reject_rate": 0.007070020394289599,
+      "normalized_cost": 0.0275294779020878,
+      "spoof_accept_rate": 0.01051939513477975,
+      "threshold": 1.245544195175171
+    },
+    "observed_eer": 0.008295112264154778,
+    "spoof_trials": 63882
+  },
+  "schema_version": "voiceid-asvspoof2019-tandem-report/v1",
+  "score_direction": "higher_is_bonafide",
+  "track": "LA"
+}

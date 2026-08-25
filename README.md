@@ -58,11 +58,17 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Versioned anti-spoofing score protocol with leakage checks, calibration, uncertainty, and attack-level reporting.
 - Integrity-checked AASIST adapter with isolated waveform preprocessing and explicit model lineage.
 - Official ASVspoof 2021 LA reference-score reproduction with independently validated EER and t-DCF.
+- End-to-end ASVspoof 2019 LA AASIST evidence over 96,081 trials, with 0.829511% held-out EER,
+  0.0275295 min t-DCF, source hashes, and an explicit no-fusion decision.
 - Consent-gated encrypted persistence with revocation, retention, tamper-evident audit, and rate limits.
 - Docker/Compose, CI, model release integrity, Prometheus metrics, drift detection, and rollback controls.
 - Target architecture and incremental roadmap.
 
-The system remains experimental. Its first small clean-speech calibration report is published, but the evidence is insufficient to replace the provisional application policy and anti-spoofing is not enabled. It must not be treated as a production biometric authentication system.
+The system remains experimental. Its clean-speech calibration evidence is insufficient to replace
+the provisional speaker policy. Anti-spoofing is also disabled: the measured 2019 Logical Access
+benchmark validates the adapter, but its development-selected threshold did not transfer safely to
+held-out attacks and the corpus does not cover current deployment threats. VoiceID must not be
+treated as a production biometric authentication system.
 
 ## Install the ML environment
 
@@ -129,11 +135,13 @@ The [ASVspoof 2021 LA reference reproduction](experiments/asvspoof2021-la-refere
 validates VoiceID's EER and normalized t-DCF implementation against 148,176 official baseline-score
 trials. Those organizer-provided scores validate metric compatibility, not VoiceID AASIST accuracy.
 
-The ASVspoof 2019 LA end-to-end runner verifies the publisher archive checksum, safely extracts
-the corpus, validates all official development/evaluation protocol counts, scores FLAC audio in
-batches, resumes through a transactional ledger, and publishes only hash-bound non-audio evidence.
-See the [anti-spoofing protocol](docs/anti-spoofing.md) and the
-[AASIST experiment record](experiments/asvspoof2019-la-aasist-v1/README.md).
+The [ASVspoof 2019 LA AASIST experiment](experiments/asvspoof2019-la-aasist-v1/README.md) scores all
+96,081 official development/evaluation files end to end. It reports 0.829511% held-out raw-logit EER
+and 0.0275295 min t-DCF, both exactly reproduced by the pinned upstream evaluator. The runner
+verifies the publisher archive, safely extracts it, validates protocol counts, resumes through a
+transactional ledger, and publishes only hash-bound non-audio evidence. The same report explains
+why those in-domain figures do not justify enabling anti-spoofing in the default API. See the
+[anti-spoofing protocol](docs/anti-spoofing.md) for score semantics and limitations.
 
 ## Reproduce the experiment
 
@@ -173,6 +181,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0011: Preserve a separate waveform for the countermeasure](docs/decisions/0011-preserve-countermeasure-waveform.md)
 - [ADR 0012: Do not retain raw audio by default](docs/decisions/0012-minimize-raw-biometric-retention.md)
 - [ADR 0013: Checkpoint corpus inference without weakening evidence](docs/decisions/0013-checkpoint-corpus-inference.md)
+- [ADR 0014: Publish aggregate biometric evidence only](docs/decisions/0014-publish-aggregate-biometric-evidence.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the
 [ECAPA-TDNN](docs/models/ecapa-tdnn.md) and [AASIST](docs/models/aasist.md) model cards.

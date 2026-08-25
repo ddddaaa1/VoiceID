@@ -35,7 +35,20 @@
         }
       ],
       "deployment_enabled": false,
-      "evidence": [],
+      "evidence": [
+        {
+          "path": "experiments/asvspoof2019-la-aasist-v1/countermeasure-report.json",
+          "sha256": "67c041352a284d74e73f1b62ff835d338470f9204dfd65da36e92f3c976fcd47"
+        },
+        {
+          "path": "experiments/asvspoof2019-la-aasist-v1/tandem-report.json",
+          "sha256": "df7732359fc112950eb7a9a5a683d9f324cd7a9b0afacc9f2f14d7e408c12ab0"
+        },
+        {
+          "path": "experiments/asvspoof2019-la-aasist-v1/provenance.json",
+          "sha256": "30380b4c5336549da46901e5ee5441cfbe5441ac1675121146447618f1fe63b0"
+        }
+      ],
       "model_id": "clovaai/aasist-asvspoof2019-la@a04c9863",
       "role": "countermeasure",
       "source_revision": "a04c9863f63d44471dde8a6abcb3b082b07cd1d1"

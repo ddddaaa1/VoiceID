@@ -1,0 +1,166 @@
+{
+  "calibration": {
+    "cost_model": {
+      "bonafide_reject_cost": 1.0,
+      "spoof_accept_cost": 1.0,
+      "spoof_prior": 0.5
+    },
+    "score_semantics": "higher_is_more_likely_spoof",
+    "selected_threshold": 0.5928996538591919,
+    "threshold_source": "development_minimum_countermeasure_cost"
+  },
+  "dataset": {
+    "id": "asvspoof2019-la",
+    "version": "doi-10.7488-ds-2555+inventory-948e164d1a8268fa"
+  },
+  "development": {
+    "bonafide_trials": 2548,
+    "confidence_intervals_at_selected_threshold": {
+      "bonafide_reject_rate": {
+        "confidence_level": 0.95,
+        "lower": 0.0038689552096364175,
+        "method": "wilson_score",
+        "upper": 0.010176376132091162
+      },
+      "spoof_accept_rate": {
+        "confidence_level": 0.95,
+        "lower": 0.0020130316386401514,
+        "method": "wilson_score",
+        "upper": 0.0033610630176826575
+      }
+    },
+    "cost_at_selected_threshold": {
+      "bonafide_reject_rate": 0.006279434850863423,
+      "cost": 0.004440399162066086,
+      "normalized_cost": 0.008880798324132171,
+      "spoof_accept_rate": 0.0026013634732687477,
+      "threshold": 0.5928996538591919
+    },
+    "minimum_countermeasure_cost": {
+      "bonafide_reject_rate": 0.006279434850863423,
+      "cost": 0.004440399162066086,
+      "normalized_cost": 0.008880798324132171,
+      "spoof_accept_rate": 0.0026013634732687477,
+      "threshold": 0.5928996538591919
+    },
+    "observed_countermeasure_eer": {
+      "bonafide_reject_rate": 0.004709576138147566,
+      "bonafide_rejects": 12,
+      "bonafide_trials": 2548,
+      "estimated_eer": 0.004709470523325667,
+      "spoof_accept_rate": 0.004709364908503768,
+      "spoof_accepts": 105,
+      "spoof_trials": 22296,
+      "threshold": 0.8106028102816447
+    },
+    "rates_at_selected_threshold": {
+      "bonafide_reject_rate": 0.006279434850863423,
+      "bonafide_rejects": 16,
+      "bonafide_trials": 2548,
+      "spoof_accept_rate": 0.0026013634732687477,
+      "spoof_accepts": 58,
+      "spoof_trials": 22296,
+      "threshold": 0.5928996538591919
+    },
+    "spoof_trials": 22296
+  },
+  "evaluation": {
+    "bonafide_trials": 7355,
+    "confidence_intervals_at_selected_threshold": {
+      "bonafide_reject_rate": {
+        "confidence_level": 0.95,
+        "lower": 0.0012363491829962606,
+        "method": "wilson_score",
+        "upper": 0.0033623990044823505
+      },
+      "spoof_accept_rate": {
+        "confidence_level": 0.95,
+        "lower": 0.06110246696508142,
+        "method": "wilson_score",
+        "upper": 0.0648697559101255
+      }
+    },
+    "cost_at_selected_threshold": {
+      "bonafide_reject_rate": 0.0020394289598912306,
+      "cost": 0.032499630575246324,
+      "normalized_cost": 0.06499926115049265,
+      "spoof_accept_rate": 0.06295983219060142,
+      "threshold": 0.5928996538591919
+    },
+    "minimum_countermeasure_cost": {
+      "bonafide_reject_rate": 0.008157715839564922,
+      "cost": 0.008047111888036428,
+      "normalized_cost": 0.016094223776072857,
+      "spoof_accept_rate": 0.007936507936507936,
+      "threshold": 0.010637550564568658
+    },
+    "observed_countermeasure_eer": {
+      "bonafide_reject_rate": 0.008157715839564922,
+      "bonafide_rejects": 60,
+      "bonafide_trials": 7355,
+      "estimated_eer": 0.008156688920690384,
+      "spoof_accept_rate": 0.008155662001815847,
+      "spoof_accepts": 521,
+      "spoof_trials": 63882,
+      "threshold": 0.01150903462507008
+    },
+    "rates_at_selected_threshold": {
+      "bonafide_reject_rate": 0.0020394289598912306,
+      "bonafide_rejects": 15,
+      "bonafide_trials": 7355,
+      "spoof_accept_rate": 0.06295983219060142,
+      "spoof_accepts": 4022,
+      "spoof_trials": 63882,
+      "threshold": 0.5928996538591919
+    },
+    "spoof_trials": 63882
+  },
+  "evaluation_attacks": [
+    {
+      "attack_category": "synthetic",
+      "attack_ids": [
+        "A07",
+        "A08",
+        "A09",
+        "A10",
+        "A11",
+        "A12",
+        "A16"
+      ],
+      "spoof_accept_interval": {
+        "confidence_level": 0.95,
+        "lower": 0.060735449776291126,
+        "method": "wilson_score",
+        "upper": 0.06588107056418759
+      },
+      "spoof_accept_rate": 0.0632594918309204,
+      "spoof_accepts": 2176,
+      "spoof_trials": 34398
+    },
+    {
+      "attack_category": "voice_conversion",
+      "attack_ids": [
+        "A13",
+        "A14",
+        "A15",
+        "A17",
+        "A18",
+        "A19"
+      ],
+      "spoof_accept_interval": {
+        "confidence_level": 0.95,
+        "lower": 0.059901531658179845,
+        "method": "wilson_score",
+        "upper": 0.06543288673191759
+      },
+      "spoof_accept_rate": 0.06261022927689594,
+      "spoof_accepts": 1846,
+      "spoof_trials": 29484
+    }
+  ],
+  "schema_version": "voiceid-spoof-evaluation-report/v1",
+  "system": {
+    "countermeasure_model_id": "clovaai/aasist-asvspoof2019-la@a04c9863",
+    "pipeline_id": "asvspoof2019-la-flac-pad64600-aasist-v1"
+  }
+}

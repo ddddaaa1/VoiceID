@@ -21,8 +21,9 @@ evaluation. It produces an uncalibrated score for a 16 kHz waveform. Higher valu
 upstream classifier assigns relatively more evidence to its spoof class.
 
 The adapter is not enabled by the default verification policy. A softmax value is not a calibrated
-probability, and the upstream results are not VoiceID results. Step 8C must measure the complete
-VoiceID pipeline on an official, held-out protocol before any operating threshold can be considered.
+probability. VoiceID's completed ASVspoof 2019 LA run measures the adapter end to end, but its
+development-selected threshold accepted 6.296% of held-out spoof trials and does not justify a
+deployment operating point.
 
 ## Input and output contract
 
@@ -46,6 +47,9 @@ Automated tests check sample-rate enforcement, exact input sizing, class directi
 single and batch inference equivalence, failure isolation, checkpoint integrity, and a real CPU
 inference using the packaged official weights. The end-to-end ASVspoof runner additionally checks
 protocol counts, speaker disjointness, source hashes, resumability, and official t-DCF lineage.
+The frozen experiment reports 0.829511% held-out class-1-logit EER and 0.0275295 min t-DCF, matching
+the pinned upstream evaluator with zero numeric delta. An eight-file CPU/MPS smoke check found a
+maximum softmax delta of `1.32e-10`; it is not a general determinism guarantee.
 
 ## Known limitations
 
@@ -61,6 +65,6 @@ protocol counts, speaker disjointness, source hashes, resumability, and official
 
 ## Safe interpretation
 
-Do not present the score as proof that audio is authentic. Until a frozen VoiceID evaluation
-supports a policy, the API must continue to return `spoof_check_not_run` by default and must not
-market anti-spoofing as an active security guarantee.
+Do not present the score as proof that audio is authentic. The frozen in-domain evaluation supports
+the adapter and metric implementation, not a deployment policy. The API must continue to return
+`spoof_check_not_run` by default and must not market anti-spoofing as an active security guarantee.

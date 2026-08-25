@@ -1,0 +1,33 @@
+{
+  "artifacts": {
+    "countermeasure-report.json": "67c041352a284d74e73f1b62ff835d338470f9204dfd65da36e92f3c976fcd47",
+    "official-cm-scores.txt": "3a88b296c4db2e92fdeeab887ba40b81792e30fd42bc69396aaa1209790e30e5",
+    "source-inventory.jsonl": "948e164d1a8268fa498e80bd55d7abafdb6895b2b1a26d55ed53c371ac8bb42a",
+    "spoof-scores.json": "c298845929002765f7fa50afa0d7e816131d979a4aca0cd77e45e7abc9064013",
+    "tandem-report.json": "df7732359fc112950eb7a9a5a683d9f324cd7a9b0afacc9f2f14d7e408c12ab0"
+  },
+  "dataset": {
+    "audio_committed": false,
+    "doi": "10.7488/ds/2555",
+    "id": "asvspoof2019-la",
+    "license": "ODC-By-1.0",
+    "version": "doi-10.7488-ds-2555+inventory-948e164d1a8268fa"
+  },
+  "interpretation": "End-to-end VoiceID AASIST research evidence; not proof of identity or liveness.",
+  "protocols": {
+    "development_sha256": "2fedaebf1ba3ae1a9bb7d3ec916804ac237b4eee063a27fa92e6549f03d129c7",
+    "evaluation_sha256": "84fce576efff092269a0a6ad247d2e9f2f7b4d4e25a4545efb2518da92708036"
+  },
+  "schema_version": "voiceid-asvspoof2019-aasist-provenance/v1",
+  "system": {
+    "checkpoint_sha256": "51d2d9cf0738172f61e2a384ec50a54a55363240f67c971ed55a92435bc1a1c0",
+    "countermeasure_model_id": "clovaai/aasist-asvspoof2019-la@a04c9863",
+    "official_cm_partition": "evaluation",
+    "pipeline_id": "asvspoof2019-la-flac-pad64600-aasist-v1",
+    "score_direction": {
+      "official_cm_score": "higher_is_bonafide",
+      "spoof_probability": "higher_is_spoof"
+    }
+  },
+  "trial_count": 96081
+}

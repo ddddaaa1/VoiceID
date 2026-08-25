@@ -1,0 +1,15 @@
+{
+  "archive": {
+    "bytes": 7640952520,
+    "md5": "30c98f11d8b2bc21f2c257bfd78bb5c5",
+    "sha256": "208a7e4e3913f8c75ae1afd19bf32a5b29ae68435e9e30e23e5e98b6a155e4ec"
+  },
+  "extraction": {
+    "members": 122328,
+    "uncompressed_bytes": 7655650274
+  },
+  "license": "ODC-By-1.0",
+  "schema_version": "voiceid-asvspoof2019-acquisition/v1",
+  "source": "https://doi.org/10.7488/ds/2555",
+  "zenodo_record": 6906306
+}

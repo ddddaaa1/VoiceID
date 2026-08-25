@@ -17,7 +17,7 @@ class ModelReleaseTests(unittest.TestCase):
 
         self.assertEqual(release.status, "experimental")
         self.assertEqual(release.verified_local_artifacts, 1)
-        self.assertEqual(release.verified_evidence, 1)
+        self.assertEqual(release.verified_evidence, 4)
 
     def test_rejects_countermeasure_enablement_and_hash_tampering(self) -> None:
         payload = json.loads(RELEASE.read_text(encoding="utf-8"))

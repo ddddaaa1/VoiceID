@@ -12,13 +12,21 @@ The model release in `model-registry/releases/voiceid-research-2026-08-25.json` 
 IDs to immutable upstream revisions, artifact hashes, evaluation evidence, and deployment state.
 `scripts/verify_model_release.py` rejects unknown fields, path traversal, hash changes, adapter ID
 drift, duplicate roles, and accidental anti-spoof enablement. AASIST remains registered but disabled
-because no end-to-end VoiceID corpus result supports fusion.
+despite its newly registered end-to-end evidence: the development-selected threshold did not
+transfer safely to held-out attacks, and a single 2019 Logical Access corpus does not support a
+deployment fusion policy.
 
 Experiment tracking is intentionally file-based at this stage: each directory under `experiments/`
 freezes manifests, hashes, scores, reports, lineage, and interpretation in Git. This is reviewable in
 a public portfolio and requires no external tracking service. The boundaries allow those artifacts
 to be mirrored to MLflow later, but this repository does not claim an MLflow server or registry is
 running.
+
+The ASVspoof end-to-end experiment applies a narrower public boundary: aggregate reports,
+acquisition provenance, and artifact-level hashes are committed, while per-audio hashes and
+per-trial model outputs remain local and ignored. The committed runner can regenerate them from the
+official corpus. This preserves portfolio reviewability without treating biometric-derived rows as
+ordinary repository data.
 
 The ECAPA adapter now pins Hugging Face revision
 `0f99f2d0ebe89ac095bcc5903c4dd8f72b367286` and disables update checks. First inference still needs

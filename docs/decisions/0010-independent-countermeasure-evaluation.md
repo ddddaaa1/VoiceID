@@ -22,3 +22,9 @@ Do not describe the standalone countermeasure cost as tandem DCF. Add t-DCF only
 Any future RawNet2, AASIST, wav2vec, or ONNX adapter must produce the same bounded spoof-probability contract and can be compared without changing policy code. Model failures remain review outcomes rather than silent bona fide decisions.
 
 Step 8A produces no accuracy claim because its bundled scores are synthetic. Step 8B must document model provenance and preprocessing, and Step 8C must publish official-protocol results before anti-spoofing is enabled by default.
+
+Step 8C subsequently measured all 96,081 ASVspoof 2019 LA development/evaluation trials and matched
+the official evaluator exactly. The gate is satisfied, but fusion remains disabled: the
+development-selected threshold accepted 6.296% of held-out spoof trials and the corpus omits replay
+and contemporary deployment conditions. Completing an evidence gate permits a reviewed decision;
+it does not require enablement.

@@ -7,14 +7,16 @@ VoiceID treats speaker verification and presentation-attack detection as indepen
 - **Step 8A — Countermeasure score contract and metrics:** implemented.
 - **Step 8B — Concrete pretrained detector adapter:** implemented.
 - **Step 8C1 — Official metric and reference-score reproduction:** implemented.
-- **Step 8C2 — End-to-end AASIST corpus evaluation:** the reproducible runner is implemented;
-  measured artifacts remain pending completion of the local corpus run.
+- **Step 8C2 — End-to-end AASIST corpus evaluation:** complete on all 96,081 official ASVspoof
+  2019 LA development/evaluation trials, with frozen scores, provenance, EER, and t-DCF.
 
 The application supports an optional `SpoofDetector` port, safe decision fusion, and an
 integrity-checked adapter for the official pretrained AASIST Logical Access checkpoint. The
 countermeasure is deliberately not enabled in the default API: its softmax output is uncalibrated
-and has not yet been measured through the complete VoiceID pipeline. The default therefore
-continues to report `spoof_check_not_run` and `anti_spoofing_enabled=false`.
+for deployment and its development-selected threshold accepted 6.296% of held-out spoof trials.
+The default therefore continues to report `spoof_check_not_run` and
+`anti_spoofing_enabled=false`, even though the in-domain pooled EER was 0.830% and min t-DCF was
+0.02753.
 
 ## AASIST adapter
 
@@ -126,5 +128,7 @@ uv run python scripts/score_asvspoof2019_la.py \
 ```
 
 The archive, extracted FLAC files, and restart ledger stay under ignored `data/raw/`. Only
-non-audio evidence artifacts are eligible for Git. Fusion remains disabled until the completed
-report is reviewed against its held-out EER, t-DCF, attack breakdown, and limitations.
+non-audio evidence artifacts are eligible for Git. The completed
+[experiment record](../experiments/asvspoof2019-la-aasist-v1/README.md) documents the exact metric
+match with the upstream evaluator and the decision to keep fusion disabled because the calibrated
+threshold did not transfer safely and the corpus does not cover deployment threats.

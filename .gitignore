@@ -13,3 +13,9 @@ artifacts/
 *.sqlite3
 *.sqlite3-shm
 *.sqlite3-wal
+
+# ASVspoof per-trial biometric-derived evidence stays local. Public experiment
+# records contain aggregate reports and provenance only.
+experiments/asvspoof2019-la-aasist-v1/source-inventory.jsonl
+experiments/asvspoof2019-la-aasist-v1/spoof-scores.json
+experiments/asvspoof2019-la-aasist-v1/official-cm-scores.txt

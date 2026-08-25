@@ -62,6 +62,24 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
 - [x] **Step 10 — MLOps and deployment**
   Add containers, CI, experiment tracking, a model registry, observability, drift monitoring, and rollback.
 
+## Wearable product layer
+
+- [x] **Step 11 — Risk-aware action authorization**
+  Separate biometric evidence from product permission, assign risk on the server, expose
+  `allow`/`deny`/`step_up` decisions, and demonstrate the policy in the web workflow.
+
+- [ ] **Step 12 — Replay-resistant authorization grants**
+  Authenticate devices, bind action requests to nonces and short expirations, issue signed
+  single-use capabilities, and persist authorization audit evidence.
+
+- [ ] **Step 13 — Edge inference profile**
+  Establish phone and ARM latency/memory/power budgets, export a quantized speaker model, and
+  evaluate accuracy degradation across wearable microphones and noisy conditions.
+
+- [ ] **Step 14 — Companion SDK prototype**
+  Build a local-first mobile integration for Bluetooth microphones, device biometrics/passkeys,
+  consent indicators, and action-policy callbacks.
+
 ## Current focus
 
 Step 7 is complete. The first measured LibriSpeech clean report freezes its non-audio artifacts, real ECAPA scores, held-out metrics, Wilson intervals, and limitations. Its small correlated cohort does not justify replacing the provisional application threshold.
@@ -74,11 +92,14 @@ trials and this single Logical Access corpus omits replay and modern deployment 
 
 Step 9 adds an AES-256-GCM encrypted, consent-gated SQLite reference deployment, transactional
 revocation and retention, HMAC-linked audit records, and a single-node rate limiter. It also freezes
-the PostgreSQL schema for scale-out and explicitly avoids raw-audio retention. Step 10 is now the
-final delivered infrastructure increment.
+the PostgreSQL schema for scale-out and explicitly avoids raw-audio retention.
 
 Step 10 adds a hardened Docker/Compose deployment, GitHub Actions and dependency updates, a strict
 hash-verified model release registry, pinned ECAPA lineage, Prometheus-compatible request metrics,
-aggregate score-drift monitoring, and an immutable-image rollback runbook. All roadmap increments
-are delivered on `main`; VoiceID remains an experimental portfolio system, not a production
-biometric authenticator.
+aggregate score-drift monitoring, and an immutable-image rollback runbook.
+
+Step 11 begins the wearable product track. It introduces the server-owned
+`wearable-action-risk-v1` catalog and preserves the complete verification lineage inside each
+authorization decision. Steps 12–14 remain necessary for trustworthy device integration and edge
+deployment. VoiceID remains an experimental portfolio system, not a production biometric
+authenticator.

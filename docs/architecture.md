@@ -8,6 +8,9 @@ VoiceID receives a voice sample and answers three independent questions:
 2. Does the voice match the claimed enrolled identity?
 3. Does the signal appear bona fide, replayed, or synthetically generated?
 
+For a protected device command, a fourth policy question remains separate: is that evidence
+sufficient for this particular action, or must the device request a stronger factor?
+
 These questions must remain separate. A high speaker similarity score does not prove that a sample is authentic, and bona fide audio does not prove that it belongs to the claimed speaker.
 
 ## 2. Inference pipeline
@@ -20,6 +23,7 @@ sequenceDiagram
     participant SV as Speaker Model
     participant CM as Countermeasure
     participant DE as Decision Engine
+    participant AP as Action Policy
 
     C->>API: audio + claimed_identity
     API->>Q: decode/resample/segment
@@ -31,7 +35,8 @@ sequenceDiagram
         CM-->>API: spoof probability
     end
     API->>DE: similarity + spoof + quality + policy
-    DE-->>C: accept/reject/review + reason codes
+    DE->>AP: accept/reject/review + evidence
+    AP-->>C: allow/deny/step_up + reason codes
 ```
 
 ### Audio preprocessing
@@ -54,7 +59,17 @@ An independent model analyzes artifacts introduced by speech synthesis, voice co
 
 ### Decision engine
 
-The policy combines the speaker score, spoof probability, audio quality, speech duration, model version, and operation risk. It returns an explicit `accept`, `reject`, or `review` decision with auditable reason codes. Quality failures are never hidden inside a biometric score.
+The biometric policy combines the speaker score, spoof probability, audio quality, speech
+duration, and model version. It returns an explicit `accept`, `reject`, or `review` decision with
+auditable reason codes. Quality failures are never hidden inside a biometric score.
+
+### Action authorization policy
+
+Action authorization consumes the biometric decision without modifying it. A closed server-owned
+catalog assigns low, moderate, or high risk to each operation. Low-risk actions may use an accepted
+voice match; moderate actions additionally require spoof evidence; high-risk actions always request
+a device biometric or passkey. This boundary prevents a caller from converting speaker similarity
+directly into permission.
 
 ## 3. Deployable components
 
@@ -95,6 +110,8 @@ Evaluation follows the same boundary: pure domain metrics consume finite labeled
 - `Enrollment`: a set of samples processed by a specific pipeline version.
 - `VoiceTemplate`: normalized centroid, model identifier, dimension, and expiration date.
 - `VerificationAttempt`: scores, quality report, decision, and reason codes.
+- `ActionAuthorizationAttempt`: requested action, server-assigned risk, authorization decision,
+  policy lineage, and the underlying verification attempt.
 - `ModelRelease`: artifact, dataset lineage, thresholds, and evaluation metrics.
 
 Recordings and templates are not equivalent assets. They are stored separately and follow different retention policies. A production template must be encrypted, versioned, revocable, and access-controlled.

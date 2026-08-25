@@ -22,6 +22,7 @@ const elements = {
   sampleProgress: document.querySelector("#sample-progress"),
   verifyCard: document.querySelector("#verify-card"),
   verifyButton: document.querySelector("#verify-button"),
+  protectedAction: document.querySelector("#protected-action"),
   verifyStatus: document.querySelector("#verify-status"),
   result: document.querySelector("#result"),
 };
@@ -100,12 +101,13 @@ async function submitEnrollment() {
     elements.enrollResetButton.disabled = false;
     elements.verifyCard.classList.remove("muted");
     elements.verifyButton.disabled = false;
+    elements.protectedAction.disabled = false;
     setStatus(
       elements.enrollStatus,
       `Profile v${template.template_version} created from ${template.retained_samples} samples ✓`,
       "success",
     );
-    setStatus(elements.verifyStatus, "Ready for a fresh verification sample");
+    setStatus(elements.verifyStatus, "Choose an action and record a fresh command");
   } catch (error) {
     setStatus(elements.enrollStatus, error.message, "error");
   } finally {
@@ -121,20 +123,21 @@ async function verifyIdentity() {
     const blob = await captureWav("verify", (secondsLeft) => {
       setStatus(elements.verifyStatus, `Recording probe · ${secondsLeft}s remaining`);
     });
-    setBusy(elements.verifyButton, true, "Comparing speaker embedding…");
-    setStatus(elements.verifyStatus, "Running the verification policy…");
+    setBusy(elements.verifyButton, true, "Evaluating voice assurance…");
+    setStatus(elements.verifyStatus, "Running verification and action-risk policies…");
     const form = new FormData();
+    form.append("action", elements.protectedAction.value);
     form.append("sample", blob, "verification.wav");
     const result = await requestJson(
-      `/api/v1/identities/${encodeURIComponent(elements.identityId.value)}/verify`,
+      `/api/v1/identities/${encodeURIComponent(elements.identityId.value)}/authorize`,
       { method: "POST", body: form },
     );
-    showVerificationResult(result);
-    setStatus(elements.verifyStatus, "Verification complete ✓", "success");
+    showAuthorizationResult(result);
+    setStatus(elements.verifyStatus, "Authorization decision complete ✓", "success");
   } catch (error) {
     showCaptureError(elements.verifyStatus, error);
   } finally {
-    setBusy(elements.verifyButton, false, "Record another verification");
+    setBusy(elements.verifyButton, false, "Record another action command");
   }
 }
 
@@ -242,6 +245,7 @@ function resetEnrollment() {
   elements.identityId.disabled = false;
   elements.verifyCard.classList.add("muted");
   elements.verifyButton.disabled = true;
+  elements.protectedAction.disabled = true;
   elements.result.hidden = true;
   updateEnrollmentControls();
   setStatus(elements.enrollStatus, "Three samples are required");
@@ -261,17 +265,20 @@ function readIdentity() {
   return elements.identityId.value.trim();
 }
 
-function showVerificationResult(result) {
+function showAuthorizationResult(result) {
+  const verification = result.verification;
   const badge = document.querySelector("#decision-badge");
-  badge.textContent = result.decision.toUpperCase();
+  badge.textContent = result.decision.replaceAll("_", " ").toUpperCase();
   badge.className = `decision-badge ${result.decision}`;
-  document.querySelector("#result-title").textContent = decisionTitle(result.decision);
+  document.querySelector("#result-title").textContent = authorizationTitle(result.decision);
   document.querySelector("#result-copy").textContent =
-    "This is an experimental model decision, not proof of identity or liveness.";
+    `${formatLabel(result.action)} is classified as ${result.risk} risk. Voice remains an experimental risk signal, not proof of identity or liveness.`;
   document.querySelector("#score-value").textContent =
-    result.speaker_score == null ? "N/A" : result.speaker_score.toFixed(3);
-  document.querySelector("#policy-value").textContent = result.policy_id;
-  document.querySelector("#template-value").textContent = `v${result.template_version} · ${shortId(result.template_id)}`;
+    verification.speaker_score == null ? "N/A" : verification.speaker_score.toFixed(3);
+  document.querySelector("#policy-value").textContent = result.authorization_policy_id;
+  document.querySelector("#risk-value").textContent = result.risk;
+  document.querySelector("#voice-decision-value").textContent = verification.decision;
+  document.querySelector("#template-value").textContent = `v${verification.template_version} · ${shortId(verification.template_id)}`;
   document.querySelector("#reasons-value").textContent = result.reasons
     .map((reason) => reason.replaceAll("_", " "))
     .join(", ");
@@ -320,16 +327,20 @@ function formatSampleIssue(issue) {
   return `sample ${Number(issue.sample_index) + 1}: ${reasons}`;
 }
 
-function decisionTitle(decision) {
+function authorizationTitle(decision) {
   return {
-    accept: "Speaker similarity met the policy",
-    reject: "Speaker similarity did not meet the policy",
-    review: "The result requires review",
-  }[decision] || "Verification complete";
+    allow: "The requested action may proceed",
+    deny: "The requested action is denied",
+    step_up: "Stronger authentication is required",
+  }[decision] || "Authorization complete";
+}
+
+function formatLabel(value) {
+  return value.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
 }
 
 function shortModelName(modelId) {
-  return modelId.split("/").at(-1) || modelId;
+  return modelId.split("@")[0].split("/").at(-1) || modelId;
 }
 
 function shortId(value) {

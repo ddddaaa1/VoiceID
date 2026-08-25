@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="VoiceID: an experimental speaker enrollment and verification workflow."
+      content="VoiceID: risk-aware voice authorization for connected devices."
     />
-    <title>VoiceID — Experimental speaker verification</title>
+    <title>VoiceID — Voice trust for connected devices</title>
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/styles.css" />
+    <link rel="stylesheet" href="/assets/styles.css?v=11" />
   </head>
   <body>
     <main>
@@ -19,11 +19,11 @@
       </nav>
 
       <section class="hero">
-        <p class="eyebrow">SPEAKER VERIFICATION LAB</p>
-        <h1>Your voice,<br /><em>measured.</em></h1>
+        <p class="eyebrow">VOICE TRUST LAYER</p>
+        <h1>Your voice,<br /><em>authorized.</em></h1>
         <p class="lede">
-          Build a voice template from three recordings, then compare a new sample with
-          a real ECAPA-TDNN speaker model.
+          Build a voice template, request a device action, and see how speaker evidence
+          becomes an allow, deny, or stronger-authentication decision.
         </p>
       </section>
 
@@ -45,7 +45,7 @@
         </label>
       </section>
 
-      <section class="workspace" aria-label="Speaker verification workflow">
+      <section class="workspace" aria-label="Voice action authorization workflow">
         <article class="voice-card" id="enroll-card">
           <header>
             <span class="step">01</span>
@@ -84,17 +84,29 @@
           <header>
             <span class="step">02</span>
             <div>
-              <p class="card-label">VERIFICATION</p>
-              <h2>Test a new sample</h2>
+              <p class="card-label">ACTION AUTHORIZATION</p>
+              <h2>Request a device action</h2>
             </div>
           </header>
           <div class="visualizer" id="verify-bars" aria-hidden="true"></div>
           <p class="prompt">
-            After enrollment, record a fresh sample and inspect the model score,
-            decision, and reason codes.
+            Choose an action and record a fresh command. The server assigns its risk;
+            clients cannot downgrade it.
           </p>
+          <label class="action-field">
+            <span>Protected action</span>
+            <select id="protected-action" disabled>
+              <option value="play_media">Play media · low risk</option>
+              <option value="personalize_assistant">Personalize assistant · low risk</option>
+              <option value="switch_profile">Switch profile · moderate risk</option>
+              <option value="read_private_content">Read private content · moderate risk</option>
+              <option value="send_message">Send message · high risk</option>
+              <option value="make_purchase">Make purchase · high risk</option>
+              <option value="unlock_physical_access">Unlock physical access · high risk</option>
+            </select>
+          </label>
           <button class="record-button" id="verify-button" type="button" disabled>
-            <span class="record-dot"></span><span>Record verification sample</span>
+            <span class="record-dot"></span><span>Record action command</span>
           </button>
           <p class="status" id="verify-status" aria-live="polite">
             Create the voice profile first
@@ -105,13 +117,15 @@
       <section class="result" id="result" hidden aria-live="polite">
         <div>
           <div class="result-heading">
-            <p class="card-label">MODEL DECISION</p>
-            <span class="decision-badge" id="decision-badge">REVIEW</span>
+            <p class="card-label">AUTHORIZATION DECISION</p>
+            <span class="decision-badge" id="decision-badge">STEP UP</span>
           </div>
-          <h2 id="result-title">Verification complete</h2>
+          <h2 id="result-title">Authorization complete</h2>
           <p id="result-copy"></p>
           <dl class="result-details">
-            <div><dt>Policy</dt><dd id="policy-value">—</dd></div>
+            <div><dt>Action policy</dt><dd id="policy-value">—</dd></div>
+            <div><dt>Risk</dt><dd id="risk-value">—</dd></div>
+            <div><dt>Voice decision</dt><dd id="voice-decision-value">—</dd></div>
             <div><dt>Template</dt><dd id="template-value">—</dd></div>
             <div><dt>Reasons</dt><dd id="reasons-value">—</dd></div>
           </dl>
@@ -120,11 +134,11 @@
       </section>
 
       <aside class="notice">
-        <strong>Research warning:</strong> the threshold is provisional, anti-spoofing
-        is not enabled, and profiles are kept only in server memory. Recordings are
-        sent to this local API for processing and are not intentionally persisted.
+        <strong>Research warning:</strong> voice is a risk signal, not sufficient proof for
+        high-risk actions. The speaker threshold is provisional, anti-spoofing is not enabled,
+        and default profiles live only in server memory. Audio is not intentionally retained.
       </aside>
     </main>
-    <script type="module" src="/assets/app.js"></script>
+    <script type="module" src="/assets/app.js?v=11"></script>
   </body>
 </html>

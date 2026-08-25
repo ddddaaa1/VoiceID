@@ -1,6 +1,9 @@
 # VoiceID
 
-VoiceID is a **speaker verification and voice attack detection platform**. Its purpose is not to recognize what was said, but to determine whether a voice sample belongs to an enrolled identity and whether the audio appears authentic.
+VoiceID is a **speaker verification, voice attack detection, and action-authorization platform**.
+Its purpose is not to recognize what was said, but to determine whether a voice sample belongs to
+an enrolled identity, whether the audio appears authentic, and whether that evidence is sufficient
+for a requested device action.
 
 The repository combines a same-origin web experience, a versioned HTTP API, and a tested,
 framework-independent domain core. Its delivered roadmap covers biometric evaluation,
@@ -11,6 +14,7 @@ anti-spoofing research, secure storage, and MLOps.
 - Audio processing: normalization, voice activity detection, quality analysis, and segmentation.
 - Deep learning: ECAPA-TDNN speaker embeddings and anti-spoofing classification.
 - Biometric logic: enrollment, robust centroids, cosine scoring, and calibration.
+- Product policy: server-owned action risk and allow, deny, or step-up decisions.
 - Evaluation: FAR, FRR, EER, ROC-AUC, minDCF, and condition-based analysis.
 - Architecture: decoupled domain logic, model adapters, APIs, workers, and events.
 - MLOps: versioned datasets, experiment tracking, a model registry, and monitoring.
@@ -27,7 +31,8 @@ flowchart LR
     Q --> S[Anti-spoof Model]
     E --> D[Decision Engine]
     S --> D
-    D --> A
+    D --> P[Action Risk Policy]
+    P --> A
     O --> P[(PostgreSQL)]
     O --> B[(Encrypted Object Store)]
     A --> R[(Redis / Job Queue)]
@@ -49,6 +54,8 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Real 192-dimensional ECAPA-TDNN speaker embeddings through a lazy SpeechBrain adapter.
 - Multi-sample enrollment with quality gates, outlier rejection, and versioned templates.
 - One-to-one speaker verification with auditable decisions and provisional policy versioning.
+- Risk-aware action authorization for assistants, private content, messaging, purchases, and
+  physical access, with mandatory step-up authentication for high-risk operations.
 - Versioned FastAPI endpoints with bounded multipart uploads and stable error contracts.
 - Unit and contract tests covering audio capture encoding, the API, and biometric logic.
 - Leakage-resistant scored-trial manifests with development-only minDCF threshold selection.
@@ -110,13 +117,18 @@ Start the application:
 uv run uvicorn voiceid.adapters.api.app:app --host 127.0.0.1 --port 8000
 ```
 
-Open `http://127.0.0.1:8000` for the microphone workflow. Localhost is a secure browser context, so microphone capture is available after permission is granted. The interactive API contract remains at `http://127.0.0.1:8000/docs`.
+Open `http://127.0.0.1:8000` for the microphone workflow. After enrollment, select a protected
+action to see how voice evidence and server-assigned risk produce different authorization outcomes.
+Localhost is a secure browser context, so microphone capture is available after permission is
+granted. The interactive API contract remains at `http://127.0.0.1:8000/docs`.
 
 Read the [web workflow guide](docs/web.md) and [HTTP API guide](docs/api.md) for implementation details and limitations.
 For restart-safe local operation, key management, consent, and revocation, read the
 [durable persistence guide](docs/persistence.md).
 For containers, CI, release lineage, monitoring, and rollback, read the
 [MLOps and deployment guide](docs/mlops.md).
+The [action authorization guide](docs/action-authorization.md) describes the wearable use cases,
+risk matrix, trust boundary, and future OEM path.
 
 ## Run the tests
 
@@ -182,6 +194,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0012: Do not retain raw audio by default](docs/decisions/0012-minimize-raw-biometric-retention.md)
 - [ADR 0013: Checkpoint corpus inference without weakening evidence](docs/decisions/0013-checkpoint-corpus-inference.md)
 - [ADR 0014: Publish aggregate biometric evidence only](docs/decisions/0014-publish-aggregate-biometric-evidence.md)
+- [ADR 0015: Separate biometric evidence from action authorization](docs/decisions/0015-separate-biometric-and-action-policy.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the
 [ECAPA-TDNN](docs/models/ecapa-tdnn.md) and [AASIST](docs/models/aasist.md) model cards.

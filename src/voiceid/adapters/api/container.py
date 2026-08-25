@@ -10,10 +10,12 @@ from voiceid.adapters.audio.wave_decoder import PcmWaveDecoder
 from voiceid.adapters.models.speechbrain_ecapa import SpeechBrainEcapaEmbedder
 from voiceid.adapters.repositories.memory import InMemoryVoiceTemplateRepository
 from voiceid.adapters.repositories.sqlite import AesGcmCipher, SqliteBiometricRepository
+from voiceid.application.authorization import ActionAuthorizationService
 from voiceid.application.enrollment import EnrollmentService
 from voiceid.application.governance import IdentityGovernanceService
 from voiceid.application.preprocessing import AudioPreprocessor
 from voiceid.application.verification import VerificationService
+from voiceid.domain.authorization import ActionAuthorizationPolicy
 from voiceid.domain.models import VerificationPolicy
 
 
@@ -55,12 +57,14 @@ class ApiSettings:
 class ServiceContainer:
     enrollment: EnrollmentService
     verification: VerificationService
+    authorization: ActionAuthorizationService | None = None
     settings: ApiSettings = field(default_factory=ApiSettings)
     persistence: str = "memory"
     speaker_model_id: str = SpeechBrainEcapaEmbedder.MODEL_ID
     spoof_model_id: str | None = None
     verification_policy_id: str = "provisional-cosine-v1"
     anti_spoofing_enabled: bool = False
+    authorization_policy_id: str = "wearable-action-risk-v1"
     governance: IdentityGovernanceService | None = None
 
 
@@ -69,16 +73,20 @@ def build_default_container() -> ServiceContainer:
     embedder = SpeechBrainEcapaEmbedder()
     repository = InMemoryVoiceTemplateRepository()
     policy = VerificationPolicy()
+    verification = VerificationService(
+        preprocessor,
+        embedder,
+        repository,
+        policy=policy,
+    )
+    authorization_policy = ActionAuthorizationPolicy()
     return ServiceContainer(
         enrollment=EnrollmentService(preprocessor, embedder, repository),
-        verification=VerificationService(
-            preprocessor,
-            embedder,
-            repository,
-            policy=policy,
-        ),
+        verification=verification,
+        authorization=ActionAuthorizationService(verification, policy=authorization_policy),
         speaker_model_id=embedder.model_id,
         verification_policy_id=policy.policy_id,
+        authorization_policy_id=authorization_policy.policy_id,
     )
 
 
@@ -100,6 +108,14 @@ def build_durable_container(
     )
     repository.initialize()
     policy = VerificationPolicy()
+    verification = VerificationService(
+        preprocessor,
+        embedder,
+        repository,
+        consent_repository=repository,
+        policy=policy,
+    )
+    authorization_policy = ActionAuthorizationPolicy()
     governance = IdentityGovernanceService(repository, repository)
     return ServiceContainer(
         enrollment=EnrollmentService(
@@ -108,16 +124,12 @@ def build_durable_container(
             repository,
             consent_repository=repository,
         ),
-        verification=VerificationService(
-            preprocessor,
-            embedder,
-            repository,
-            consent_repository=repository,
-            policy=policy,
-        ),
+        verification=verification,
+        authorization=ActionAuthorizationService(verification, policy=authorization_policy),
         settings=settings or ApiSettings(),
         persistence="encrypted-sqlite-v1",
         speaker_model_id=embedder.model_id,
         verification_policy_id=policy.policy_id,
+        authorization_policy_id=authorization_policy.policy_id,
         governance=governance,
     )

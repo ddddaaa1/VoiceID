@@ -11,12 +11,19 @@ from fastapi.testclient import TestClient
 
 from voiceid.adapters.api.app import create_app
 from voiceid.adapters.api.container import ApiSettings, ServiceContainer
+from voiceid.application.authorization import ActionAuthorizationAttempt
 from voiceid.application.enrollment import (
     EnrollmentRejected,
     EnrollmentResult,
     SampleIssue,
 )
 from voiceid.application.verification import VerificationAttempt, VerificationUnavailable
+from voiceid.domain.authorization import (
+    ActionAuthorizationResult,
+    ActionRisk,
+    AuthorizationDecision,
+    ProtectedAction,
+)
 from voiceid.domain.enrollment import VoiceTemplate
 from voiceid.domain.governance import ConsentGrant, RevocationResult
 from voiceid.domain.models import Decision, VerificationResult
@@ -78,6 +85,33 @@ class StubVerificationService:
         )
 
 
+class StubAuthorizationService:
+    def __init__(self, verification: StubVerificationService) -> None:
+        self.verification = verification
+        self.received: tuple[str, ProtectedAction, bytes] | None = None
+
+    def authorize(
+        self,
+        identity_id: str,
+        action: ProtectedAction,
+        payload: bytes,
+    ) -> ActionAuthorizationAttempt:
+        self.received = identity_id, action, payload
+        verification = self.verification.verify(identity_id, payload)
+        return ActionAuthorizationAttempt(
+            authorization_id="authorization-1",
+            created_at=CREATED_AT,
+            authorization_policy_id="wearable-action-risk-v1",
+            verification=verification,
+            result=ActionAuthorizationResult(
+                action=action,
+                risk=ActionRisk.HIGH,
+                decision=AuthorizationDecision.STEP_UP,
+                reasons=("high_risk_action", "device_authentication_required"),
+            ),
+        )
+
+
 class StubGovernanceService:
     def grant_consent(
         self,
@@ -112,10 +146,12 @@ class ApiContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.enrollment = StubEnrollmentService()
         self.verification = StubVerificationService()
+        self.authorization = StubAuthorizationService(self.verification)
         self.governance = StubGovernanceService()
         container = ServiceContainer(
             enrollment=self.enrollment,
             verification=self.verification,
+            authorization=self.authorization,  # type: ignore[arg-type]
             settings=ApiSettings(
                 max_file_bytes=4,
                 max_total_upload_bytes=12,
@@ -142,6 +178,7 @@ class ApiContractTests(unittest.TestCase):
                 "spoof_model_id": None,
                 "verification_policy_id": "provisional-cosine-v1",
                 "anti_spoofing_enabled": False,
+                "authorization_policy_id": "wearable-action-risk-v1",
             },
         )
 
@@ -151,13 +188,14 @@ class ApiContractTests(unittest.TestCase):
         recorder = self.client.get("/assets/audio-recorder-worklet.js")
 
         self.assertEqual(page.status_code, 200)
-        self.assertIn("Speaker verification workflow", page.text)
+        self.assertIn("Voice action authorization workflow", page.text)
         self.assertEqual(page.headers["x-content-type-options"], "nosniff")
         self.assertIn("default-src 'self'", page.headers["content-security-policy"])
         self.assertEqual(page.headers["permissions-policy"], "microphone=(self)")
         self.assertEqual(script.status_code, 200)
         self.assertIn("javascript", script.headers["content-type"])
         self.assertIn("/api/v1/identities/", script.text)
+        self.assertIn("/authorize", script.text)
         self.assertEqual(recorder.status_code, 200)
         self.assertIn("registerProcessor", recorder.text)
         self.assertEqual(self.client.get("/assets/package.json").status_code, 404)
@@ -192,6 +230,35 @@ class ApiContractTests(unittest.TestCase):
         metrics = self.client.get("/metrics").text
         self.assertIn('route="/api/v1/identities/{identity_id}/verify"', metrics)
         self.assertNotIn("client-1", metrics)
+
+    def test_action_authorization_contract(self) -> None:
+        response = self.client.post(
+            "/api/v1/identities/client-1/authorize",
+            data={"action": "make_purchase"},
+            files=wave_files("sample", b"one"),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["authorization_id"], "authorization-1")
+        self.assertEqual(body["action"], "make_purchase")
+        self.assertEqual(body["risk"], "high")
+        self.assertEqual(body["decision"], "step_up")
+        self.assertEqual(body["verification"]["attempt_id"], "attempt-1")
+        self.assertEqual(
+            self.authorization.received,
+            ("client-1", ProtectedAction.MAKE_PURCHASE, b"one"),
+        )
+
+    def test_action_authorization_rejects_unknown_actions(self) -> None:
+        response = self.client.post(
+            "/api/v1/identities/client-1/authorize",
+            data={"action": "client_selected_low_risk"},
+            files=wave_files("sample", b"one"),
+        )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.json()["error"]["code"], "request_validation_failed")
 
     def test_consent_and_revocation_contracts(self) -> None:
         consent_response = self.client.post(
@@ -276,8 +343,10 @@ class ApiContractTests(unittest.TestCase):
         schema = self.client.get("/openapi.json").json()
         self.assertIn("/api/v1/identities/{identity_id}/enroll", schema["paths"])
         self.assertIn("/api/v1/identities/{identity_id}/verify", schema["paths"])
+        self.assertIn("/api/v1/identities/{identity_id}/authorize", schema["paths"])
         self.assertIn("EnrollmentResponse", schema["components"]["schemas"])
         self.assertIn("VerificationResponse", schema["components"]["schemas"])
+        self.assertIn("ActionAuthorizationResponse", schema["components"]["schemas"])
         self.assertIn("ErrorResponse", schema["components"]["schemas"])
 
 

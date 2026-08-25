@@ -6,8 +6,10 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from voiceid.application.authorization import ActionAuthorizationAttempt
 from voiceid.application.enrollment import EnrollmentResult
 from voiceid.application.verification import VerificationAttempt
+from voiceid.domain.authorization import ActionRisk, AuthorizationDecision, ProtectedAction
 from voiceid.domain.governance import ConsentGrant, RevocationResult
 from voiceid.domain.models import Decision
 
@@ -28,6 +30,7 @@ class HealthResponse(StrictResponse):
     spoof_model_id: str | None
     verification_policy_id: str
     anti_spoofing_enabled: bool
+    authorization_policy_id: str
 
 
 class SampleIssueResponse(StrictResponse):
@@ -97,6 +100,32 @@ class VerificationResponse(StrictResponse):
             speaker_score=attempt.result.speaker_score,
             spoof_probability=attempt.result.spoof_probability,
             reasons=list(attempt.result.reasons),
+        )
+
+
+class ActionAuthorizationResponse(StrictResponse):
+    authorization_id: str
+    created_at: datetime
+    identity_id: str
+    action: ProtectedAction
+    risk: ActionRisk
+    decision: AuthorizationDecision
+    authorization_policy_id: str
+    reasons: list[str]
+    verification: VerificationResponse
+
+    @classmethod
+    def from_attempt(cls, attempt: ActionAuthorizationAttempt) -> ActionAuthorizationResponse:
+        return cls(
+            authorization_id=attempt.authorization_id,
+            created_at=attempt.created_at,
+            identity_id=attempt.verification.identity_id,
+            action=attempt.result.action,
+            risk=attempt.result.risk,
+            decision=attempt.result.decision,
+            authorization_policy_id=attempt.authorization_policy_id,
+            reasons=list(attempt.result.reasons),
+            verification=VerificationResponse.from_attempt(attempt.verification),
         )
 
 

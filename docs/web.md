@@ -8,11 +8,14 @@ The web client is a dependency-free ES module application served by the FastAPI 
 2. The user chooses a caller-defined identity identifier.
 3. An `AudioWorklet` captures three five-second mono recordings as floating-point frames.
 4. The client encodes each recording as a 16-bit PCM WAVE file and submits them as the repeated `samples` multipart field.
-5. A successful enrollment locks the identity and enables verification.
-6. A fresh recording is submitted as the `sample` multipart field.
-7. The result shows the raw cosine score, policy version, template version, decision, and auditable reason codes.
+5. A successful enrollment locks the identity and enables action authorization.
+6. The user chooses a protected action from the server-defined catalog.
+7. A fresh recording and action identifier are submitted to the authorization endpoint.
+8. The result shows the action risk and decision alongside the raw speaker evidence and reason codes.
 
-The interface never creates its own biometric decision. It presents the API response without converting the cosine score into an invented percentage.
+The interface never creates its own biometric or authorization decision. It presents the API
+response without converting the cosine score into an invented percentage or assigning risk in the
+browser.
 
 ## Browser audio boundary
 
@@ -22,7 +25,10 @@ The capture implementation connects the worklet to a zero-gain output node so br
 
 ## State and failure handling
 
-The UI enables profile creation only after exactly three local samples are present and enables verification only after the API confirms enrollment. Expected API errors use the stable error envelope and are rendered as human-readable status text. Reloading the page resets client state; restarting the server also removes templates because persistence is currently in memory.
+The UI enables profile creation only after exactly three local samples are present and enables
+authorization only after the API confirms enrollment. Expected API errors use the stable error
+envelope and are rendered as human-readable status text. Reloading the page resets client state;
+restarting the default server also removes templates because persistence is in memory.
 
 ## Security and privacy posture
 
@@ -30,7 +36,8 @@ The UI enables profile creation only after exactly three local samples are prese
 - Static responses use a restrictive Content Security Policy, `nosniff`, a no-referrer policy, and a same-origin microphone permissions policy.
 - Raw recordings are sent to the local API and are not intentionally persisted. Multipart handling may temporarily spool request data.
 - Voice templates are sensitive biometric data even though raw audio is not stored.
-- Anti-spoofing, authentication, rate limiting, encrypted persistence, consent, and retention controls are not implemented yet.
+- Anti-spoofing remains disabled by policy. Authentication and signed action capabilities are not
+  implemented; durable mode provides encrypted persistence, consent, revocation, and retention.
 
 ## Automated coverage
 

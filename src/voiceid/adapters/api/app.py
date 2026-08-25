@@ -8,16 +8,20 @@ import uuid
 from pathlib import Path as FileSystemPath
 from typing import Annotated
 
-from fastapi import FastAPI, File, Path, Query, Request, UploadFile
+from fastapi import FastAPI, File, Form, Path, Query, Request, UploadFile
 from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
+
+from voiceid.application.authorization import ActionAuthorizationService
+from voiceid.domain.authorization import ActionAuthorizationPolicy, ProtectedAction
 
 from .container import ServiceContainer, build_default_container
 from .errors import ApiError, error_response, register_error_handlers
 from .observability import OperationalMetrics
 from .rate_limit import FixedWindowRateLimiter
 from .schemas import (
+    ActionAuthorizationResponse,
     ConsentRequest,
     ConsentResponse,
     EnrollmentResponse,
@@ -57,10 +61,10 @@ def create_app(
 ) -> FastAPI:
     app = FastAPI(
         title="VoiceID API",
-        summary="Speaker enrollment and verification research API",
+        summary="Speaker verification and risk-aware voice authorization API",
         description=(
-            "VoiceID exposes an experimental speaker-verification workflow. "
-            "The current policy is provisional and anti-spoofing is not enabled."
+            "VoiceID exposes experimental speaker verification and action authorization. "
+            "The speaker policy is provisional and anti-spoofing is not enabled."
         ),
         version="0.1.0",
         docs_url="/docs",
@@ -166,6 +170,7 @@ def create_app(
             spoof_model_id=services.spoof_model_id,
             verification_policy_id=services.verification_policy_id,
             anti_spoofing_enabled=services.anti_spoofing_enabled,
+            authorization_policy_id=services.authorization_policy_id,
         )
 
     @app.get("/metrics", include_in_schema=False)
@@ -268,6 +273,37 @@ def create_app(
         payload = await read_upload(sample, services.settings)
         attempt = await run_in_threadpool(services.verification.verify, identity_id, payload)
         return VerificationResponse.from_attempt(attempt)
+
+    @app.post(
+        "/api/v1/identities/{identity_id}/authorize",
+        response_model=ActionAuthorizationResponse,
+        responses=ERROR_RESPONSES,
+        tags=["action authorization"],
+    )
+    async def authorize_action(
+        identity_id: IdentityPath,
+        action: Annotated[
+            ProtectedAction,
+            Form(description="Server-classified action requested by the voice interaction"),
+        ],
+        sample: Annotated[
+            UploadFile,
+            File(description="One 16-bit PCM WAVE probe sample"),
+        ],
+    ) -> ActionAuthorizationResponse:
+        services: ServiceContainer = app.state.container
+        payload = await read_upload(sample, services.settings)
+        authorization = services.authorization or ActionAuthorizationService(
+            services.verification,
+            policy=ActionAuthorizationPolicy(policy_id=services.authorization_policy_id),
+        )
+        attempt = await run_in_threadpool(
+            authorization.authorize,
+            identity_id,
+            action,
+            payload,
+        )
+        return ActionAuthorizationResponse.from_attempt(attempt)
 
     return app
 

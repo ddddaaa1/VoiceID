@@ -37,11 +37,18 @@ public struct VoiceIDConfiguration: Sendable {
     guard baseURL.scheme == "https" || (baseURL.scheme == "http" && isLoopback) else {
       throw VoiceIDClientError.insecureBaseURL
     }
-    guard !deviceID.isEmpty, deviceID.count <= 128 else {
+    guard Self.isValidIdentifier(deviceID) else {
       throw VoiceIDClientError.invalidDeviceID
     }
     self.baseURL = baseURL
     self.deviceID = deviceID
+  }
+
+  private static func isValidIdentifier(_ value: String) -> Bool {
+    guard !value.isEmpty, value.count <= 128, value.first?.isASCII == true else { return false }
+    return value.allSatisfy {
+      $0.isASCII && ($0.isLetter || $0.isNumber || "._:-".contains($0))
+    }
   }
 }
 
@@ -49,6 +56,8 @@ public enum VoiceIDClientError: Error, Equatable, Sendable {
   case insecureBaseURL
   case invalidDeviceID
   case invalidIdentityID
+  case invalidCredential
+  case invalidAudio
   case secureRandomUnavailable
   case invalidHTTPResponse
   case server(status: Int, code: String, message: String)
@@ -88,6 +97,14 @@ public final class VoiceIDHTTPClient: VoiceIDGrantClient, @unchecked Sendable {
     action: ProtectedAction,
     pcmWave: Data
   ) async throws -> AuthorizationGrantIssue {
+    guard
+      pcmWave.count >= 44,
+      pcmWave.count <= 10_000_000,
+      pcmWave.starts(with: Data("RIFF".utf8)),
+      pcmWave[8..<12] == Data("WAVE".utf8)
+    else {
+      throw VoiceIDClientError.invalidAudio
+    }
     let boundary = "voiceid-\(try nonceGenerator.nonce())"
     var form = MultipartFormData(boundary: boundary)
     form.appendField(name: "action", value: action.rawValue)
@@ -133,6 +150,13 @@ public final class VoiceIDHTTPClient: VoiceIDGrantClient, @unchecked Sendable {
 
   private func authenticate(_ request: inout URLRequest) async throws {
     let credential = try await credentials.credential()
+    guard
+      !credential.isEmpty,
+      credential.count <= 128,
+      credential.allSatisfy({ $0.isASCII && !$0.isWhitespace && !$0.isNewline })
+    else {
+      throw VoiceIDClientError.invalidCredential
+    }
     request.setValue(configuration.deviceID, forHTTPHeaderField: "X-VoiceID-Device-ID")
     request.setValue("Device \(credential)", forHTTPHeaderField: "Authorization")
   }

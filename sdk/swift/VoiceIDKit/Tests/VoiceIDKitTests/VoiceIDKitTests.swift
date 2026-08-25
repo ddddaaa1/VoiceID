@@ -67,6 +67,44 @@ final class VoiceIDKitTests: XCTestCase {
     }
   }
 
+  func testCoordinatorRejectsGrantWithDifferentActionBinding() async throws {
+    let malformed = try Self.issue(
+      decision: .allow,
+      includeGrant: true,
+      grantAction: .personalizeAssistant
+    )
+    do {
+      _ = try await AuthorizationCoordinator(client: StubClient(issue: malformed)).authorize(
+        identityID: "demo-user",
+        action: .playMedia,
+        pcmWave: Data()
+      )
+      XCTFail("grant bindings must match the authorization")
+    } catch let error as VoiceIDClientError {
+      XCTAssertEqual(error, .malformedResponse)
+    }
+  }
+
+  func testHTTPClientRejectsInvalidAudioBeforeCredentialOrNetworkAccess() async throws {
+    let client = VoiceIDHTTPClient(
+      configuration: try VoiceIDConfiguration(
+        baseURL: URL(string: "http://127.0.0.1:8000")!,
+        deviceID: "wearable-demo"
+      ),
+      credentials: FailingCredentialProvider()
+    )
+    do {
+      _ = try await client.issueGrant(
+        identityID: "demo-user",
+        action: .playMedia,
+        pcmWave: Data("not-wave".utf8)
+      )
+      XCTFail("invalid audio must fail before a request")
+    } catch let error as VoiceIDClientError {
+      XCTAssertEqual(error, .invalidAudio)
+    }
+  }
+
   func testPCMEncoderProducesBoundedMono16kWave() {
     let output = PCM16WaveEncoder.encode(samples: [-2.0, 0.0, 2.0], sampleRate: 16_000)
 
@@ -90,6 +128,12 @@ final class VoiceIDKitTests: XCTestCase {
         deviceID: "wearable-demo"
       )
     )
+    XCTAssertThrowsError(
+      try VoiceIDConfiguration(
+        baseURL: URL(string: "https://voiceid.example")!,
+        deviceID: "invalid device"
+      )
+    )
   }
 
   func testSecureNonceIsURLSafeAndUnique() throws {
@@ -104,7 +148,8 @@ final class VoiceIDKitTests: XCTestCase {
 
   private static func issue(
     decision: AuthorizationDecision,
-    includeGrant: Bool
+    includeGrant: Bool,
+    grantAction: ProtectedAction = .playMedia
   ) throws -> AuthorizationGrantIssue {
     let authorization = ActionAuthorization(
       authorizationID: "authorization-1",
@@ -138,7 +183,7 @@ final class VoiceIDKitTests: XCTestCase {
         authorizationID: authorization.authorizationID,
         identityID: "demo-user",
         deviceID: "wearable-demo",
-        action: .playMedia,
+        action: grantAction,
         issuedAt: "2026-08-25T12:00:00Z",
         expiresAt: "2026-08-25T12:00:30Z",
         token: "secret-token"
@@ -186,6 +231,13 @@ final class VoiceIDKitTests: XCTestCase {
       }
     }
     """
+}
+
+private struct FailingCredentialProvider: DeviceCredentialProviding {
+  func credential() async throws -> String {
+    XCTFail("credential must not be read for invalid audio")
+    return ""
+  }
 }
 
 private struct StubClient: VoiceIDGrantClient {

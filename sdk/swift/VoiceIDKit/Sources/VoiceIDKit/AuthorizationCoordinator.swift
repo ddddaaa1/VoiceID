@@ -41,7 +41,12 @@ public struct AuthorizationCoordinator: Sendable {
     )
     switch issue.authorization.decision {
     case .allow:
-      guard let grant = issue.grant else {
+      guard
+        let grant = issue.grant,
+        grant.authorizationID == issue.authorization.authorizationID,
+        grant.identityID == issue.authorization.identityID,
+        grant.action == issue.authorization.action
+      else {
         throw VoiceIDClientError.malformedResponse
       }
       await onEvent(.allowed(authorizationID: issue.authorization.authorizationID))

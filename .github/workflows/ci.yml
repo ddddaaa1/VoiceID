@@ -34,6 +34,16 @@ jobs:
       - run: uv run python scripts/monitor_score_drift.py monitoring/baselines/librispeech-clean-v2.json experiments/librispeech-clean-v2/scored-trials.json --partition evaluation
       - run: uv build --offline --no-build-isolation
 
+  swift-sdk:
+    runs-on: macos-15
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: sdk/swift/VoiceIDKit
+    steps:
+      - uses: actions/checkout@v5
+      - run: swift test
+
   container:
     if: github.event_name == 'push'
     needs: quality

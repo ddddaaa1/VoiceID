@@ -73,3 +73,14 @@ OEM integrations should add actions through reviewed server policy rather than a
 client-provided risk. Device state can later add contextual signals such as trusted proximity,
 lost-device mode, recent passkey authentication, command value, or anomalous location. Those
 signals should refine policy without changing the raw biometric result.
+
+## Companion SDK prototype
+
+[`VoiceIDKit`](../sdk/swift/VoiceIDKit/README.md) models this boundary for Apple companion apps. It
+keeps server decisions typed, obtains signed grants only for `allow`, emits product callbacks for
+all three policy outcomes, and consumes grants once. Its AVAudioEngine adapter performs explicit,
+bounded, in-memory capture and permits Bluetooth HFP input on iOS.
+
+`LocalDeviceAuthenticator` can present the operating system's device-owner authentication UI, but
+that local result does not complete a VoiceID `step_up`. A production passkey path still needs a
+server challenge and server-side assertion validation before a new grant can be issued.

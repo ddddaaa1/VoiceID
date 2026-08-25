@@ -93,6 +93,20 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
   Build a local-first mobile integration for Bluetooth microphones, device biometrics/passkeys,
   consent indicators, and action-policy callbacks.
 
+  - [x] **Step 14A — Policy-preserving Swift API client**
+    Model the server action catalog and decisions, use fresh secure nonces and Keychain credentials,
+    issue signed grants, and consume them once without converting `step_up` into permission.
+  - [x] **Step 14B — Bounded Bluetooth-capable capture boundary**
+    Add user-initiated in-memory AVAudioEngine capture, iOS Bluetooth HFP routing, mono 16 kHz PCM
+    output, and host-visible consent status callbacks.
+  - [x] **Step 14C — Stronger-authentication integration boundary**
+    Add LocalAuthentication and injectable passkey assertion protocols while documenting that local
+    success is not a server-verifiable grant.
+  - [ ] **Step 14D — Real companion app and verified step-up exchange**
+    Build and test an iOS host app, add passkey challenge/completion and attestation on the server,
+    integrate the ONNX runtime, and validate Bluetooth routes, interruptions, accessibility, and
+    lifecycle behavior on real devices.
+
 ## Current focus
 
 Step 7 is complete. The first measured LibriSpeech clean report freezes its non-audio artifacts, real ECAPA scores, held-out metrics, Wilson intervals, and limitations. Its small correlated cohort does not justify replacing the provisional application threshold.
@@ -127,3 +141,8 @@ this Mac. Noise proxies exposed substantial false-reject degradation. Step 13D a
 necessary for phone energy/performance, real wearable microphones, Bluetooth capture, and a real
 companion integration. VoiceID remains an experimental portfolio system, not a production
 biometric authenticator.
+
+Step 14A–14C add a Swift package prototype with a typed authorization client, one-time grant
+consumption, Keychain credential storage, bounded in-memory AVAudioEngine capture, consent events,
+Bluetooth HFP routing, and explicit LocalAuthentication/passkey boundaries. Step 14D remains open:
+the package has no real-device host app, server-verified passkey exchange, or on-device ONNX wiring.

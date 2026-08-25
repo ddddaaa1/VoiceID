@@ -63,6 +63,8 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Leakage-resistant scored-trial manifests with development-only minDCF threshold selection.
 - Hash-locked PCM WAVE trial manifests and a real preprocessing + ECAPA scoring runner.
 - Full-waveform FP32/INT8 ONNX export with hash-bound provenance and isolated ARM64 benchmarks.
+- Swift companion SDK prototype for bounded Bluetooth-capable capture, policy callbacks, Keychain
+  credentials, one-time grants, and explicit device-authentication/passkey boundaries.
 - Deterministic LibriSpeech clean-subset import with provenance, license, and archive checksums.
 - Published LibriSpeech clean evaluation with frozen scores and Wilson uncertainty intervals.
 - Versioned anti-spoofing score protocol with leakage checks, calibration, uncertainty, and attack-level reporting.
@@ -200,11 +202,14 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0014: Publish aggregate biometric evidence only](docs/decisions/0014-publish-aggregate-biometric-evidence.md)
 - [ADR 0015: Separate biometric evidence from action authorization](docs/decisions/0015-separate-biometric-and-action-policy.md)
 - [ADR 0016: Issue short-lived, device-bound, single-use grants](docs/decisions/0016-short-lived-single-use-grants.md)
+- [ADR 0018: Preserve server policy in the companion SDK](docs/decisions/0018-preserve-server-policy-in-companion-sdk.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the
 [ECAPA-TDNN](docs/models/ecapa-tdnn.md) and [AASIST](docs/models/aasist.md) model cards.
 The [edge inference profile](docs/edge-inference.md) documents the quantized ONNX candidate,
 measured ARM64 behavior, channel-proxy degradation, and remaining phone/wearable gates.
+The [VoiceIDKit prototype](sdk/swift/VoiceIDKit/README.md) documents the companion API, Bluetooth
+capture boundary, local device authentication, and remaining passkey/server work.
 
 ## Technical references
 

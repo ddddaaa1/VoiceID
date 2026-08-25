@@ -1,0 +1,71 @@
+import Foundation
+
+public enum AuthorizationResolution: Sendable, Equatable {
+  case granted(AuthorizationGrant)
+  case denied(ActionAuthorization)
+  case stepUpRequired(ActionAuthorization)
+}
+
+public enum AuthorizationEvent: Sendable, Equatable {
+  case captureStarted
+  case requestSubmitted(action: ProtectedAction)
+  case allowed(authorizationID: String)
+  case denied(authorizationID: String, reasons: [String])
+  case stepUpRequired(authorizationID: String, reasons: [String])
+}
+
+public typealias AuthorizationEventHandler = @Sendable (AuthorizationEvent) async -> Void
+
+public struct AuthorizationCoordinator: Sendable {
+  private let client: any VoiceIDGrantClient
+  private let onEvent: AuthorizationEventHandler
+
+  public init(
+    client: any VoiceIDGrantClient,
+    onEvent: @escaping AuthorizationEventHandler = { _ in }
+  ) {
+    self.client = client
+    self.onEvent = onEvent
+  }
+
+  public func authorize(
+    identityID: String,
+    action: ProtectedAction,
+    pcmWave: Data
+  ) async throws -> AuthorizationResolution {
+    await onEvent(.requestSubmitted(action: action))
+    let issue = try await client.issueGrant(
+      identityID: identityID,
+      action: action,
+      pcmWave: pcmWave
+    )
+    switch issue.authorization.decision {
+    case .allow:
+      guard let grant = issue.grant else {
+        throw VoiceIDClientError.malformedResponse
+      }
+      await onEvent(.allowed(authorizationID: issue.authorization.authorizationID))
+      return .granted(grant)
+    case .deny:
+      await onEvent(
+        .denied(
+          authorizationID: issue.authorization.authorizationID,
+          reasons: issue.authorization.reasons
+        )
+      )
+      return .denied(issue.authorization)
+    case .stepUp:
+      await onEvent(
+        .stepUpRequired(
+          authorizationID: issue.authorization.authorizationID,
+          reasons: issue.authorization.reasons
+        )
+      )
+      return .stepUpRequired(issue.authorization)
+    }
+  }
+
+  public func consume(_ grant: AuthorizationGrant) async throws -> ConsumedAuthorizationGrant {
+    try await client.consume(grant: grant)
+  }
+}

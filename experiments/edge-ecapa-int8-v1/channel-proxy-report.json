@@ -1,0 +1,96 @@
+{
+  "artifact_id": "ecapa-tdnn-onnx-int8-v1",
+  "conditions": {
+    "additive_noise_15db_proxy": {
+      "absolute_score_delta_from_clean": {
+        "maximum": 0.23964723320115028,
+        "mean": 0.07877205820876038,
+        "p95": 0.1794600210140826
+      },
+      "evaluation": {
+        "eer_increase_percentage_points": 3.3333333333333335,
+        "false_accept_rate_at_clean_threshold": 0.0,
+        "false_reject_rate_at_clean_threshold": 0.06666666666666667,
+        "genuine_trials": 30,
+        "impostor_trials": 30,
+        "observed_eer": 0.03333333333333333
+      },
+      "trials": 120
+    },
+    "bandlimited_noise_10db_proxy": {
+      "absolute_score_delta_from_clean": {
+        "maximum": 0.389207284669318,
+        "mean": 0.12380150234401739,
+        "p95": 0.28746904098175563
+      },
+      "evaluation": {
+        "eer_increase_percentage_points": 3.3333333333333335,
+        "false_accept_rate_at_clean_threshold": 0.0,
+        "false_reject_rate_at_clean_threshold": 0.4666666666666667,
+        "genuine_trials": 30,
+        "impostor_trials": 30,
+        "observed_eer": 0.03333333333333333
+      },
+      "trials": 120
+    },
+    "clean": {
+      "absolute_score_delta_from_clean": {
+        "maximum": 0.0,
+        "mean": 0.0,
+        "p95": 0.0
+      },
+      "evaluation": {
+        "eer_increase_percentage_points": 0.0,
+        "false_accept_rate_at_clean_threshold": 0.0,
+        "false_reject_rate_at_clean_threshold": 0.03333333333333333,
+        "genuine_trials": 30,
+        "impostor_trials": 30,
+        "observed_eer": 0.0
+      },
+      "trials": 120
+    },
+    "wearable_bandlimited_proxy": {
+      "absolute_score_delta_from_clean": {
+        "maximum": 0.04838785014811764,
+        "mean": 0.007152944426777111,
+        "p95": 0.02350763399270207
+      },
+      "evaluation": {
+        "eer_increase_percentage_points": 0.0,
+        "false_accept_rate_at_clean_threshold": 0.0,
+        "false_reject_rate_at_clean_threshold": 0.03333333333333333,
+        "genuine_trials": 30,
+        "impostor_trials": 30,
+        "observed_eer": 0.0
+      },
+      "trials": 120
+    }
+  },
+  "created_at": "2026-08-25T15:15:07Z",
+  "dataset": {
+    "id": "openslr-librispeech-clean-voiceid",
+    "manifest_sha256": "6e8d2da348e27376201ffb1be5f6b30e76d6d5fce8e19cfc089204988a7168d4",
+    "version": "voiceid-librispeech-clean-v2"
+  },
+  "limitations": [
+    "Band limiting and deterministic additive noise are software proxies, not recordings from AirPods, Ray-Ban Meta, or another wearable.",
+    "LibriSpeech read speech is not representative of spontaneous wearable commands.",
+    "The small correlated cohort cannot establish production biometric accuracy.",
+    "No replay, Bluetooth transport, wind, motion, packet-loss, or device-energy measurement is included."
+  ],
+  "protocol": {
+    "enrollment_channel": "clean",
+    "per_trial_scores_published": false,
+    "probe_channels": [
+      "clean",
+      "wearable_bandlimited_proxy",
+      "additive_noise_15db_proxy",
+      "bandlimited_noise_10db_proxy"
+    ],
+    "raw_audio_published": false,
+    "selected_threshold": 0.548500489331681,
+    "threshold_source": "clean_int8_development_min_dcf"
+  },
+  "schema_version": "voiceid-edge-channel-evaluation/v1",
+  "source_model_id": "speechbrain/spkrec-ecapa-voxceleb@0f99f2d0ebe89ac095bcc5903c4dd8f72b367286"
+}

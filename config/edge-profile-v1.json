@@ -1,0 +1,31 @@
+{
+  "budgets": {
+    "artifact_size_mib": 32.0,
+    "end_to_end_p95_ms": 250.0,
+    "energy_joules_per_verification": 1.0,
+    "model_core_p95_ms": 150.0,
+    "peak_working_set_mib": 256.0
+  },
+  "fidelity": {
+    "maximum_eer_increase_points": 1.0,
+    "minimum_embedding_cosine": 0.98,
+    "p95_absolute_score_delta": 0.02
+  },
+  "input": {
+    "sample_rate": 16000,
+    "window_seconds": 3.0
+  },
+  "measurement_policy": {
+    "hardware_specific": true,
+    "power_requires_device_tooling": true,
+    "simulated_channels_are_proxies": true
+  },
+  "profile_id": "voiceid-phone-arm-int8-v1",
+  "schema_version": "voiceid-edge-profile/v1",
+  "source_model_id": "speechbrain/spkrec-ecapa-voxceleb@0f99f2d0ebe89ac095bcc5903c4dd8f72b367286",
+  "target": {
+    "class": "phone-class-arm64-cpu",
+    "precision": "int8-qdq",
+    "runtime": "onnxruntime"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "all_locally_measurable_budgets_pass": true,
+  "artifact_id": "ecapa-tdnn-onnx-int8-v1",
+  "artifacts": {
+    "fp32_sha256": "b7feaf5af12d8b87177f35ecc83a97d1bf8607a514e3e9012b7021902c5a2d99",
+    "fp32_size_mib": 80.19241046905518,
+    "int8_sha256": "3c25dfe7a1d33806ec7ef1e86e0fcd2cd25ffc6aa5b3384ff0a554b341755ed2",
+    "int8_size_mib": 21.25355625152588,
+    "size_reduction_percent": 73.49679835384516
+  },
+  "budget_checks": {
+    "artifact_size": true,
+    "eer_increase": true,
+    "minimum_embedding_cosine": true,
+    "model_graph_p95_latency": true,
+    "p95_absolute_score_delta": true,
+    "peak_process_rss": true
+  },
+  "created_at": "2026-08-25T15:18:13Z",
+  "fidelity": {
+    "embedding_cosine": {
+      "mean": 0.9965184066848142,
+      "median": 0.9966032731248036,
+      "minimum": 0.9948635676413512
+    },
+    "observed_eer": {
+      "cohort_limitation": "small pairwise subset; not the frozen VoiceID calibration protocol",
+      "fp32": 0.0,
+      "increase_percentage_points": 0.0,
+      "int8": 0.0
+    },
+    "verification_score_delta": {
+      "maximum": 0.03172049243608295,
+      "mean": 0.007420121735388479,
+      "p95": 0.01630770294898802,
+      "pairs": 190
+    }
+  },
+  "host": {
+    "machine": "arm64",
+    "python": "3.14.5",
+    "release": "25.5.0",
+    "system": "Darwin"
+  },
+  "profile_id": "voiceid-phone-arm-int8-v1",
+  "runtime": {
+    "fp32": {
+      "latency_ms": {
+        "maximum": 29.889167053624988,
+        "mean": 28.507436584914103,
+        "p50": 28.50375004345551,
+        "p95": 28.99131074664183,
+        "runs": 40
+      },
+      "peak_process_rss_mib": 328.40625,
+      "provider": "CPUExecutionProvider",
+      "runtime": "1.29.0",
+      "session_load_ms": 23.235540953464806,
+      "threads": 1
+    },
+    "int8": {
+      "latency_ms": {
+        "maximum": 48.140791011974216,
+        "mean": 39.72600726992823,
+        "p50": 39.60208297939971,
+        "p95": 39.98404962476343,
+        "runs": 40
+      },
+      "peak_process_rss_mib": 251.984375,
+      "provider": "CPUExecutionProvider",
+      "runtime": "1.29.0",
+      "session_load_ms": 45.753959100693464,
+      "threads": 1
+    }
+  },
+  "schema_version": "voiceid-edge-benchmark/v1",
+  "scope": {
+    "audio_partition": "evaluation",
+    "audio_samples": 20,
+    "measured": "full ONNX graph on this host CPU",
+    "not_measured": [
+      "phone hardware",
+      "wearable microphone accuracy",
+      "device energy consumption",
+      "Bluetooth capture latency"
+    ],
+    "window_samples": 48000
+  }
+}

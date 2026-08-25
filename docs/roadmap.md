@@ -76,6 +76,19 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
   Establish phone and ARM latency/memory/power budgets, export a quantized speaker model, and
   evaluate accuracy degradation across wearable microphones and noisy conditions.
 
+  - [x] **Step 13A — Versioned full-waveform export**
+    Export hash-bound FP32 and static INT8 QDQ ONNX graphs containing the acoustic frontend and
+    ECAPA encoder; enforce PyTorch-to-ONNX fidelity before publishing provenance.
+  - [x] **Step 13B — Local ARM64 benchmark**
+    Measure artifact size, isolated single-thread graph latency, peak process RSS, embedding
+    fidelity, and verification-score drift on the available Darwin ARM64 host.
+  - [x] **Step 13C — Reproducible channel proxies**
+    Evaluate clean enrollment against band-limited and noisy probes while explicitly keeping
+    software transformations separate from wearable evidence.
+  - [ ] **Step 13D — Phone and wearable hardware evidence**
+    Measure latency, memory, energy, Bluetooth capture, and biometric degradation on phone-class
+    ARM hardware with consented recordings from target wearable microphones.
+
 - [ ] **Step 14 — Companion SDK prototype**
   Build a local-first mobile integration for Bluetooth microphones, device biometrics/passkeys,
   consent indicators, and action-policy callbacks.
@@ -105,6 +118,12 @@ authorization decision.
 Step 12 adds authenticated reference devices, canonical HMAC-signed 30-second grants, unique
 request nonces, device/action binding, atomic one-time consumption, hash-only token persistence,
 and chained audit evidence. Static device credentials are intentionally limited to the single-node
-reference deployment. Steps 13–14 remain necessary for edge inference and a real companion-device
-integration. VoiceID remains an experimental portfolio system, not a production biometric
-authenticator.
+reference deployment.
+
+Step 13A–13C add a full-waveform ONNX boundary, static INT8 QDQ export, hash-bound provenance,
+isolated ARM64 measurements, and aggregate channel-proxy evidence. The 21.25 MiB candidate reduced
+artifact size by about 73.5% and preserved high embedding fidelity, but it ran slower than FP32 on
+this Mac. Noise proxies exposed substantial false-reject degradation. Step 13D and Step 14 remain
+necessary for phone energy/performance, real wearable microphones, Bluetooth capture, and a real
+companion integration. VoiceID remains an experimental portfolio system, not a production
+biometric authenticator.

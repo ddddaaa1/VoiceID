@@ -62,6 +62,7 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Unit and contract tests covering audio capture encoding, the API, and biometric logic.
 - Leakage-resistant scored-trial manifests with development-only minDCF threshold selection.
 - Hash-locked PCM WAVE trial manifests and a real preprocessing + ECAPA scoring runner.
+- Full-waveform FP32/INT8 ONNX export with hash-bound provenance and isolated ARM64 benchmarks.
 - Deterministic LibriSpeech clean-subset import with provenance, license, and archive checksums.
 - Published LibriSpeech clean evaluation with frozen scores and Wilson uncertainty intervals.
 - Versioned anti-spoofing score protocol with leakage checks, calibration, uncertainty, and attack-level reporting.
@@ -184,6 +185,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 
 - [ADR 0001: Use a replaceable audio preprocessing pipeline](docs/decisions/0001-replaceable-audio-pipeline.md)
 - [ADR 0002: Start with a pretrained ECAPA-TDNN speaker encoder](docs/decisions/0002-pretrained-ecapa-speaker-encoder.md)
+- [ADR 0017: Export full-waveform ECAPA as static INT8 ONNX](docs/decisions/0017-export-full-waveform-ecapa-to-onnx.md)
 - [ADR 0003: Keep the initial verification policy explicitly provisional](docs/decisions/0003-provisional-verification-policy.md)
 - [ADR 0004: Expose a versioned HTTP boundary without coupling it to ML frameworks](docs/decisions/0004-versioned-http-api.md)
 - [ADR 0005: Serve a same-origin web client with client-side PCM capture](docs/decisions/0005-same-origin-web-client.md)
@@ -201,6 +203,8 @@ Important tradeoffs are recorded as Architecture Decision Records:
 
 Model behavior, provenance, intended use, and limitations are documented in the
 [ECAPA-TDNN](docs/models/ecapa-tdnn.md) and [AASIST](docs/models/aasist.md) model cards.
+The [edge inference profile](docs/edge-inference.md) documents the quantized ONNX candidate,
+measured ARM64 behavior, channel-proxy degradation, and remaining phone/wearable gates.
 
 ## Technical references
 

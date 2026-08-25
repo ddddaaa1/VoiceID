@@ -60,3 +60,13 @@ correlated cohort is insufficient for a production threshold.
 
 The runtime pins the Hugging Face revision and disables update checks. Templates created by older
 unversioned builds remain distinguishable from the pinned release and are not silently mixed.
+
+## Edge candidate
+
+Step 13 exports the complete acoustic frontend and encoder as FP32 and static INT8 QDQ ONNX graphs.
+The generated artifacts stay outside Git, while SHA-256 provenance, an isolated Darwin ARM64
+benchmark, and aggregate channel-proxy evidence are public. See the
+[edge inference profile](../edge-inference.md).
+
+This candidate does not change the active server adapter or threshold. It has not been measured on
+a phone, through Bluetooth capture, or with a target wearable microphone.

@@ -29,6 +29,11 @@ dev = [
     "httpx2>=2.10,<3",
     "ruff>=0.12,<1",
 ]
+edge = [
+    "onnx>=1.20,<2",
+    "onnxruntime>=1.23,<2",
+    "onnxscript>=0.5,<1",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

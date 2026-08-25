@@ -1,0 +1,59 @@
+{
+  "artifact_id": "ecapa-tdnn-onnx-int8-v1",
+  "artifacts": {
+    "fp32": {
+      "repository_committed": false,
+      "sha256": "b7feaf5af12d8b87177f35ecc83a97d1bf8607a514e3e9012b7021902c5a2d99",
+      "size_bytes": 84087837
+    },
+    "int8": {
+      "repository_committed": false,
+      "sha256": "3c25dfe7a1d33806ec7ef1e86e0fcd2cd25ffc6aa5b3384ff0a554b341755ed2",
+      "size_bytes": 22285969
+    }
+  },
+  "created_at": "2026-08-25T15:17:36Z",
+  "input": {
+    "dtype": "float32",
+    "max_samples": 240000,
+    "min_samples": 8000,
+    "name": "waveform",
+    "sample_rate": 16000,
+    "shape": [
+      "batch",
+      "samples"
+    ]
+  },
+  "output": {
+    "dtype": "float32",
+    "l2_normalized": true,
+    "name": "embedding",
+    "shape": [
+      "batch",
+      192
+    ]
+  },
+  "quantization": {
+    "activation_type": "uint8",
+    "calibration_items": 24,
+    "calibration_manifest_sha256": "b1d3a1778dfee5ecc3f953ca353f05ea87fbd37e73bc02848414bae6e7aed8b7",
+    "calibration_method": "minmax",
+    "format": "QDQ",
+    "operators": [
+      "Conv"
+    ],
+    "weight_type": "int8"
+  },
+  "schema_version": "voiceid-edge-artifact-provenance/v1",
+  "source_model_id": "speechbrain/spkrec-ecapa-voxceleb@0f99f2d0ebe89ac095bcc5903c4dd8f72b367286",
+  "toolchain": {
+    "onnx": "1.22.0",
+    "onnxruntime": "1.29.0",
+    "onnxscript": "0.7.1",
+    "opset": "18",
+    "pytorch_fp32_cosine": "1.000000000",
+    "pytorch_int8_cosine": "0.997222364",
+    "speechbrain": "1.1.0",
+    "torch": "2.11.0"
+  }
+}

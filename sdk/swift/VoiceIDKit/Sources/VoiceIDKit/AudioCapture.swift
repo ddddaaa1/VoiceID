@@ -57,7 +57,12 @@ public actor AVAudioEngineVoiceCommandCapture: VoiceCommandCapturing {
     }
     #if os(iOS)
       let session = AVAudioSession.sharedInstance()
-      try session.setCategory(.record, mode: .measurement, options: [.allowBluetoothHFP])
+      #if compiler(>=6.3)
+        let bluetoothInput: AVAudioSession.CategoryOptions = .allowBluetoothHFP
+      #else
+        let bluetoothInput: AVAudioSession.CategoryOptions = .allowBluetooth
+      #endif
+      try session.setCategory(.record, mode: .measurement, options: [bluetoothInput])
       try session.setActive(true)
       let routeName = session.currentRoute.inputs.first?.portName ?? "unknown-input"
     #else

@@ -44,6 +44,24 @@ jobs:
       - uses: actions/checkout@v5
       - run: swift test
 
+  ios-companion:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: Test companion authorization core
+        working-directory: apps/ios/VoiceIDCompanion/CompanionCore
+        run: swift test
+      - name: Build the SwiftUI app for iOS Simulator
+        run: >-
+          xcodebuild
+          -quiet
+          -project apps/ios/VoiceIDCompanion/VoiceIDCompanion.xcodeproj
+          -scheme VoiceIDCompanion
+          -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO
+          build
+
   container:
     if: github.event_name == 'push'
     needs: quality

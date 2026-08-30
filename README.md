@@ -65,6 +65,9 @@ Progress is tracked explicitly in the [delivery roadmap](docs/roadmap.md).
 - Full-waveform FP32/INT8 ONNX export with hash-bound provenance and isolated ARM64 benchmarks.
 - Swift companion SDK prototype for bounded Bluetooth-capable capture, policy callbacks, Keychain
   credentials, one-time grants, and explicit device-authentication/passkey boundaries.
+- SwiftUI iOS companion host with English customer-facing UI, Keychain provisioning, visible
+  capture state, real server-policy results, one-time grant consumption, and tested fail-closed
+  allow/deny/step-up orchestration.
 - Deterministic LibriSpeech clean-subset import with provenance, license, and archive checksums.
 - Published LibriSpeech clean evaluation with frozen scores and Wilson uncertainty intervals.
 - Versioned anti-spoofing score protocol with leakage checks, calibration, uncertainty, and attack-level reporting.
@@ -203,6 +206,7 @@ Important tradeoffs are recorded as Architecture Decision Records:
 - [ADR 0015: Separate biometric evidence from action authorization](docs/decisions/0015-separate-biometric-and-action-policy.md)
 - [ADR 0016: Issue short-lived, device-bound, single-use grants](docs/decisions/0016-short-lived-single-use-grants.md)
 - [ADR 0018: Preserve server policy in the companion SDK](docs/decisions/0018-preserve-server-policy-in-companion-sdk.md)
+- [ADR 0019: Layer the iOS companion app around a UI-independent workflow](docs/decisions/0019-layer-the-ios-companion-app.md)
 
 Model behavior, provenance, intended use, and limitations are documented in the
 [ECAPA-TDNN](docs/models/ecapa-tdnn.md) and [AASIST](docs/models/aasist.md) model cards.
@@ -210,6 +214,8 @@ The [edge inference profile](docs/edge-inference.md) documents the quantized ONN
 measured ARM64 behavior, channel-proxy degradation, and remaining phone/wearable gates.
 The [VoiceIDKit prototype](sdk/swift/VoiceIDKit/README.md) documents the companion API, Bluetooth
 capture boundary, local device authentication, and remaining passkey/server work.
+The [iOS companion guide](apps/ios/VoiceIDCompanion/README.md) explains the Xcode project, layered
+Swift architecture, simulator workflow, credential handling, and real-device limitations.
 
 ## Technical references
 

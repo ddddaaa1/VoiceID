@@ -73,7 +73,8 @@ boundary for that future exchange; VoiceID does not yet expose the challenge/com
 ## Consume once
 
 ```swift
-if case let .granted(grant) = resolution {
+if case let .granted(authorization, grant) = resolution {
+    print(authorization.verification.speakerScore as Any)
     let consumed = try await coordinator.consume(grant)
     try await protectedService.perform(consumed.action)
 }

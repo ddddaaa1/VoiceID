@@ -43,6 +43,36 @@ public struct VerificationEvidence: Codable, Equatable, Sendable {
   public let spoofProbability: Double?
   public let reasons: [String]
 
+  public init(
+    attemptID: String,
+    createdAt: String,
+    identityID: String,
+    templateID: String,
+    templateVersion: Int,
+    modelID: String,
+    spoofModelID: String?,
+    pipelineID: String,
+    policyID: String,
+    decision: VerificationDecision,
+    speakerScore: Double?,
+    spoofProbability: Double?,
+    reasons: [String]
+  ) {
+    self.attemptID = attemptID
+    self.createdAt = createdAt
+    self.identityID = identityID
+    self.templateID = templateID
+    self.templateVersion = templateVersion
+    self.modelID = modelID
+    self.spoofModelID = spoofModelID
+    self.pipelineID = pipelineID
+    self.policyID = policyID
+    self.decision = decision
+    self.speakerScore = speakerScore
+    self.spoofProbability = spoofProbability
+    self.reasons = reasons
+  }
+
   enum CodingKeys: String, CodingKey {
     case attemptID = "attempt_id"
     case createdAt = "created_at"
@@ -71,6 +101,28 @@ public struct ActionAuthorization: Codable, Equatable, Sendable {
   public let reasons: [String]
   public let verification: VerificationEvidence
 
+  public init(
+    authorizationID: String,
+    createdAt: String,
+    identityID: String,
+    action: ProtectedAction,
+    risk: ActionRisk,
+    decision: AuthorizationDecision,
+    authorizationPolicyID: String,
+    reasons: [String],
+    verification: VerificationEvidence
+  ) {
+    self.authorizationID = authorizationID
+    self.createdAt = createdAt
+    self.identityID = identityID
+    self.action = action
+    self.risk = risk
+    self.decision = decision
+    self.authorizationPolicyID = authorizationPolicyID
+    self.reasons = reasons
+    self.verification = verification
+  }
+
   enum CodingKeys: String, CodingKey {
     case authorizationID = "authorization_id"
     case createdAt = "created_at"
@@ -94,6 +146,26 @@ public struct AuthorizationGrant: Codable, Equatable, Sendable {
   public let expiresAt: String
   public let token: String
 
+  public init(
+    grantID: String,
+    authorizationID: String,
+    identityID: String,
+    deviceID: String,
+    action: ProtectedAction,
+    issuedAt: String,
+    expiresAt: String,
+    token: String
+  ) {
+    self.grantID = grantID
+    self.authorizationID = authorizationID
+    self.identityID = identityID
+    self.deviceID = deviceID
+    self.action = action
+    self.issuedAt = issuedAt
+    self.expiresAt = expiresAt
+    self.token = token
+  }
+
   enum CodingKeys: String, CodingKey {
     case grantID = "grant_id"
     case authorizationID = "authorization_id"
@@ -109,6 +181,11 @@ public struct AuthorizationGrant: Codable, Equatable, Sendable {
 public struct AuthorizationGrantIssue: Codable, Equatable, Sendable {
   public let authorization: ActionAuthorization
   public let grant: AuthorizationGrant?
+
+  public init(authorization: ActionAuthorization, grant: AuthorizationGrant?) {
+    self.authorization = authorization
+    self.grant = grant
+  }
 }
 
 public struct ConsumedAuthorizationGrant: Codable, Equatable, Sendable {
@@ -118,6 +195,22 @@ public struct ConsumedAuthorizationGrant: Codable, Equatable, Sendable {
   public let deviceID: String
   public let action: ProtectedAction
   public let consumedAt: String
+
+  public init(
+    grantID: String,
+    authorizationID: String,
+    identityID: String,
+    deviceID: String,
+    action: ProtectedAction,
+    consumedAt: String
+  ) {
+    self.grantID = grantID
+    self.authorizationID = authorizationID
+    self.identityID = identityID
+    self.deviceID = deviceID
+    self.action = action
+    self.consumedAt = consumedAt
+  }
 
   enum CodingKeys: String, CodingKey {
     case grantID = "grant_id"

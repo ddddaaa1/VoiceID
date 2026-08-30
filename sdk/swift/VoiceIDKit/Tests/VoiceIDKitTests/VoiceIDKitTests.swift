@@ -23,9 +23,10 @@ final class VoiceIDKitTests: XCTestCase {
       action: .playMedia,
       pcmWave: Data("wave".utf8)
     )
-    guard case .granted(let grant) = allowed else {
+    guard case .granted(let authorization, let grant) = allowed else {
       return XCTFail("allow must return the server grant")
     }
+    XCTAssertEqual(authorization.verification.speakerScore, 0.9)
     XCTAssertEqual(grant.action, .playMedia)
 
     let deniedIssue = try Self.issue(decision: .deny, includeGrant: false)
@@ -80,6 +81,26 @@ final class VoiceIDKitTests: XCTestCase {
         pcmWave: Data()
       )
       XCTFail("grant bindings must match the authorization")
+    } catch let error as VoiceIDClientError {
+      XCTAssertEqual(error, .malformedResponse)
+    }
+  }
+
+  func testCoordinatorRejectsConsumptionWithDifferentBinding() async throws {
+    let issue = try Self.issue(decision: .allow, includeGrant: true)
+    let client = MismatchedConsumptionClient(issue: issue)
+    let coordinator = AuthorizationCoordinator(client: client)
+    let resolution = try await coordinator.authorize(
+      identityID: "demo-user",
+      action: .playMedia,
+      pcmWave: Data("wave".utf8)
+    )
+    guard case .granted(_, let grant) = resolution else {
+      return XCTFail("fixture must produce a grant")
+    }
+    do {
+      _ = try await coordinator.consume(grant)
+      XCTFail("a mismatched consumption response must fail closed")
     } catch let error as VoiceIDClientError {
       XCTAssertEqual(error, .malformedResponse)
     }
@@ -257,6 +278,29 @@ private struct StubClient: VoiceIDGrantClient {
       authorizationID: grant.authorizationID,
       identityID: grant.identityID,
       deviceID: grant.deviceID,
+      action: grant.action,
+      consumedAt: "2026-08-25T12:00:01Z"
+    )
+  }
+}
+
+private struct MismatchedConsumptionClient: VoiceIDGrantClient {
+  let issue: AuthorizationGrantIssue
+
+  func issueGrant(
+    identityID: String,
+    action: ProtectedAction,
+    pcmWave: Data
+  ) async throws -> AuthorizationGrantIssue {
+    issue
+  }
+
+  func consume(grant: AuthorizationGrant) async throws -> ConsumedAuthorizationGrant {
+    ConsumedAuthorizationGrant(
+      grantID: grant.grantID,
+      authorizationID: grant.authorizationID,
+      identityID: grant.identityID,
+      deviceID: "different-device",
       action: grant.action,
       consumedAt: "2026-08-25T12:00:01Z"
     )

@@ -106,6 +106,10 @@ This roadmap describes the order in which VoiceID becomes a measurable speaker-v
     Build and test an iOS host app, add passkey challenge/completion and attestation on the server,
     integrate the ONNX runtime, and validate Bluetooth routes, interruptions, accessibility, and
     lifecycle behavior on real devices.
+    - [x] Build a SwiftUI host with Keychain provisioning, visible bounded capture, server-policy
+      presentation, one-time grant consumption, and UI-independent workflow tests.
+    - [ ] Add and threat-model a server-verifiable passkey challenge/completion exchange.
+    - [ ] Integrate the INT8 ONNX candidate and measure real phone/wearable behavior.
 
 ## Current focus
 
@@ -144,5 +148,7 @@ biometric authenticator.
 
 Step 14A–14C add a Swift package prototype with a typed authorization client, one-time grant
 consumption, Keychain credential storage, bounded in-memory AVAudioEngine capture, consent events,
-Bluetooth HFP routing, and explicit LocalAuthentication/passkey boundaries. Step 14D remains open:
-the package has no real-device host app, server-verified passkey exchange, or on-device ONNX wiring.
+Bluetooth HFP routing, and explicit LocalAuthentication/passkey boundaries. Step 14D now has an
+English SwiftUI host and a separately tested fail-closed workflow. It remains open until the server
+verifies passkey assertions, ONNX inference runs on-device, and phone/wearable hardware evidence
+covers routes, interruptions, lifecycle, accessibility, performance, energy, and accuracy.

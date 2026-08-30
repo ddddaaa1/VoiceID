@@ -1,7 +1,7 @@
 import Foundation
 
 public enum AuthorizationResolution: Sendable, Equatable {
-  case granted(AuthorizationGrant)
+  case granted(authorization: ActionAuthorization, grant: AuthorizationGrant)
   case denied(ActionAuthorization)
   case stepUpRequired(ActionAuthorization)
 }
@@ -50,7 +50,7 @@ public struct AuthorizationCoordinator: Sendable {
         throw VoiceIDClientError.malformedResponse
       }
       await onEvent(.allowed(authorizationID: issue.authorization.authorizationID))
-      return .granted(grant)
+      return .granted(authorization: issue.authorization, grant: grant)
     case .deny:
       await onEvent(
         .denied(
@@ -71,6 +71,16 @@ public struct AuthorizationCoordinator: Sendable {
   }
 
   public func consume(_ grant: AuthorizationGrant) async throws -> ConsumedAuthorizationGrant {
-    try await client.consume(grant: grant)
+    let consumed = try await client.consume(grant: grant)
+    guard
+      consumed.grantID == grant.grantID,
+      consumed.authorizationID == grant.authorizationID,
+      consumed.identityID == grant.identityID,
+      consumed.deviceID == grant.deviceID,
+      consumed.action == grant.action
+    else {
+      throw VoiceIDClientError.malformedResponse
+    }
+    return consumed
   }
 }

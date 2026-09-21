@@ -20,7 +20,7 @@ ml = [
 api = [
     "fastapi>=0.141,<0.142",
     "python-multipart>=0.0.32,<0.1",
-    "uvicorn>=0.52,<0.53",
+    "uvicorn>=0.52,<0.54",
 ]
 persistence = [
     "cryptography>=50,<51",

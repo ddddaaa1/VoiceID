@@ -18,7 +18,7 @@ ml = [
     "torchaudio>=2.11,<2.12",
 ]
 api = [
-    "fastapi>=0.141,<0.142",
+    "fastapi>=0.141,<0.163",
     "python-multipart>=0.0.32,<0.1",
     "uvicorn>=0.52,<0.53",
 ]
